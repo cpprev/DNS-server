@@ -3,7 +3,7 @@
 
 typedef struct
 {
-    int tmp;
+    char *tmp;
 } zone;
 
 #endif

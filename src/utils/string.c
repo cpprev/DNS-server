@@ -4,42 +4,43 @@
 
 #include "utils/string.h"
 
-#define ADD_CAP 16
+#define STR_CAP_ADD 16
 
-string string_init (void)
+string *string_init (void)
 {
-    string s;
-    s.capacity = ADD_CAP;
-    s.size = 0;
-    s.arr = malloc((s.capacity + 1) * sizeof(char));
-    strcpy(s.arr, "\0");
+    string *s = malloc(sizeof(string));
+    s->capacity = STR_CAP_ADD;
+    s->size = 0;
+    s->arr = malloc((s->capacity + 1) * sizeof(char));
+    strcpy(s->arr, "\0");
     return s;
 }
 
-string string_resize (string s)
+void string_free (string *s)
 {
-    s.capacity += ADD_CAP;
-    s.arr = realloc(s.arr, (s.capacity + 1) * sizeof(char));
-    return s;
+    if (s->arr != NULL)
+        free(s->arr);
+    free(s);
 }
 
-string string_add_char (string s, char c)
+
+void string_resize (string *s)
 {
-    if (s.size >= s.capacity)
-    {
-        s = string_resize(s);
-    }
-    s.arr[s.size] = c;
-    s.size++;
-    s.arr[s.size] = '\0';
-    return s;
+    s->capacity += STR_CAP_ADD;
+    s->arr = realloc(s->arr, (s->capacity + 1) * sizeof(char));
 }
 
-string string_add_str (string s, char *s2)
+void string_add_char (string *s, char c)
+{
+    if (s->size + 1 >= s->capacity)
+        string_resize(s);
+    s->arr[s->size] = c;
+    s->size++;
+    s->arr[s->size] = '\0';
+}
+
+void string_add_str (string *s, char *s2)
 {
     for (size_t i = 0; s2[i]; ++i)
-    {
-        s = string_add_char(s, s2[i]);
-    }
-    return s;
+        string_add_char(s, s2[i]);
 }

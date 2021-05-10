@@ -11,32 +11,39 @@ typedef struct
 } string;
 
 /**
-** \brief                           Initializes a vector
-** \return                          vector initialized
+** \brief                           Initializes a string
+** \return                          String initialized
 */
-string string_init (void);
+string *string_init (void);
 
 /**
-** \brief                           Resizes a struct vect's arr argument
-** \param s                         The vect to alter
-** \return                          The modified string
+** \brief                           Frees the memory inside a string
+** \param s                         The string to free
+** \return                          void
 */
-string string_resize (string s);
+void string_free (string *s);
 
 /**
-** \brief                           Adds a char to a vector
-** \param s                         The vector to alter
-** \param c                         The character to add to the vector
+** \brief                           Resizes a string's arr argument
+** \param s                         The string to alter
 ** \return                          The modified string
 */
-string string_add_char(string s, char c);
+void string_resize (string *s);
 
 /**
-** \brief                           Adds a string to a vector
-** \param s                         The vector to alter
-** \param s2                        The string to add to the vector
+** \brief                           Adds a char to a string
+** \param s                         The string to alter
+** \param c                         The character to add to the string
 ** \return                          The modified string
 */
-string string_add_str (string s, char *s2);
+void string_add_char(string *s, char c);
+
+/**
+** \brief                           Adds another string to a string object
+** \param s                         The string to alter
+** \param s2                        The string to add to the main string
+** \return                          The modified string
+*/
+void string_add_str (string *s, char *s2);
 
 #endif
