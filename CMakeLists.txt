@@ -12,6 +12,8 @@ set(SRC
     # Utils
     src/utils/string.c
     src/utils/error.c
+    src/utils/file.c
+    src/utils/json.c
 )
 
 set(CHECK_CFLAGS -fsanitize=address)

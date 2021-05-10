@@ -3,6 +3,6 @@
 
 #include <stdbool.h>
 
-int exit_if_true(bool condition, char *error_message);
+void exit_if_true(bool condition, const char *error_message);
 
 #endif
