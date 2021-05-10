@@ -1,0 +1,9 @@
+{
+    "ip": "127.0.0.1",
+    "port": 5353,
+    "zones":
+    [
+        "input/zones/abc.zone",
+        "input/zones/abd.zone"
+    ]
+}

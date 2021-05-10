@@ -5,8 +5,16 @@ project(dns VERSION 1.0 LANGUAGES C)
 include_directories(src)
 
 set(SRC
+    # Config
+    src/config/server_config.c
+    src/config/zone_array.c
 
+    # Utils
+    src/utils/string.c
+    src/utils/error.c
 )
+
+set(CHECK_CFLAGS -fsanitize=address)
 
 add_compile_options(-Wall -Wextra -Werror -pedantic -std=c99)
 
