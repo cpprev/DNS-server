@@ -6,44 +6,40 @@
 
 #define ADD_CAP 16
 
-string *string_init (void)
+string string_init (void)
 {
-    string *s = malloc(sizeof(string));
-    s->capacity = ADD_CAP;
-    s->size = 0;
-    s->arr = malloc((s->capacity + 1) * sizeof(char));
-    strcpy(s->arr, "\0");
+    string s;
+    s.capacity = ADD_CAP;
+    s.size = 0;
+    s.arr = malloc((s.capacity + 1) * sizeof(char));
+    strcpy(s.arr, "\0");
     return s;
 }
 
-void string_free (string *s)
+string string_resize (string s)
 {
-    if (s->arr != NULL)
-        free(s->arr);
-    free(s);
+    s.capacity += ADD_CAP;
+    s.arr = realloc(s.arr, (s.capacity + 1) * sizeof(char));
+    return s;
 }
 
-void string_resize (string *s)
+string string_add_char (string s, char c)
 {
-    s->capacity += ADD_CAP;
-    s->arr = realloc(s->arr, (s->capacity + 1) * sizeof(char));
-}
-
-void string_add_char (string *s, char c)
-{
-    if (s->size >= s->capacity)
+    if (s.size >= s.capacity)
     {
-        string_resize(s);
+        s = string_resize(s);
     }
-    s->arr[s->size] = c;
-    s->size++;
-    s->arr[s->size] = '\0';
+    s.arr[s.size] = c;
+    s.size++;
+    s.arr[s.size] = '\0';
+    return s;
 }
 
-void string_add_str (string *s, char *s2)
+string string_add_str (string s, char *s2)
 {
     for (size_t i = 0; s2[i]; ++i)
     {
-        string_add_char(s, s2[i]);
+        s = string_add_char(s, s2[i]);
     }
+    return s;
 }
