@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "utils/string.h"
+#include "config/server_config.h"
 #include "config/zone_array.h"
 #include "config/zone.h"
 
@@ -17,13 +18,6 @@ int main(int argc, char *argv[])
 
     string_add_str(s, "abczejiguizguhzjeuiehizuhizeuhriuezhriuezhruizehrizuehrzieurh");
 
-    for (size_t i = 0; i < s->size; ++i)
-    {
-        printf("%c", s->arr[i]);
-    }
-    printf("\n");
-
-
 
     zone_array *z_arr = zone_array_init();
 
@@ -38,10 +32,18 @@ int main(int argc, char *argv[])
     zone_array_add_zone(z_arr, z2);
     zone_array_add_zone(z_arr, z3);
 
-    for (size_t i = 0; i < z_arr->size; ++i)
+
+    server_config *cfg = server_config_init(s, 10, z_arr);
+    for (size_t i = 0; i < cfg->ip->size; ++i)
     {
-        puts(z_arr->zones[i]->tmp);
+        printf("%c", cfg->ip->arr[i]);
     }
+    printf("\n");
+    for (size_t i = 0; i < cfg->zones->size; ++i)
+    {
+        puts(cfg->zones->arr[i]->tmp);
+    }
+
 
     // Parse input file
     return 0;

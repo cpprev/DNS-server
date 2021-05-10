@@ -9,7 +9,7 @@ typedef struct
 {
     size_t size;
     size_t capacity;
-    zone **zones;
+    zone **arr;
 } zone_array;
 
 /**

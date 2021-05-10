@@ -6,9 +6,11 @@
 
 typedef struct
 {
-    string ip;
+    string *ip;
     int port;
-    zone_array zones;
+    zone_array *zones;
 } server_config;
+
+server_config *server_config_init(string *ip, int port, zone_array *z_arr);
 
 #endif
