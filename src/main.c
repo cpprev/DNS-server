@@ -17,9 +17,10 @@ int main(int argc, char *argv[])
     exit_if_true(!is_file(input_path), "[Runtime error] Input file cannot be found.");
     exit_if_true(!is_json_valid(input_path), "[Runtime error] Input file is not in valid JSON format.");
 
+    //////////
+
     string *s = string_init();
     string_add_char(s, 'c');
-
     string_add_str(s, "abc");
     string_add_str(s, "abczejiguizguhzjeuiehizuhizeuhriuezhriuezhruizehrizuehrzieurh");
 
@@ -49,7 +50,10 @@ int main(int argc, char *argv[])
         puts(cfg->zones->arr[i]->tmp);
     }
 
+    //////////
 
-    // Parse input file
+    // Free memory
+    server_config_free(cfg);
+
     return 0;
 }

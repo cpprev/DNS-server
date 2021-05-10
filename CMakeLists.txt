@@ -18,6 +18,8 @@ set(SRC
 
 set(CHECK_CFLAGS -fsanitize=address)
 
-add_compile_options(-Wall -Wextra -Werror -pedantic -std=c99)
+add_compile_options(${CHECK_CFLAGS} -Wall -Wextra -Werror -pedantic -std=c99)
 
 add_executable(dns src/main.c ${SRC})
+
+target_link_libraries(dns asan)
