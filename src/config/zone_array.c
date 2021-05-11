@@ -17,6 +17,8 @@ zone_array *zone_array_init (void)
 
 void zone_array_free (zone_array *z_arr)
 {
+    if (z_arr == NULL)
+        return;
     if (z_arr->arr != NULL)
     {
         for (int i = 0; z_arr->arr[i]; ++i)

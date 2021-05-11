@@ -3,7 +3,7 @@
     "port": 5353,
     "zones":
     [
-        "input/zones/abc.zone",
-        "input/zones/abd.zone"
+        "../input/zones/abc.zone",
+        "../input/zones/abd.zone"
     ]
 }

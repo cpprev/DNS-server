@@ -23,6 +23,14 @@ void string_free (string *s)
     free(s);
 }
 
+void string_flush (string *s)
+{
+    free(s->arr);
+    s->size = 0;
+    s->capacity = STR_CAP_ADD;
+    s->arr = malloc((s->capacity + 1) * sizeof(char));
+    strcpy(s->arr, "\0");
+}
 
 void string_resize (string *s)
 {
@@ -43,4 +51,25 @@ void string_add_str (string *s, char *s2)
 {
     for (size_t i = 0; s2[i]; ++i)
         string_add_char(s, s2[i]);
+}
+
+bool string_is_empty(string *s)
+{
+    return s->size == 0;
+}
+
+void string_print(string *s)
+{
+    for (size_t i = 0; i < s->size; ++i)
+    {
+        printf("%c", s->arr[i]);
+    }
+    printf("\n");
+}
+
+string *string_copy(string *s)
+{
+    string *n = string_init();
+    string_add_str(n, s->arr);
+    return n;
 }

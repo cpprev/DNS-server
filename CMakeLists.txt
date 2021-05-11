@@ -8,6 +8,7 @@ set(SRC
     # Config
     src/config/server_config.c
     src/config/zone_array.c
+    src/config/zone.c
 
     # Utils
     src/utils/string.c
@@ -16,7 +17,7 @@ set(SRC
     src/utils/json.c
 )
 
-set(CHECK_CFLAGS -fsanitize=address)
+set(CHECK_CFLAGS -fsanitize=address -g)
 
 add_compile_options(${CHECK_CFLAGS} -Wall -Wextra -Werror -pedantic -std=c99)
 

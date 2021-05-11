@@ -3,6 +3,11 @@
 
 #include <stdbool.h>
 
-bool is_json_valid(const char* path);
+#include "config/server_config.h"
+#include "config/zone_array.h"
+
+server_config *parse_server_config(const char* path);
+
+zone_array *parse_zones(string *s);
 
 #endif

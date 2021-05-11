@@ -2,6 +2,7 @@
 #define STRING_H
 
 #include <stdio.h>
+#include <stdbool.h>
 
 typedef struct
 {
@@ -22,6 +23,9 @@ string *string_init (void);
 ** \return                          void
 */
 void string_free (string *s);
+
+// TODO Comment
+void string_flush (string *s);
 
 /**
 ** \brief                           Resizes a string's arr argument
@@ -45,5 +49,14 @@ void string_add_char(string *s, char c);
 ** \return                          The modified string
 */
 void string_add_str (string *s, char *s2);
+
+// TODO comment
+bool string_is_empty(string *s);
+
+// TODO comment
+void string_print(string *s);
+
+// TODO Comment
+string *string_copy(string *s);
 
 #endif
