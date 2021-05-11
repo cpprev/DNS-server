@@ -14,6 +14,7 @@ set(SRC
 
     # Parsing
     src/parsing/input.c
+    src/parsing/request.c
 
     # Server
     src/server/listen.c
