@@ -5,3 +5,7 @@ port = 5353
 [zone]
 name = abc
 path = ../input/zones/abc.zone
+
+[zone]
+name = abcd
+path = ../input/zones/abcd.zone

@@ -82,6 +82,7 @@ void server_config_set_attribute(server_config **server_cfg, string *line, INPUT
         {
             string *path = get_config_value(line);
             string_copy(&(*server_cfg)->zones->arr[zone_ind]->path, path);
+            parse_zone((*server_cfg)->zones->arr[zone_ind]);
         }
     }
 }

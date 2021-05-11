@@ -13,6 +13,6 @@ zone *zone_init();
 
 void zone_free(zone *z);
 
-zone *parse_zone(const char *path);
+void parse_zone(zone *zone);
 
 #endif

@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
     server_config *server_cfg = parse_server_config(input_path);
     exit_if_true(server_cfg == NULL, "[Runtime error] Input file is not in valid format.");
 
-    puts("");
+    // TODO Delete
     string_print(server_cfg->ip);
     printf("%d\n", server_cfg->port);
     if (server_cfg->zones != NULL)

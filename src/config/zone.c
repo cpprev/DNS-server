@@ -27,18 +27,17 @@ void zone_free(zone *z)
     free(z);
 }
 
-zone *parse_zone(const char *path)
+void parse_zone(zone *z)
 {
-    if (!is_file(path))
-        return NULL;
-    string *zone_contents = read_file(path);
+    if (!is_file(z->path->arr))
+        return;
+    string *zone_contents = read_file(z->path->arr);
     if (string_is_empty(zone_contents))
     {
         string_free(zone_contents);
-        return NULL;
+        return;
     }
-    zone *z = zone_init();
     // TODO Parse zone file
     string_free(zone_contents);
-    return z;
+    string_add_str(z->name, "TEST");
 }
