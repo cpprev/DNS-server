@@ -3,7 +3,7 @@
 
 #include "config/zone_array.h"
 
-#define Z_ARR_CAP_ADD 16
+#define Z_ARR_CAP_ADD 8
 
 zone_array *zone_array_init (void)
 {
@@ -21,8 +21,8 @@ void zone_array_free (zone_array *z_arr)
         return;
     if (z_arr->arr != NULL)
     {
-        for (int i = 0; z_arr->arr[i]; ++i)
-            free(z_arr->arr[i]);
+        for (size_t i = 0; i < z_arr->size; ++i)
+            zone_free(z_arr->arr[i]);
         free(z_arr->arr);
     }
     free(z_arr);

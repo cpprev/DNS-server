@@ -7,8 +7,6 @@
 
 bool is_file(const char* path);
 
-string *read_zone_file(const char* path);
-
-string *read_json_file(const char* path);
+string *read_file(const char* path);
 
 #endif

@@ -10,11 +10,13 @@ set(SRC
     src/config/zone_array.c
     src/config/zone.c
 
+    # Parsing
+    src/parsing/input.c
+
     # Utils
     src/utils/string.c
     src/utils/error.c
     src/utils/file.c
-    src/utils/json.c
 )
 
 set(CHECK_CFLAGS -fsanitize=address -g)

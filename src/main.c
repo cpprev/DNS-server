@@ -4,7 +4,8 @@
 #include "utils/error.h"
 #include "utils/string.h"
 #include "utils/file.h"
-#include "utils/json.h"
+
+#include "parsing/input.h"
 
 #include "config/server_config.h"
 #include "config/zone_array.h"
@@ -16,10 +17,19 @@ int main(int argc, char *argv[])
     char *input_path = argv[1];
     exit_if_true(!is_file(input_path), "[Runtime error] Input file cannot be found.");
 
-    // TODO Check if JSON valid before parsing (to make it clearer)
-
     server_config *server_cfg = parse_server_config(input_path);
-    exit_if_true(server_cfg == NULL, "[Runtime error] Input file is not in valid JSON format.");
+    exit_if_true(server_cfg == NULL, "[Runtime error] Input file is not in valid format.");
+
+    puts("");
+    string_print(server_cfg->ip);
+    printf("%d\n", server_cfg->port);
+    if (server_cfg->zones != NULL)
+    {
+        for (int i = 0; server_cfg->zones->arr[i]; ++i)
+        {
+            string_print(server_cfg->zones->arr[i]->name);
+        }
+    }
 
     // Free memory
     server_config_free(server_cfg);
