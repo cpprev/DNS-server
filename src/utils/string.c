@@ -55,7 +55,7 @@ void string_add_str (string *s, char *s2)
 
 bool string_is_empty(string *s)
 {
-    return s->size == 0;
+    return s == NULL || s->size == 0;
 }
 
 void string_print(string *s)
@@ -71,5 +71,4 @@ void string_copy(string **dst, string *src)
         *dst = string_init();
     string_flush(*dst);
     string_add_str(*dst, src->arr);
-    string_free(src);
 }

@@ -27,7 +27,15 @@ int main(int argc, char *argv[])
     {
         for (int i = 0; server_cfg->zones->arr[i]; ++i)
         {
-            string_print(server_cfg->zones->arr[i]->name);
+            //string_print(server_cfg->zones->arr[i]->name);
+            for(int j = 0; server_cfg->zones->arr[i]->records->arr[j]; ++j)
+            {
+                record *r = server_cfg->zones->arr[i]->records->arr[j];
+                printf("%s\t", r->domain->arr);
+                print_record_type(r);
+                printf("\t%d\t%s\n", r->ttl, r->value->arr);
+                puts("");
+            }
         }
     }
 
