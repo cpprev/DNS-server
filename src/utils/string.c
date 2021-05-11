@@ -65,9 +65,11 @@ void string_print(string *s)
     printf("\n");
 }
 
-string *string_copy(string *s)
+void string_copy(string **dst, string *src)
 {
-    string *n = string_init();
-    string_add_str(n, s->arr);
-    return n;
+    if (*dst == NULL)
+        *dst = string_init();
+    string_flush(*dst);
+    string_add_str(*dst, src->arr);
+    string_free(src);
 }

@@ -57,6 +57,6 @@ bool string_is_empty(string *s);
 void string_print(string *s);
 
 // TODO Comment
-string *string_copy(string *s);
+void string_copy(string **dst, string *src);
 
 #endif

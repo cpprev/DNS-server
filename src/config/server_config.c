@@ -54,8 +54,7 @@ void server_config_set_attribute(server_config **server_cfg, string *line, INPUT
         if (fnmatch("*ip*=*", line->arr, 0) == 0)
         {
             string *ip = get_config_value(line);
-            (*server_cfg)->ip = string_copy(ip);
-            string_free(ip);
+            string_copy(&(*server_cfg)->ip, ip);
         }
         else if (fnmatch("*port*=*", line->arr, 0) == 0)
         {
@@ -77,14 +76,12 @@ void server_config_set_attribute(server_config **server_cfg, string *line, INPUT
         if (fnmatch("*name*=*", line->arr, 0) == 0)
         {
             string *name = get_config_value(line);
-            (*server_cfg)->zones->arr[zone_ind]->name = string_copy(name);
-            string_free(name);
+            string_copy(&(*server_cfg)->zones->arr[zone_ind]->name, name);
         }
         else if (fnmatch("*path*=*", line->arr, 0) == 0)
         {
             string *path = get_config_value(line);
-            (*server_cfg)->zones->arr[zone_ind]->path = string_copy(path);
-            string_free(path);
+            string_copy(&(*server_cfg)->zones->arr[zone_ind]->path, path);
         }
     }
 }
