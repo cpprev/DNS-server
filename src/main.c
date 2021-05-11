@@ -11,6 +11,8 @@
 #include "config/zone_array.h"
 #include "config/zone.h"
 
+#include "server/listen.h"
+
 int main(int argc, char *argv[])
 {
     exit_if_true(argc != 2, "[Usage] ./dns [Input file]");
@@ -27,19 +29,19 @@ int main(int argc, char *argv[])
     {
         for (int i = 0; server_cfg->zones->arr[i]; ++i)
         {
-            //string_print(server_cfg->zones->arr[i]->name);
             for(int j = 0; server_cfg->zones->arr[i]->records->arr[j]; ++j)
             {
                 record *r = server_cfg->zones->arr[i]->records->arr[j];
                 printf("%s\t", r->domain->arr);
                 print_record_type(r);
                 printf("\t%d\t%s\n", r->ttl, r->value->arr);
-                puts("");
             }
+            puts("-------------------------------------");
         }
     }
 
-    // Free memory
+    server_listen(server_cfg);
+
     server_config_free(server_cfg);
 
     return 0;

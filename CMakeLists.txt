@@ -15,6 +15,9 @@ set(SRC
     # Parsing
     src/parsing/input.c
 
+    # Server
+    src/server/listen.c
+
     # Utils
     src/utils/string.c
     src/utils/error.c

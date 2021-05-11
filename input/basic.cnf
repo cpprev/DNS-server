@@ -1,6 +1,6 @@
 [server]
 ip = 127.0.0.1
-port = 5353
+port = 53
 
 [zone]
 name = abc
