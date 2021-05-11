@@ -1,0 +1,26 @@
+#include "parsing/input.h"
+
+#include "utils/file.h"
+
+server_config *parse_server_config(const char *path)
+{
+    string *in = read_file(path);
+    server_config *cfg = NULL;
+    string *dummy = string_init();
+    for (size_t i = 0; i < in->size; ++i)
+    {
+        char c = in->arr[i];
+        if (c == '\n' or i == in->size - 1)
+        {
+            string_print(
+            string_flush(dummy);
+        }
+        else
+        {
+            string_add_char(dummy, c);
+        }
+    }
+    string_free(in);
+    string_free(dummy);
+    return cfg;
+}

@@ -61,9 +61,7 @@ bool string_is_empty(string *s)
 void string_print(string *s)
 {
     for (size_t i = 0; i < s->size; ++i)
-    {
         printf("%c", s->arr[i]);
-    }
     printf("\n");
 }
 

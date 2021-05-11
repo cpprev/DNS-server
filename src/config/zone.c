@@ -9,7 +9,7 @@
 zone *zone_init()
 {
     zone *z = malloc(sizeof(zone));
-    // TODO fill zone object
+
     z->name = NULL;
     z->path = NULL;
 
@@ -27,7 +27,7 @@ void zone_free(zone *z)
     free(z);
 }
 
-/*zone *parse_zone(const char *path)
+zone *parse_zone(const char *path)
 {
     if (!is_file(path))
         return NULL;
@@ -41,4 +41,4 @@ void zone_free(zone *z)
     // TODO Parse zone file
     string_free(zone_contents);
     return z;
-}*/
+}

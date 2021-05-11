@@ -21,24 +21,18 @@ server_config *parse_server_config(const char *path)
                 string_add_char(dummy, c);
 
             if (strcmp("[server]", dummy->arr) == 0)
-            {
                 state = SERVER;
-            }
             else if (strcmp("[zone]", dummy->arr) == 0)
             {
                 state = ZONE;
                 ++zone_ind;
             }
             else
-            {
                 server_config_set_attribute(&cfg, dummy, state, zone_ind);
-            }
             string_flush(dummy);
         }
         else
-        {
             string_add_char(dummy, c);
-        }
     }
     string_free(in);
     string_free(dummy);

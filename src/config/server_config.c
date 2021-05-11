@@ -36,13 +36,9 @@ string *get_config_value(string *line)
         else if (hit_equals)
         {
             if ((c == ' ' || c == '\t') && !hit_whitespace)
-            {
                 hit_whitespace = true;
-            }
             else
-            {
                 string_add_char(s, c);
-            }
         }
     }
     return s;

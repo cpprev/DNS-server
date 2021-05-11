@@ -18,9 +18,7 @@ string *read_file(const char* path)
     if (file)
     {
         while ((c = getc(file)) != EOF)
-        {
             string_add_char(s, c);
-        }
         fclose(file);
     }
     return s;
