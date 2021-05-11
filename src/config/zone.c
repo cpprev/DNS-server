@@ -12,6 +12,7 @@ zone *zone_init()
 
     z->name = NULL;
     z->path = NULL;
+    z->records = NULL;
 
     return z;
 }
@@ -24,6 +25,8 @@ void zone_free(zone *z)
         string_free(z->name);
     if (z->path != NULL)
         string_free(z->path);
+    if (z->records != NULL)
+        record_array_free(z->records);
     free(z);
 }
 

@@ -9,6 +9,8 @@ set(SRC
     src/config/server_config.c
     src/config/zone_array.c
     src/config/zone.c
+    src/config/record_array.c
+    src/config/record.c
 
     # Parsing
     src/parsing/input.c

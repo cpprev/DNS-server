@@ -36,7 +36,7 @@ void zone_array_resize (zone_array *z_arr);
 /**
 ** \brief                           Adds a zone object to a zone_array
 ** \param z_arr                     The zone_array to alter
-** \param z                         The string to add to the vector2
+** \param z                         The zone to add to the zone_array
 ** \return                          The modified zone_array
 */
 void zone_array_add_zone (zone_array *z_arr, zone *z);
