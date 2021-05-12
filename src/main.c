@@ -1,5 +1,8 @@
+#define _GNU_SOURCE
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <signal.h>
 
 #include "utils/error.h"
 #include "utils/string.h"
@@ -12,6 +15,15 @@
 #include "config/zone.h"
 
 #include "server/listen.h"
+
+void sigint_handler(int sig)
+{
+    if (sig == SIGINT)
+    {
+        printf("\nExited\n");
+        exit(0);
+    }
+}
 
 int main(int argc, char *argv[])
 {
@@ -40,8 +52,18 @@ int main(int argc, char *argv[])
         }
     }
 
+    // Catch sigints
+    struct sigaction si =
+    {
+        .sa_handler = sigint_handler,
+        .sa_flags = SA_NODEFER
+    };
+    sigaction(SIGINT, &(si), 0);
+
+    // Launch server
     server_listen(server_cfg);
 
+    // Free memory
     server_config_free(server_cfg);
 
     return 0;

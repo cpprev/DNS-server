@@ -44,7 +44,9 @@ request *parse_request(int *bits, size_t sz)
     string *nscount = get_next_field(&until, 16, &i, bits, sz);
     // 1.13. ARCOUNT (16 bits)
     string *arcount = get_next_field(&until, 16, &i, bits, sz);
+
     // 2. Question section
+    // TODO Handle multiple questions ?
     // 2.0. 8 bits representing the length of QNAME field (in number of bytes)
     string *qnameLen = get_next_field(&until, 8, &i, bits, sz);
     // 2.1. QNAME (domain name)
