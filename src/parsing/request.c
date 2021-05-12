@@ -14,6 +14,15 @@ string *get_next_field(size_t *until, size_t step, size_t *i, int *bits, size_t 
     return res;
 }
 
+void free_request(request *r)
+{
+    if (r == NULL)
+        return;
+    if (r->id != NULL)
+        string_free(r->id);
+    free(r);
+}
+
 // Cf https://datatracker.ietf.org/doc/html/rfc1035#section-4
 request *parse_request(int *bits, size_t sz)
 {
