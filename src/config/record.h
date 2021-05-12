@@ -3,16 +3,7 @@
 
 #include "utils/string.h"
 
-typedef enum
-{
-    RECORD_NONE,
-    A,
-    NS,
-    AAAA,
-    SOA,
-    CNAME,
-    TXT
-} RECORD_TYPE;
+#include "config/record_type.h"
 
 typedef struct
 {
