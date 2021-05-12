@@ -14,7 +14,14 @@ string *get_next_field(size_t *until, size_t step, size_t *i, int *bits, size_t 
     return res;
 }
 
-void free_request(request *r)
+request *request_init()
+{
+    request *r = malloc(sizeof(request));
+    r->id = NULL;
+    return r;
+}
+
+void request_free(request *r)
 {
     if (r == NULL)
         return;
@@ -26,11 +33,13 @@ void free_request(request *r)
 // Cf https://datatracker.ietf.org/doc/html/rfc1035#section-4
 request *parse_request(int *bits, size_t sz)
 {
+    request *r = request_init();
+
     size_t i = 0, until = 0;
 
     // 1. Header section
     // 1.1. ID: 16 bits
-    string *id = get_next_field(&until, 16, &i, bits, sz);
+    r->id = get_next_field(&until, 16, &i, bits, sz);
     // 1.2. QR (1 bit)
     string *qr = get_next_field(&until, 1, &i, bits, sz);
     // 1.3. OPCode (4 bits)
@@ -69,7 +78,7 @@ request *parse_request(int *bits, size_t sz)
     string *qclass = get_next_field(&until, 16, &i, bits, sz);
 
     // TODO print delete later
-    printf("ID = %s\n", id->arr);
+    printf("ID = %s\n", r->id->arr);
     printf("QR = %s\n", qr->arr);
     printf("Opcode = %s\n", opcode->arr);
     printf("TC = %s\n", tc->arr);
@@ -96,8 +105,9 @@ request *parse_request(int *bits, size_t sz)
     string_free(rd);
     string_free(tc);
     string_free(opcode);
-    string_free(id);
+    //string_free(id);
     string_free(qr);
+    string_free(qclass);
 
-    return NULL;
+    return r;
 }

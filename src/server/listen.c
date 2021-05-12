@@ -74,8 +74,12 @@ void server_listen(server_config *cfg)
         puts("");
 
         // Parse DNS request
-        parse_request(bs, c);
+        request *r = parse_request(bs, c);
 
-        sendto(sockfd, client_message, strlen(client_message), 0, (struct sockaddr *)&client, (socklen_t)c);
+        // TODO Send response
+        //sendto(sockfd, client_message, strlen(client_message), 0, (struct sockaddr *)&client, (socklen_t)c);
+
+        // Free memory
+        request_free(r);
     }
 }
