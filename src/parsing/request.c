@@ -4,6 +4,7 @@
 #include "parsing/request.h"
 
 #include "utils/string.h"
+#include "utils/base_convertions.h"
 
 string *get_next_field(size_t *until, size_t step, size_t *i, int *bits, size_t bits_size)
 {
@@ -69,7 +70,9 @@ request *parse_request(int *bits, size_t sz)
     string *qnameLen = get_next_field(&until, 8, &i, bits, sz);
     // 2.1. QNAME (domain name)
     // TODO replace with number of octets (convert qnameLen to decimal)
-    string *qname = get_next_field(&until, 8, &i, bits, sz);
+    int qnameLenNum = binary_to_decimal(qnameLen);
+    printf("TST: %d\n", qnameLenNum);
+    string *qname = get_next_field(&until, qnameLenNum * 8, &i, bits, sz);
     // skip 8 bits
     i += 8; until += 8;
     // 2.2. QTYPE (16 bits) AAAA = 28; A = 1; etc -> Cf https://en.wikipedia.org/wiki/List_of_DNS_record_types

@@ -23,6 +23,7 @@ set(SRC
     src/utils/string.c
     src/utils/error.c
     src/utils/file.c
+    src/utils/base_convertions.c
 )
 
 set(CHECK_CFLAGS -fsanitize=address -g)
