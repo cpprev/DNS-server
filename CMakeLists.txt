@@ -11,6 +11,7 @@ set(SRC
     src/config/zone.c
     src/config/record_array.c
     src/config/record.c
+    src/config/record_type.c
 
     # Parsing
     src/parsing/input.c

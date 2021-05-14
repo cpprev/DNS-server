@@ -13,6 +13,7 @@
 #include "config/server_config.h"
 #include "config/zone_array.h"
 #include "config/zone.h"
+#include "config/record_type.h"
 
 #include "server/listen.h"
 
@@ -45,7 +46,7 @@ int main(int argc, char *argv[])
             {
                 record *r = server_cfg->zones->arr[i]->records->arr[j];
                 printf("%s\t", r->domain->arr);
-                print_record_type(r);
+                print_record_type(r->type);
                 printf("\t%d\t%s\n", r->ttl, r->value->arr);
             }
             puts("-------------------------------------");

@@ -78,10 +78,7 @@ string *parse_whole_qname(size_t *i, size_t *until, size_t sz, int *bits)
                 string_free(tmp_name);
             }
             else
-            {
-                (*i) -= 8;
                 break;
-            }
             string_flush(tampon);
         }
         string_add_char(tampon, bits[*i] + '0');
@@ -128,10 +125,10 @@ request *parse_request(int *bits, size_t sz)
     // 2.1. QNAME (domain name)
     string *qname = parse_whole_qname(&i, &until, sz, bits);
     string_copy(&r->qname, qname);
-    // Skip 8 bits
-    i += 8; until += 8;
     // 2.2. QTYPE (16 bits) AAAA = 28; A = 1; etc -> Cf https://en.wikipedia.org/wiki/List_of_DNS_record_types
     string *qtype = get_next_field(&until, 16, &i, bits, sz);
+    int qtypeInt = binary_to_decimal(qtype);
+    r->qtype = int_to_record_type(qtypeInt);
     // 2.3. QCLASS (16 bits) -> IN class = 1 (ignore other classes)
     string *qclass = get_next_field(&until, 16, &i, bits, sz);
 

@@ -84,34 +84,3 @@ record *parse_record(string *in)
     }
     return r;
 }
-
-void print_record_type(record *r)
-{
-    switch (r->type)
-    {
-        case NS:
-            printf("NS");
-            break;
-        case A:
-            printf("A");
-            break;
-        case AAAA:
-            printf("AAAA");
-            break;
-        case SOA:
-            printf("SOA");
-            break;
-        case TXT:
-            printf("TXT");
-            break;
-        case RECORD_NONE:
-            printf("Unknown");
-            break;
-        case CNAME:
-            printf("CNAME");
-            break;
-        default:
-            printf("Unknown");
-            break;
-    }
-}

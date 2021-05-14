@@ -23,6 +23,4 @@ void record_free(record *r);
 
 record *parse_record(string *in);
 
-void print_record_type(record *r);
-
 #endif
