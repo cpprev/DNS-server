@@ -55,6 +55,41 @@ string *parse_qname(string *qnamebits)
     return res;
 }
 
+string *parse_whole_qname(size_t *i, size_t *until, size_t sz, int *bits)
+{
+    string *tampon = string_init(), *qname = string_init();
+    int tmp_len = 0;
+    size_t i_init = *i;
+    for (; *i < sz; ++(*i))
+    {
+        if (*i > i_init && *i % 8 == 0)
+        {
+            int dec = binary_to_decimal(tampon);
+            if (dec > 0 && dec < 65)
+            {
+                (*until) += tampon->size;
+                tmp_len = dec;
+                string *qnamebits = get_next_field(until, tmp_len * 8, i, bits, sz);
+                string *tmp_name = parse_qname(qnamebits);
+                if (!string_is_empty(qname))
+                    string_add_char(qname, '.');
+                string_add_str(qname, tmp_name->arr);
+                string_free(qnamebits);
+                string_free(tmp_name);
+            }
+            else
+            {
+                (*i) -= 8;
+                break;
+            }
+            string_flush(tampon);
+        }
+        string_add_char(tampon, bits[*i] + '0');
+    }
+    string_free(tampon);
+    return qname;
+}
+
 // Cf https://datatracker.ietf.org/doc/html/rfc1035#section-4
 request *parse_request(int *bits, size_t sz)
 {
@@ -90,16 +125,9 @@ request *parse_request(int *bits, size_t sz)
 
     // 2. Question section
     // TODO Handle multiple questions ?
-    printf("HERE:\n");
-    for (size_t j = i; j < sz; ++j)
-        printf("%d", bits[j]);
-    puts("");
-    // 2.0. 8 bits representing the length of QNAME field (in number of bytes)
-    string *qnameLen = get_next_field(&until, 8, &i, bits, sz);
     // 2.1. QNAME (domain name)
-    int qnameLenNum = binary_to_decimal(qnameLen);
-    string *qnamebits = get_next_field(&until, qnameLenNum * 8, &i, bits, sz);
-    r->qname = parse_qname(qnamebits);
+    string *qname = parse_whole_qname(&i, &until, sz, bits);
+    string_copy(&r->qname, qname);
     // Skip 8 bits
     i += 8; until += 8;
     // 2.2. QTYPE (16 bits) AAAA = 28; A = 1; etc -> Cf https://en.wikipedia.org/wiki/List_of_DNS_record_types
@@ -118,15 +146,13 @@ request *parse_request(int *bits, size_t sz)
     printf("ancount = %s\n", ancount->arr);
     printf("nscount = %s\n", nscount->arr);
     printf("arcount = %s\n", arcount->arr);
-    printf("qnameLen = %d\n", binary_to_decimal(qnameLen));
     printf("qname = %s\n", r->qname->arr);
     printf("qtype = %s\n", qtype->arr);
     printf("qclass = %s\n", qclass->arr);
 
     // Free memory
     string_free(qtype);
-    string_free(qnamebits);
-    string_free(qnameLen);
+    string_free(qname);
     string_free(arcount);
     string_free(nscount);
     string_free(qdcount);
@@ -135,7 +161,6 @@ request *parse_request(int *bits, size_t sz)
     string_free(rd);
     string_free(tc);
     string_free(opcode);
-    //string_free(id);
     string_free(qr);
     string_free(qclass);
 
