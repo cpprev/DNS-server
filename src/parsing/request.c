@@ -78,7 +78,10 @@ string *parse_whole_qname(size_t *i, size_t *until, size_t sz, int *bits)
                 string_free(tmp_name);
             }
             else
+            {
+                (*until) += tampon->size;
                 break;
+            }
             string_flush(tampon);
         }
         string_add_char(tampon, bits[*i] + '0');
