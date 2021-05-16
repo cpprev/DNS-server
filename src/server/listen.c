@@ -15,6 +15,7 @@
 #include "parsing/parse_request.h"
 
 #include "messages/request.h"
+#include "messages/response.h"
 
 void server_listen(server_config *cfg)
 {
@@ -62,26 +63,35 @@ void server_listen(server_config *cfg)
         int sz = recvfrom(sockfd, client_message, 2000, 0, (struct sockaddr *)&client, (socklen_t*)&c);
         client_message[sz] = '\0';
         int bs[1000];
-        int c = 0;
+        int c_bs = 0;
         for (int i = 0; i < sz; ++i)
         {
             for (int j = 7; j >= 0; --j)
             {
                 int byte = (client_message[i] >> j) & 1;
                 printf("%u", byte);
-                bs[c++] = byte;
-                bs[c] = '\0';
+                bs[c_bs++] = byte;
+                bs[c_bs] = '\0';
             }
         }
         puts("");
 
         // Parse DNS request
-        request *r = parse_request(bs, c);
+        request *req = parse_request(bs, c_bs);
+        response *resp = build_response(cfg, req);
+        printf("\n\n------------------\nRESPONSE:\n");
+        int *resp_bits = response_to_bits(resp);
+        puts("");
+        for (size_t i = 0; resp_bits[i] != -1; ++i)
+            printf("%d", resp_bits[i]);
+        puts("");
 
         // TODO Send response
         //sendto(sockfd, client_message, strlen(client_message), 0, (struct sockaddr *)&client, (socklen_t)c);
 
         // Free memory
-        request_free(r);
+        free(resp_bits);
+        request_free(req);
+        response_free(resp);
     }
 }

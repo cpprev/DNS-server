@@ -72,3 +72,19 @@ void string_copy(string **dst, string *src)
     string_flush(*dst);
     string_add_str(*dst, src->arr);
 }
+
+bool string_equals(string *s1, string *s2)
+{
+    return strcmp(s1->arr, s2->arr) == 0;
+}
+
+void string_pad_zeroes(string **s, int n)
+{
+    size_t needed = n - (*s)->size;
+    string *temp = string_init();
+    for (size_t i = 0; i < needed; ++i)
+        string_add_char(temp, '0');
+    string_add_str(temp, (*s)->arr);
+    string_free(*s);
+    *s = temp;
+}

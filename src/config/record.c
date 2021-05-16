@@ -17,6 +17,16 @@ record *record_init()
     return r;
 }
 
+record *record_copy(record *r)
+{
+    record *new_record = record_init();
+    new_record->type = r->type;
+    new_record->ttl = r->ttl;
+    string_copy(&new_record->domain, r->domain);
+    string_copy(&new_record->value, r->value);
+    return new_record;
+}
+
 void record_free(record *r)
 {
     if (r == NULL)

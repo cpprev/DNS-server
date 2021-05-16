@@ -24,7 +24,7 @@ int binary_to_decimal(string *in)
 string *decimal_to_binary(int in)
 {
     string *res = string_init();
-    char buf[8];
+    char buf[32];
     int i;
     for (i = 0; in > 0; ++i)
     {

@@ -42,3 +42,12 @@ void record_array_add_record (record_array *r_arr, record *r)
     r_arr->size++;
     r_arr->arr[r_arr->size] = NULL;
 }
+
+void record_array_add_copied_record (record_array *r_arr, record *r)
+{
+    if (r_arr->size + 1 >= r_arr->capacity)
+        record_array_resize(r_arr);
+    r_arr->arr[r_arr->size] = record_copy(r);
+    r_arr->size++;
+    r_arr->arr[r_arr->size] = NULL;
+}

@@ -19,6 +19,8 @@ typedef struct
 
 record *record_init();
 
+record *record_copy(record *r);
+
 void record_free(record *r);
 
 record *parse_record(string *in);

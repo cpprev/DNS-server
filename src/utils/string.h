@@ -59,4 +59,10 @@ void string_print(string *s);
 // TODO Comment
 void string_copy(string **dst, string *src);
 
+// TODO Comment
+bool string_equals(string *s1, string *s2);
+
+// TODO Comment
+void string_pad_zeroes(string **s, int n);
+
 #endif

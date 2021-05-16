@@ -40,4 +40,6 @@ void record_array_resize (record_array *r_arr);
 */
 void record_array_add_record (record_array *r_arr, record *r);
 
+void record_array_add_copied_record (record_array *r_arr, record *r);
+
 #endif

@@ -84,36 +84,44 @@ request *parse_request(int *bits, size_t sz)
 
     // 1. Header section
     // 1.1. ID: 16 bits
-    m->id = get_next_field(&until, 16, &i, bits, sz);
+    string *id = get_next_field(&until, 16, &i, bits, sz);
+    m->id = binary_to_decimal(id);
     // 1.2. QR (1 bit)
     string *qr = get_next_field(&until, 1, &i, bits, sz);
+    m->qr = binary_to_decimal(qr) == 0 ? REQUEST : RESPONSE;
     // 1.3. OPCode (4 bits)
     string *opcode = get_next_field(&until, 4, &i, bits, sz);
+    m->opcode = binary_to_decimal(opcode);
     // 1.4. AA (1 bit) -> required in responses (ignore here)
     i += 1; until += 1;
     // 1.5. TC (1 bit)
     string *tc = get_next_field(&until, 1, &i, bits, sz);
+    m->tc = binary_to_decimal(tc) == 1;
     // 1.6. RD (1 bit) -> optional
     string *rd = get_next_field(&until, 1, &i, bits, sz);
+    m->rd = binary_to_decimal(rd) == 1;
     // 1.7. RA (1 bit)
     string *ra = get_next_field(&until, 1, &i, bits, sz);
+    m->ra = binary_to_decimal(ra) == 1;
     // 1.8. / 1.9. Z (3 bits) AND RCODE (4 bits) -> ignore in request
     i += 3 + 4; until += 3 + 4;
     // 1.10. QDCOUNT (16 bits)
     string *qdcount = get_next_field(&until, 16, &i, bits, sz);
-    int qdcountInt = binary_to_decimal(qdcount);
-    m->questions = malloc((qdcountInt + 1) * sizeof(question *));
+    m->qdcount = binary_to_decimal(qdcount);
+    m->questions = malloc((m->qdcount + 1) * sizeof(question *));
     // 1.11. ANCOUNT (16 bits)
     string *ancount = get_next_field(&until, 16, &i, bits, sz);
+    m->ancount = binary_to_decimal(ancount);
     // 1.12. NSCOUNT (16 bits)
     string *nscount = get_next_field(&until, 16, &i, bits, sz);
+    m->nscount = binary_to_decimal(nscount);
     // 1.13. ARCOUNT (16 bits)
     string *arcount = get_next_field(&until, 16, &i, bits, sz);
+    m->arcount = binary_to_decimal(arcount);
 
     // 2. Question section
-    // TODO Handle multiple questions ?
     // 2.1. QNAME (domain name)
-    for (int j = 0; j < qdcountInt; ++j)
+    for (int j = 0; j < m->qdcount; ++j)
     {
         question *q = question_init();
         string *qname = parse_whole_qname(&i, &until, sz, bits);
@@ -139,9 +147,9 @@ request *parse_request(int *bits, size_t sz)
     }
 
     // TODO print delete later
-    printf("ID = %s\n", m->id->arr);
+    printf("ID = %d\n", m->id);
     printf("QR = %s\n", qr->arr);
-    printf("Opcode = %s\n", opcode->arr);
+    printf("Opcode = %d\n", m->opcode);
     printf("TC = %s\n", tc->arr);
     printf("RD = %s\n", rd->arr);
     printf("RA = %s\n", ra->arr);
@@ -151,6 +159,7 @@ request *parse_request(int *bits, size_t sz)
     printf("arcount = %s\n", arcount->arr);
 
     // Free memory
+    string_free(id);
     string_free(arcount);
     string_free(nscount);
     string_free(qdcount);
