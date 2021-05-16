@@ -6,3 +6,5 @@
 # Directories
 
 build/
+*cmake*
+.idea
