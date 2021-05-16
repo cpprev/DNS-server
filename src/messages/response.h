@@ -17,6 +17,6 @@ void response_free(response *r);
 
 response *build_response(server_config *cfg, request *req);
 
-int *response_to_bits(response *resp);
+string *response_to_bits(response *resp);
 
 #endif

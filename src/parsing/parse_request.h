@@ -7,6 +7,8 @@
 
 #include "config/record_type.h"
 
+string *parse_qname(string *qnamebits);
+
 request *parse_request(int *bits, size_t sz);
 
 #endif

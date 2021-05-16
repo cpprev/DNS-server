@@ -80,17 +80,14 @@ void server_listen(server_config *cfg)
         request *req = parse_request(bs, c_bs);
         response *resp = build_response(cfg, req);
         printf("\n\n------------------\nRESPONSE:\n");
-        int *resp_bits = response_to_bits(resp);
-        puts("");
-        for (size_t i = 0; resp_bits[i] != -1; ++i)
-            printf("%d", resp_bits[i]);
-        puts("");
+        string *resp_bits = response_to_bits(resp);
+        string_print(resp_bits);
 
         // TODO Send response
-        //sendto(sockfd, client_message, strlen(client_message), 0, (struct sockaddr *)&client, (socklen_t)c);
+        sendto(sockfd, resp_bits->arr, resp_bits->size, 0, (struct sockaddr *)&client, (socklen_t)c);
 
         // Free memory
-        free(resp_bits);
+        string_free(resp_bits);
         request_free(req);
         response_free(resp);
     }

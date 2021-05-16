@@ -4,6 +4,8 @@
 
 #include "utils/base_convertions.h"
 
+#include "parsing/parse_request.h"
+
 response *response_init()
 {
     response *r = malloc(sizeof(response));
@@ -57,7 +59,7 @@ response *build_response(server_config *cfg, request *req)
     return resp;
 }
 
-int *response_to_bits(response *resp)
+string *response_to_bits(response *resp)
 {
     string *s = string_init();
     // 1. Header section
@@ -224,10 +226,8 @@ int *response_to_bits(response *resp)
         string_free(tampon);
     }
 
-    int *res = malloc((s->size + 1) * sizeof(int));
-    for (size_t i = 0; i < s->size; ++i)
-        res[i] = s->arr[i] - '0';
-    res[s->size] = -1;
+    // TODO rename parse_qname func better
+    string *res = parse_qname(s);
 
     // Free memory
     string_free(qtype);
