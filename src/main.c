@@ -11,7 +11,6 @@
 #include "parsing/input.h"
 
 #include "config/server_config.h"
-#include "config/zone_array.h"
 #include "config/zone.h"
 #include "config/record_type.h"
 

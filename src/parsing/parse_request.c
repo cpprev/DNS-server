@@ -6,7 +6,6 @@
 #include "messages/question.h"
 #include "messages/message.h"
 #include "messages/request.h"
-#include "messages/response.h"
 
 #include "utils/string.h"
 #include "utils/base_convertions.h"

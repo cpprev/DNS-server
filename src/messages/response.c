@@ -196,9 +196,32 @@ int *response_to_bits(response *resp)
         string_add_str(s, ttl->arr);
         printf("TTL: %s\n", ttl->arr);
         string_free(ttl);
-        // RDLENGTH (RDATA len)
-
-        // RDATA
+        // RDLENGTH (RDATA len) TODO
+        string *rdlength = decimal_to_binary(4); // TODO 4 for now to work with IPv4 (A records)
+        string_pad_zeroes(&rdlength, 16);
+        string_add_str(s, rdlength->arr);
+        printf("RDLENGTH: %s\n", rdlength->arr);
+        string_free(rdlength);
+        // RDATA TODO only works for A records as of now
+        string *tampon = string_init();
+        for (size_t i = 0; r->value->arr[i]; ++i)
+        {
+            char c = r->value->arr[i];
+            if (c == '.' || i == r->value->size - 1)
+            {
+                if (i == r->value->size - 1)
+                    string_add_char(tampon, c);
+                string *rdata_temp = decimal_to_binary(atoi(tampon->arr));
+                string_pad_zeroes(&rdata_temp, 8);
+                string_add_str(s, rdata_temp->arr);
+                printf("RDATA_TEMP: %s\n", rdata_temp->arr);
+                string_free(rdata_temp);
+                string_flush(tampon);
+            }
+            else
+                string_add_char(tampon, c);
+        }
+        string_free(tampon);
     }
 
     int *res = malloc((s->size + 1) * sizeof(int));
