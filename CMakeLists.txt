@@ -17,6 +17,7 @@ set(SRC
     src/messages/message.c
     src/messages/request.c
     src/messages/response.c
+    src/messages/question.c
 
     # Parsing
     src/parsing/input.c

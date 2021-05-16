@@ -1,15 +1,12 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
-#include "utils/string.h"
-
-#include "config/record_type.h"
+#include "messages/question.h"
 
 typedef struct
 {
     string *id;
-    string *qname;
-    RECORD_TYPE qtype;
+    question **questions;
 } message;
 
 message *message_init();

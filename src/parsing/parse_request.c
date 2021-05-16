@@ -3,6 +3,7 @@
 
 #include "parsing/parse_request.h"
 
+#include "messages/question.h"
 #include "messages/message.h"
 #include "messages/request.h"
 #include "messages/response.h"
@@ -100,6 +101,9 @@ request *parse_request(int *bits, size_t sz)
     i += 3 + 4; until += 3 + 4;
     // 1.10. QDCOUNT (16 bits)
     string *qdcount = get_next_field(&until, 16, &i, bits, sz);
+    int qdcountInt = binary_to_decimal(qdcount);
+    printf("TST: %d\n", qdcountInt);
+    m->questions = malloc((qdcountInt + 1) * sizeof(question *));
     // 1.11. ANCOUNT (16 bits)
     string *ancount = get_next_field(&until, 16, &i, bits, sz);
     // 1.12. NSCOUNT (16 bits)
@@ -110,14 +114,29 @@ request *parse_request(int *bits, size_t sz)
     // 2. Question section
     // TODO Handle multiple questions ?
     // 2.1. QNAME (domain name)
-    string *qname = parse_whole_qname(&i, &until, sz, bits);
-    string_copy(&m->qname, qname);
-    // 2.2. QTYPE (16 bits) AAAA = 28; A = 1; etc -> Cf https://en.wikipedia.org/wiki/List_of_DNS_record_types
-    string *qtype = get_next_field(&until, 16, &i, bits, sz);
-    int qtypeInt = binary_to_decimal(qtype);
-    m->qtype = int_to_record_type(qtypeInt);
-    // 2.3. QCLASS (16 bits) -> IN class = 1 (ignore other classes)
-    string *qclass = get_next_field(&until, 16, &i, bits, sz);
+    for (int j = 0; j < qdcountInt; ++j)
+    {
+        question *q = question_init();
+        string *qname = parse_whole_qname(&i, &until, sz, bits);
+        string_copy(&q->qname, qname);
+        // 2.2. QTYPE (16 bits) AAAA = 28; A = 1; etc -> Cf https://en.wikipedia.org/wiki/List_of_DNS_record_types
+        string *qtype = get_next_field(&until, 16, &i, bits, sz);
+        int qtypeInt = binary_to_decimal(qtype);
+        q->qtype = int_to_record_type(qtypeInt);
+        // 2.3. QCLASS (16 bits) -> IN class = 1 (ignore other classes)
+        string *qclass = get_next_field(&until, 16, &i, bits, sz);
+
+        m->questions[j] = q;
+        m->questions[j + 1] = NULL;
+
+        printf("qname = %s\n", m->questions[0]->qname->arr);
+        printf("qtype = %s\n", qtype->arr);
+        printf("qclass = %s\n", qclass->arr);
+
+        string_free(qname);
+        string_free(qtype);
+        string_free(qclass);
+    }
 
     // TODO print delete later
     printf("ID = %s\n", m->id->arr);
@@ -130,13 +149,8 @@ request *parse_request(int *bits, size_t sz)
     printf("ancount = %s\n", ancount->arr);
     printf("nscount = %s\n", nscount->arr);
     printf("arcount = %s\n", arcount->arr);
-    printf("qname = %s\n", m->qname->arr);
-    printf("qtype = %s\n", qtype->arr);
-    printf("qclass = %s\n", qclass->arr);
 
     // Free memory
-    string_free(qtype);
-    string_free(qname);
     string_free(arcount);
     string_free(nscount);
     string_free(qdcount);
@@ -146,10 +160,8 @@ request *parse_request(int *bits, size_t sz)
     string_free(tc);
     string_free(opcode);
     string_free(qr);
-    string_free(qclass);
 
     request *req = request_init();
     req->msg = m;
-
     return req;
 }
