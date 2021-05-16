@@ -11,6 +11,7 @@ record *record_init()
 {
     record *r = malloc(sizeof(record));
     r->type = RECORD_NONE;
+    r->class = IN;
     r->domain = NULL;
     r->ttl = -1;
     r->value = NULL;

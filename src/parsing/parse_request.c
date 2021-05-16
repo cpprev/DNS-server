@@ -50,7 +50,8 @@ string *parse_whole_qname(size_t *i, size_t *until, size_t sz, int *bits)
         if (*i > i_init && *i % 8 == 0)
         {
             int dec = binary_to_decimal(tampon);
-            if (dec > 0 && dec < 65)
+            // 63 is max length for a label (label : test.com -> test is a label)
+            if (dec > 0 && dec < 63)
             {
                 (*until) += tampon->size;
                 tmp_len = dec;
@@ -129,7 +130,7 @@ request *parse_request(int *bits, size_t sz)
         // 2.2. QTYPE (16 bits) AAAA = 28; A = 1; etc -> Cf https://en.wikipedia.org/wiki/List_of_DNS_record_types
         string *qtype = get_next_field(&until, 16, &i, bits, sz);
         int qtypeInt = binary_to_decimal(qtype);
-        q->qtype = int_to_record_type(qtypeInt);
+        q->qtype = (RECORD_TYPE) qtypeInt;
         // 2.3. QCLASS (16 bits) -> IN class = 1 (ignore other classes)
         string *qclass = get_next_field(&until, 16, &i, bits, sz);
 

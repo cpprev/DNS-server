@@ -131,9 +131,75 @@ int *response_to_bits(response *resp)
     string *question = string_init();
     string_pad_zeroes(&question, 8);
     string_add_str(s, question->arr);
+    // QTYPE ? TODO
+    string *qtype = string_init();
+    string_pad_zeroes(&qtype, 16);
+    string_add_str(s, qtype->arr);
+    // QCLASS ? TODO
+    string *qclass = string_init();
+    string_pad_zeroes(&qclass, 16);
+    string_add_str(s, qclass->arr);
 
     // 3. Answer section
+    for (size_t k = 0; resp->msg->answer->records->arr[k]; ++k)
+    {
+        record *r = resp->msg->answer->records->arr[k];
+        // NAME
+        bool hit = false;
+        for (size_t i = 0; i < r->domain->size; ++i)
+        {
+            char c = r->domain->arr[i];
+            int count = 0;
+            if ((!hit && i == 0) || c == '.')
+            {
+                if (!hit && i == 0)
+                {
+                    hit = true;
+                    --i;
+                }
+                size_t temp_i = i + 1;
+                while (temp_i < r->domain->size && r->domain->arr[temp_i] != '.')
+                {
+                    count++;
+                    temp_i++;
+                }
+            }
+            else
+            {
+                count = r->domain->arr[i];
+            }
+            string *cur_qname = decimal_to_binary(count);
+            string_pad_zeroes(&cur_qname, 8);
+            string_add_str(s, cur_qname->arr);
+            string_free(cur_qname);
+        }
+        // Null byte after name
+        string *nb = string_init();
+        string_pad_zeroes(&nb, 8);
+        string_add_str(s, nb->arr);
+        string_free(nb);
+        // TYPE
+        string *rtype = decimal_to_binary(r->type);
+        string_pad_zeroes(&rtype, 16);
+        string_add_str(s, rtype->arr);
+        printf("TYPE: %s\n", rtype->arr);
+        string_free(rtype);
+        // CLASS
+        string *class = decimal_to_binary(r->class);
+        string_pad_zeroes(&class, 16);
+        string_add_str(s, class->arr);
+        printf("CLASS: %s\n", class->arr);
+        string_free(class);
+        // TTL
+        string *ttl = decimal_to_binary(r->ttl);
+        string_pad_zeroes(&ttl, 32);
+        string_add_str(s, ttl->arr);
+        printf("TTL: %s\n", ttl->arr);
+        string_free(ttl);
+        // RDLENGTH (RDATA len)
 
+        // RDATA
+    }
 
     int *res = malloc((s->size + 1) * sizeof(int));
     for (size_t i = 0; i < s->size; ++i)
@@ -141,6 +207,8 @@ int *response_to_bits(response *resp)
     res[s->size] = -1;
 
     // Free memory
+    string_free(qtype);
+    string_free(qclass);
     string_free(question);
     string_free(nscount);
     string_free(arcount);

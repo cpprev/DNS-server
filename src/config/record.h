@@ -5,6 +5,11 @@
 
 #include "config/record_type.h"
 
+typedef enum
+{
+    IN = 1
+} CLASS;
+
 typedef struct
 {
     // 1st value
@@ -15,6 +20,8 @@ typedef struct
     int ttl;
     // 4th value
     string *value;
+    // Class (IN class only, for now TODO)
+    CLASS class;
 } record;
 
 record *record_init();
