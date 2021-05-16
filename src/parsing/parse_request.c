@@ -102,7 +102,6 @@ request *parse_request(int *bits, size_t sz)
     // 1.10. QDCOUNT (16 bits)
     string *qdcount = get_next_field(&until, 16, &i, bits, sz);
     int qdcountInt = binary_to_decimal(qdcount);
-    printf("TST: %d\n", qdcountInt);
     m->questions = malloc((qdcountInt + 1) * sizeof(question *));
     // 1.11. ANCOUNT (16 bits)
     string *ancount = get_next_field(&until, 16, &i, bits, sz);
@@ -129,6 +128,7 @@ request *parse_request(int *bits, size_t sz)
         m->questions[j] = q;
         m->questions[j + 1] = NULL;
 
+        // TODO print delete later
         printf("qname = %s\n", m->questions[0]->qname->arr);
         printf("qtype = %s\n", qtype->arr);
         printf("qclass = %s\n", qclass->arr);
