@@ -12,7 +12,9 @@
 
 #include "utils/error.h"
 
-#include "parsing/request.h"
+#include "parsing/parse_request.h"
+
+#include "messages/request.h"
 
 void server_listen(server_config *cfg)
 {

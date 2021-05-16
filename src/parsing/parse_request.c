@@ -1,7 +1,11 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "parsing/request.h"
+#include "parsing/parse_request.h"
+
+#include "messages/message.h"
+#include "messages/request.h"
+#include "messages/response.h"
 
 #include "utils/string.h"
 #include "utils/base_convertions.h"
@@ -13,26 +17,6 @@ string *get_next_field(size_t *until, size_t step, size_t *i, int *bits, size_t 
     for (; *i < *until && *i < bits_size; (*i)++)
         string_add_char(res, bits[*i] + '0');
     return res;
-}
-
-request *request_init()
-{
-    request *r = malloc(sizeof(request));
-    r->id = NULL;
-    r->qname = NULL;
-    r->qtype = RECORD_NONE;
-    return r;
-}
-
-void request_free(request *r)
-{
-    if (r == NULL)
-        return;
-    if (r->id != NULL)
-        string_free(r->id);
-    if (r->qname != NULL)
-        string_free(r->qname);
-    free(r);
 }
 
 string *parse_qname(string *qnamebits)
@@ -93,13 +77,13 @@ string *parse_whole_qname(size_t *i, size_t *until, size_t sz, int *bits)
 // Cf https://datatracker.ietf.org/doc/html/rfc1035#section-4
 request *parse_request(int *bits, size_t sz)
 {
-    request *r = request_init();
+    message *m = message_init();
 
     size_t i = 0, until = 0;
 
     // 1. Header section
     // 1.1. ID: 16 bits
-    r->id = get_next_field(&until, 16, &i, bits, sz);
+    m->id = get_next_field(&until, 16, &i, bits, sz);
     // 1.2. QR (1 bit)
     string *qr = get_next_field(&until, 1, &i, bits, sz);
     // 1.3. OPCode (4 bits)
@@ -127,16 +111,16 @@ request *parse_request(int *bits, size_t sz)
     // TODO Handle multiple questions ?
     // 2.1. QNAME (domain name)
     string *qname = parse_whole_qname(&i, &until, sz, bits);
-    string_copy(&r->qname, qname);
+    string_copy(&m->qname, qname);
     // 2.2. QTYPE (16 bits) AAAA = 28; A = 1; etc -> Cf https://en.wikipedia.org/wiki/List_of_DNS_record_types
     string *qtype = get_next_field(&until, 16, &i, bits, sz);
     int qtypeInt = binary_to_decimal(qtype);
-    r->qtype = int_to_record_type(qtypeInt);
+    m->qtype = int_to_record_type(qtypeInt);
     // 2.3. QCLASS (16 bits) -> IN class = 1 (ignore other classes)
     string *qclass = get_next_field(&until, 16, &i, bits, sz);
 
     // TODO print delete later
-    printf("ID = %s\n", r->id->arr);
+    printf("ID = %s\n", m->id->arr);
     printf("QR = %s\n", qr->arr);
     printf("Opcode = %s\n", opcode->arr);
     printf("TC = %s\n", tc->arr);
@@ -146,7 +130,7 @@ request *parse_request(int *bits, size_t sz)
     printf("ancount = %s\n", ancount->arr);
     printf("nscount = %s\n", nscount->arr);
     printf("arcount = %s\n", arcount->arr);
-    printf("qname = %s\n", r->qname->arr);
+    printf("qname = %s\n", m->qname->arr);
     printf("qtype = %s\n", qtype->arr);
     printf("qclass = %s\n", qclass->arr);
 
@@ -164,5 +148,8 @@ request *parse_request(int *bits, size_t sz)
     string_free(qr);
     string_free(qclass);
 
-    return r;
+    request *req = request_init();
+    req->msg = m;
+
+    return req;
 }

@@ -13,9 +13,14 @@ set(SRC
     src/config/record.c
     src/config/record_type.c
 
+    # Messages
+    src/messages/message.c
+    src/messages/request.c
+    src/messages/response.c
+
     # Parsing
     src/parsing/input.c
-    src/parsing/request.c
+    src/parsing/parse_request.c
 
     # Server
     src/server/listen.c
