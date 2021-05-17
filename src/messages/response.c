@@ -129,8 +129,8 @@ string *response_to_bits(response *resp)
     printf("ARCOUNT: %s\n", arcount->arr);
     string_add_str(s, arcount->arr);
 
-    // 2. Question section (only 8 zeroes ?) TODO Figure out
-    string *question = string_init();
+    // 2. Question section (only 8 zeroes ?) TODO Apparently not needed
+    /*string *question = string_init();
     string_pad_zeroes(&question, 8);
     string_add_str(s, question->arr);
     // QTYPE ? TODO
@@ -140,7 +140,7 @@ string *response_to_bits(response *resp)
     // QCLASS ? TODO
     string *qclass = string_init();
     string_pad_zeroes(&qclass, 16);
-    string_add_str(s, qclass->arr);
+    string_add_str(s, qclass->arr);*/
 
     // 3. Answer section
     for (size_t k = 0; resp->msg->answer->records->arr[k]; ++k)
@@ -227,12 +227,13 @@ string *response_to_bits(response *resp)
     }
 
     // TODO rename parse_qname func better
+    //string_print(s);
     string *res = parse_qname(s);
 
     // Free memory
-    string_free(qtype);
-    string_free(qclass);
-    string_free(question);
+    //string_free(qtype);
+    //string_free(qclass);
+    //string_free(question);
     string_free(nscount);
     string_free(arcount);
     string_free(qdcount);
