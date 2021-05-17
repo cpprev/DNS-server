@@ -11,11 +11,23 @@
 #include "server/listen.h"
 
 #include "utils/error.h"
+#include "utils/base_convertions.h"
 
 #include "parsing/parse_request.h"
 
 #include "messages/request.h"
 #include "messages/response.h"
+
+#define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
+#define BYTE_TO_BINARY(byte)  \
+  (byte & 0x80 ? '1' : '0'), \
+  (byte & 0x40 ? '1' : '0'), \
+  (byte & 0x20 ? '1' : '0'), \
+  (byte & 0x10 ? '1' : '0'), \
+  (byte & 0x08 ? '1' : '0'), \
+  (byte & 0x04 ? '1' : '0'), \
+  (byte & 0x02 ? '1' : '0'), \
+  (byte & 0x01 ? '1' : '0')
 
 void server_listen(server_config *cfg)
 {
@@ -66,15 +78,16 @@ void server_listen(server_config *cfg)
         int c_bs = 0;
         for (int i = 0; i < sz; ++i)
         {
-            for (int j = 7; j >= 0; --j)
+            string *cur_binary = decimal_to_binary(client_message[i]);
+            string_pad_zeroes(&cur_binary, 8);
+            //printf("test: %s\n", cur_binary->arr);
+            for (size_t j = 0; j < cur_binary->size; ++j)
             {
-                int byte = (client_message[i] >> j) & 1;
-                printf("%u", byte);
-                bs[c_bs++] = byte;
+                bs[c_bs++] = cur_binary->arr[j] - '0';
                 bs[c_bs] = '\0';
             }
+            string_free(cur_binary);
         }
-        puts("");
 
         // Parse DNS request
         request *req = parse_request(bs, c_bs);

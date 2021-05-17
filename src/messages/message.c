@@ -7,12 +7,12 @@ message *message_init()
     message *m = malloc(sizeof(message));
     m->id = -1;
     m->qr = QR_NONE;
-    m->opcode = OPCODE_NONE;
+    m->opcode = OPCODE_QUERY;
     m->aa = false;
     m->tc = false;
     m->rd = false;
     m->ra = false;
-    m->rcode = RCODE_NONE;
+    m->rcode = NO_ERR;
     m->qdcount = 0;
     m->ancount = 0;
     m->nscount = 0;

@@ -6,14 +6,13 @@
 
 typedef enum
 {
-    QR_NONE = -1,
+    QR_NONE,
     REQUEST = 0,
     RESPONSE = 1
 } QR;
 
 typedef enum
 {
-    OPCODE_NONE = -1,
     OPCODE_QUERY = 0,
     OPCODE_IQUERY = 1,
     OPCODE_STATUS = 2
@@ -21,7 +20,6 @@ typedef enum
 
 typedef enum
 {
-    RCODE_NONE = -1,
     NO_ERR = 0,
     FORMAT_ERR = 1,
     SERV_FAIL = 2,

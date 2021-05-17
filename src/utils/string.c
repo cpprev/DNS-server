@@ -80,9 +80,10 @@ bool string_equals(string *s1, string *s2)
 
 void string_pad_zeroes(string **s, int n)
 {
-    size_t needed = n - (*s)->size;
+    int needed = n - (*s)->size;
+    if (needed < 0) return;
     string *temp = string_init();
-    for (size_t i = 0; i < needed; ++i)
+    for (int i = 0; i < needed; ++i)
         string_add_char(temp, '0');
     string_add_str(temp, (*s)->arr);
     string_free(*s);

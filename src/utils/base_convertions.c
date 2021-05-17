@@ -18,11 +18,15 @@ int binary_to_decimal(string *in)
         char c = in->arr[i];
         res += (c - '0') * power(2, in->size - i - 1);
     }
+    if (res > 127 && res < 256)
+        res -= 256;
     return res;
 }
 
 string *decimal_to_binary(int in)
 {
+    if (in < 0)
+        in = 256 + in;
     string *res = string_init();
     char buf[32];
     int i;
