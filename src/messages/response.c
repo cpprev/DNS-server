@@ -24,14 +24,14 @@ void response_free(response *r)
 
 response *build_response(server_config *cfg, request *req)
 {
-    // TODO Handle authority and additional sections in answer
+    // TODO Handle authority and additional sections in answer_array
 
     response *resp = response_init();
     resp->msg = message_init();
     record_array *r_arr = record_array_init();
-    for (size_t i = 0; req->msg->questions[i] != NULL; ++i)
+    for (size_t i = 0; req->msg->questions->arr[i]; ++i)
     {
-        question *q = req->msg->questions[i];
+        question *q = req->msg->questions->arr[i];
         string *qname = q->qname;
         RECORD_TYPE qtype = q->qtype;
         for (size_t j = 0; cfg->zones->arr[j]; ++j)
@@ -57,8 +57,7 @@ response *build_response(server_config *cfg, request *req)
     // TODO Copy some bits from request (like QDCOUNT, etc)
 
     resp->msg->id = req->msg->id;
-    resp->msg->answer = answer_init();
-    resp->msg->answer->records = r_arr;
+    resp->msg->answers = r_arr;
     return resp;
 }
 
@@ -117,7 +116,7 @@ string *response_to_bits(response *resp)
     printf("QDCOUNT: %s\n", qdcount->arr);
     string_add_str(s, qdcount->arr);
     // ANCOUNT (16 bits)
-    string *ancount = decimal_to_binary(resp->msg->answer->records->size);
+    string *ancount = decimal_to_binary(resp->msg->answers->size);
     string_pad_zeroes(&ancount, 16);
     printf("ANCOUNT: %s\n", ancount->arr);
     string_add_str(s, ancount->arr);
@@ -146,9 +145,9 @@ string *response_to_bits(response *resp)
     string_add_str(s, qclass->arr);*/
 
     // 3. Answer section
-    for (size_t k = 0; resp->msg->answer->records->arr[k]; ++k)
+    for (size_t k = 0; resp->msg->answers->arr[k]; ++k)
     {
-        record *r = resp->msg->answer->records->arr[k];
+        record *r = resp->msg->answers->arr[k];
         // NAME
         bool hit = false;
         for (size_t i = 0; i < r->domain->size; ++i)

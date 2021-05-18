@@ -1,8 +1,9 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
-#include "messages/question.h"
-#include "messages/answer.h"
+#include "messages/question_array.h"
+
+#include "config/record_array.h"
 
 typedef enum
 {
@@ -42,10 +43,10 @@ typedef struct
     int ancount;
     int nscount;
     int arcount;
-    // TODO question_section object containing question_array object (like answer)
-    question **questions;
-    // TODO rename answer class to answer_section
-    answer *answer;
+    // Question section
+    question_array *questions;
+    // Answer section
+    record_array *answers;
     // TODO auth + additional sections (unless not asked in subject)
 } message;
 

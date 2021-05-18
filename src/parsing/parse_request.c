@@ -6,6 +6,7 @@
 #include "messages/question.h"
 #include "messages/message.h"
 #include "messages/request.h"
+#include "messages/question_array.h"
 
 #include "utils/string.h"
 #include "utils/base_convertions.h"
@@ -108,7 +109,6 @@ request *parse_request(int *bits, size_t sz)
     // 1.10. QDCOUNT (16 bits)
     string *qdcount = get_next_field(&until, 16, &i, bits, sz);
     m->qdcount = binary_to_decimal(qdcount);
-    m->questions = malloc((m->qdcount + 1) * sizeof(question *));
     // 1.11. ANCOUNT (16 bits)
     string *ancount = get_next_field(&until, 16, &i, bits, sz);
     m->ancount = binary_to_decimal(ancount);
@@ -133,11 +133,13 @@ request *parse_request(int *bits, size_t sz)
         // 2.3. QCLASS (16 bits) -> IN class = 1 (ignore other classes)
         string *qclass = get_next_field(&until, 16, &i, bits, sz);
 
-        m->questions[j] = q;
-        m->questions[j + 1] = NULL;
+        printf("%ld\n", m->questions->size);
+        question_array_add_question(m->questions, q);
+        //m->questions->arr[j] = q;
+        //m->questions->arr[j + 1] = NULL;
 
         // TODO print delete later
-        printf("qname = %s\n", m->questions[0]->qname->arr);
+        printf("qname = %s\n", m->questions->arr[0]->qname->arr);
         printf("qtype = %s\n", qtype->arr);
         printf("qclass = %s\n", qclass->arr);
 
