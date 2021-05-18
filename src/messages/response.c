@@ -134,12 +134,13 @@ string *response_to_bits(response *resp)
     printf("ARCOUNT: %s\n", arcount->arr);
     string_add_str(s, arcount->arr);
 
-    // 2. Question section TODO Apparently not needed
+    // 2. Question section
     if (resp->msg->questions->size > 0)
     {
         for (int k = 0; resp->msg->questions->arr[k]; ++k)
         {
             question *cur_question = resp->msg->questions->arr[k];
+            // QNAME
             string *cur_qname = cur_question->qname;
             bool hit = false;
             for (size_t i = 0; i < cur_qname->size; ++i)
@@ -168,16 +169,17 @@ string *response_to_bits(response *resp)
                 string_add_str(s, tmp_qname->arr);
                 string_free(tmp_qname);
             }
+            // Empty byte after QNAME
             string *question = string_init();
             string_pad_zeroes(&question, 8);
             string_add_str(s, question->arr);
             string_free(question);
-            // QTYPE ? TODO
+            // QTYPE
             string *qtype = decimal_to_binary(cur_question->qtype);
             string_pad_zeroes(&qtype, 16);
             string_add_str(s, qtype->arr);
             string_free(qtype);
-            // QCLASS ? TODO
+            // QCLASS
             string *qclass = string_init();
             string_add_str(qclass, "1");
             string_pad_zeroes(&qclass, 16);
