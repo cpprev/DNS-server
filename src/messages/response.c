@@ -236,16 +236,17 @@ string *response_to_bits(response *resp)
                 rdlenInt = 16;
                 break;
             case TXT:
-                rdlenInt = r->value->size + 1; // + 1 -> important
+                // "+ 1" : for the single length octet required before the TXT string
+                rdlenInt = r->value->size + 1;
                 break;
             case CNAME:
-                // TODO
+                // TODO Calculate length of string : <len_octet1>label1<len_octet2>label2,...,<null_octet>
                 break;
             case SOA:
-                // TODO
+                // TODO Cf. 3.3.13. RFC 1035
                 break;
             case NS:
-                // TODO
+                // TODO Cf. 3.3.11. RFC 1035
                 break;
             default:
                 break;
