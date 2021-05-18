@@ -67,6 +67,37 @@ response *build_response(server_config *cfg, request *req)
     return resp;
 }
 
+void write_domain_name_in_response(string *s, string *cur)
+{
+    bool hit = false;
+    for (size_t i = 0; i < cur->size; ++i)
+    {
+        char c = cur->arr[i];
+        int count = 0;
+        if ((!hit && i == 0) || c == '.')
+        {
+            if (!hit && i == 0)
+            {
+                hit = true;
+                --i;
+            }
+            size_t temp_i = i + 1;
+            while (temp_i < cur->size && cur->arr[temp_i] != '.')
+            {
+                count++;
+                temp_i++;
+            }
+        }
+        else
+            count = cur->arr[i];
+
+        string *tmp_qname = decimal_to_binary(count);
+        string_pad_zeroes(&tmp_qname, 8);
+        string_add_str(s, tmp_qname->arr);
+        string_free(tmp_qname);
+    }
+}
+
 string *response_to_bits(response *resp)
 {
     string *s = string_init();
@@ -145,33 +176,7 @@ string *response_to_bits(response *resp)
             question *cur_question = resp->msg->questions->arr[k];
             // QNAME
             string *cur_qname = cur_question->qname;
-            bool hit = false;
-            for (size_t i = 0; i < cur_qname->size; ++i)
-            {
-                char c = cur_qname->arr[i];
-                int count = 0;
-                if ((!hit && i == 0) || c == '.')
-                {
-                    if (!hit && i == 0)
-                    {
-                        hit = true;
-                        --i;
-                    }
-                    size_t temp_i = i + 1;
-                    while (temp_i < cur_qname->size && cur_qname->arr[temp_i] != '.')
-                    {
-                        count++;
-                        temp_i++;
-                    }
-                }
-                else
-                    count = cur_qname->arr[i];
-
-                string *tmp_qname = decimal_to_binary(count);
-                string_pad_zeroes(&tmp_qname, 8);
-                string_add_str(s, tmp_qname->arr);
-                string_free(tmp_qname);
-            }
+            write_domain_name_in_response(s, cur_qname);
             // Empty byte after QNAME
             string *question = string_init();
             string_pad_zeroes(&question, 8);
@@ -196,32 +201,7 @@ string *response_to_bits(response *resp)
     {
         record *r = resp->msg->answers->arr[k];
         // NAME
-        bool hit = false;
-        for (size_t i = 0; i < r->domain->size; ++i)
-        {
-            char c = r->domain->arr[i];
-            int count = 0;
-            if ((!hit && i == 0) || c == '.')
-            {
-                if (!hit && i == 0)
-                {
-                    hit = true;
-                    --i;
-                }
-                size_t temp_i = i + 1;
-                while (temp_i < r->domain->size && r->domain->arr[temp_i] != '.')
-                {
-                    count++;
-                    temp_i++;
-                }
-            }
-            else
-                count = r->domain->arr[i];
-            string *cur_qname = decimal_to_binary(count);
-            string_pad_zeroes(&cur_qname, 8);
-            string_add_str(s, cur_qname->arr);
-            string_free(cur_qname);
-        }
+        write_domain_name_in_response(s, r->domain);
         // Null byte after name
         string *nb = string_init();
         string_pad_zeroes(&nb, 8);
@@ -273,7 +253,6 @@ string *response_to_bits(response *resp)
         string_free(tampon);
     }
 
-    // TODO rename binary_bits_to_ascii_string func better
     //string_print(s);
     string *res = binary_bits_to_ascii_string(s);
 

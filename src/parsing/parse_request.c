@@ -30,7 +30,6 @@ string *binary_bits_to_ascii_string(string *qname_bits)
         {
             if (i == qname_bits->size - 1)
                 string_add_char(tampon, qname_bits->arr[i]);
-            //string_print(tampon);
             string_add_char(res, (char)binary_to_decimal(tampon));
             string_flush(tampon);
         }

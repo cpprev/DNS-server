@@ -80,8 +80,6 @@ void server_listen(server_config *cfg)
             string *cur_binary = decimal_to_binary(client_message[i]);
             string_pad_zeroes(&cur_binary, 8);
             string_add_str(req_bits, cur_binary->arr);
-            //printf("test: %s\n", cur_binary->arr);
-
             string_free(cur_binary);
         }
 
