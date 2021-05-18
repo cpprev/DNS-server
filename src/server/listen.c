@@ -74,23 +74,19 @@ void server_listen(server_config *cfg)
     {
         int sz = recvfrom(sockfd, client_message, 2000, 0, (struct sockaddr *)&client, (socklen_t*)&c);
         client_message[sz] = '\0';
-        int bs[1000];
-        int c_bs = 0;
+        string *req_bits = string_init();
         for (int i = 0; i < sz; ++i)
         {
             string *cur_binary = decimal_to_binary(client_message[i]);
             string_pad_zeroes(&cur_binary, 8);
+            string_add_str(req_bits, cur_binary->arr);
             //printf("test: %s\n", cur_binary->arr);
-            for (size_t j = 0; j < cur_binary->size; ++j)
-            {
-                bs[c_bs++] = cur_binary->arr[j] - '0';
-                bs[c_bs] = '\0';
-            }
+
             string_free(cur_binary);
         }
 
         // Parse DNS request
-        request *req = parse_request(bs, c_bs);
+        request *req = parse_request(req_bits);
         response *resp = build_response(cfg, req);
         printf("\n\n------------------\nRESPONSE:\n");
         string *resp_bits = response_to_bits(resp);
@@ -100,6 +96,7 @@ void server_listen(server_config *cfg)
         sendto(sockfd, resp_bits->arr, resp_bits->size, 0, (struct sockaddr *)&client, (socklen_t)c);
 
         // Free memory
+        string_free(req_bits);
         string_free(resp_bits);
         request_free(req);
         response_free(resp);

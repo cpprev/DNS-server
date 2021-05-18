@@ -9,6 +9,6 @@
 
 string *parse_qname(string *qnamebits);
 
-request *parse_request(int *bits, size_t sz);
+request *parse_request(string *bits);
 
 #endif

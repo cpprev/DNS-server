@@ -11,12 +11,12 @@
 #include "utils/string.h"
 #include "utils/base_convertions.h"
 
-string *get_next_field(size_t *until, size_t step, size_t *i, int *bits, size_t bits_size)
+string *get_next_field(size_t *until, size_t step, size_t *i, string *bits)
 {
     string *res = string_init();
     *until += step;
-    for (; *i < *until && *i < bits_size; (*i)++)
-        string_add_char(res, bits[*i] + '0');
+    for (; *i < *until && *i < bits->size; (*i)++)
+        string_add_char(res, bits->arr[*i]);
     return res;
 }
 
@@ -40,12 +40,12 @@ string *parse_qname(string *qnamebits)
     return res;
 }
 
-string *parse_whole_qname(size_t *i, size_t *until, size_t sz, int *bits)
+string *parse_whole_qname(size_t *i, size_t *until, string *bits)
 {
     string *tampon = string_init(), *qname = string_init();
     int tmp_len = 0;
     size_t i_init = *i;
-    for (; *i < sz; ++(*i))
+    for (; *i < bits->size; ++(*i))
     {
         if (*i > i_init && *i % 8 == 0)
         {
@@ -55,7 +55,7 @@ string *parse_whole_qname(size_t *i, size_t *until, size_t sz, int *bits)
             {
                 (*until) += tampon->size;
                 tmp_len = dec;
-                string *qnamebits = get_next_field(until, tmp_len * 8, i, bits, sz);
+                string *qnamebits = get_next_field(until, tmp_len * 8, i, bits);
                 string *tmp_name = parse_qname(qnamebits);
                 if (!string_is_empty(qname))
                     string_add_char(qname, '.');
@@ -70,14 +70,14 @@ string *parse_whole_qname(size_t *i, size_t *until, size_t sz, int *bits)
             }
             string_flush(tampon);
         }
-        string_add_char(tampon, bits[*i] + '0');
+        string_add_char(tampon, bits->arr[*i]);
     }
     string_free(tampon);
     return qname;
 }
 
 // Cf https://datatracker.ietf.org/doc/html/rfc1035#section-4
-request *parse_request(int *bits, size_t sz)
+request *parse_request(string *bits)
 {
     message *m = message_init();
     m->questions = question_array_init();
@@ -86,38 +86,38 @@ request *parse_request(int *bits, size_t sz)
 
     // 1. Header section
     // 1.1. ID: 16 bits
-    string *id = get_next_field(&until, 16, &i, bits, sz);
+    string *id = get_next_field(&until, 16, &i, bits);
     m->id = binary_to_decimal(id);
     // 1.2. QR (1 bit)
-    string *qr = get_next_field(&until, 1, &i, bits, sz);
+    string *qr = get_next_field(&until, 1, &i, bits);
     m->qr = binary_to_decimal(qr) == 0 ? REQUEST : RESPONSE;
     // 1.3. OPCode (4 bits)
-    string *opcode = get_next_field(&until, 4, &i, bits, sz);
+    string *opcode = get_next_field(&until, 4, &i, bits);
     m->opcode = binary_to_decimal(opcode);
     // 1.4. AA (1 bit) -> required in responses (ignore here)
     i += 1; until += 1;
     // 1.5. TC (1 bit)
-    string *tc = get_next_field(&until, 1, &i, bits, sz);
+    string *tc = get_next_field(&until, 1, &i, bits);
     m->tc = binary_to_decimal(tc) == 1;
     // 1.6. RD (1 bit) -> optional
-    string *rd = get_next_field(&until, 1, &i, bits, sz);
+    string *rd = get_next_field(&until, 1, &i, bits);
     m->rd = binary_to_decimal(rd) == 1;
     // 1.7. RA (1 bit)
-    string *ra = get_next_field(&until, 1, &i, bits, sz);
+    string *ra = get_next_field(&until, 1, &i, bits);
     m->ra = binary_to_decimal(ra) == 1;
     // 1.8. / 1.9. Z (3 bits) AND RCODE (4 bits) -> ignore in request
     i += 3 + 4; until += 3 + 4;
     // 1.10. QDCOUNT (16 bits)
-    string *qdcount = get_next_field(&until, 16, &i, bits, sz);
+    string *qdcount = get_next_field(&until, 16, &i, bits);
     m->qdcount = binary_to_decimal(qdcount);
     // 1.11. ANCOUNT (16 bits)
-    string *ancount = get_next_field(&until, 16, &i, bits, sz);
+    string *ancount = get_next_field(&until, 16, &i, bits);
     m->ancount = binary_to_decimal(ancount);
     // 1.12. NSCOUNT (16 bits)
-    string *nscount = get_next_field(&until, 16, &i, bits, sz);
+    string *nscount = get_next_field(&until, 16, &i, bits);
     m->nscount = binary_to_decimal(nscount);
     // 1.13. ARCOUNT (16 bits)
-    string *arcount = get_next_field(&until, 16, &i, bits, sz);
+    string *arcount = get_next_field(&until, 16, &i, bits);
     m->arcount = binary_to_decimal(arcount);
 
     // 2. Question section
@@ -125,14 +125,14 @@ request *parse_request(int *bits, size_t sz)
     for (int j = 0; j < m->qdcount; ++j)
     {
         question *q = question_init();
-        string *qname = parse_whole_qname(&i, &until, sz, bits);
+        string *qname = parse_whole_qname(&i, &until, bits);
         string_copy(&q->qname, qname);
         // 2.2. QTYPE (16 bits) AAAA = 28; A = 1; etc -> Cf https://en.wikipedia.org/wiki/List_of_DNS_record_types
-        string *qtype = get_next_field(&until, 16, &i, bits, sz);
+        string *qtype = get_next_field(&until, 16, &i, bits);
         int qtypeInt = binary_to_decimal(qtype);
         q->qtype = (RECORD_TYPE) qtypeInt;
         // 2.3. QCLASS (16 bits) -> IN class = 1 (ignore other classes)
-        string *qclass = get_next_field(&until, 16, &i, bits, sz);
+        string *qclass = get_next_field(&until, 16, &i, bits);
 
         printf("%ld\n", m->questions->size);
         question_array_add_question(m->questions, q);
@@ -142,7 +142,7 @@ request *parse_request(int *bits, size_t sz)
         // TODO print delete later
         printf("qname = %s\n", m->questions->arr[0]->qname->arr);
         printf("qtype = %s\n", qtype->arr);
-        printf("qclass = %s\n", qclass->arr);
+        printf("qclassZ = %s\n", qclass->arr);
 
         string_free(qname);
         string_free(qtype);

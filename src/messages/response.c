@@ -30,6 +30,9 @@ response *build_response(server_config *cfg, request *req)
     resp->msg = message_copy(req->msg);
 
     resp->msg->ra = true;
+    // TODO handle authority and additional section
+    resp->msg->arcount = 0;
+    resp->msg->nscount = 0;
 
     record_array *r_arr = record_array_init();
     for (size_t i = 0; req->msg->questions->arr[i]; ++i)
