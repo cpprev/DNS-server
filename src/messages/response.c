@@ -273,9 +273,9 @@ string *response_to_bits(response *resp)
         string_free(tampon);
     }
 
-    // TODO rename parse_qname func better
+    // TODO rename binary_bits_to_ascii_string func better
     //string_print(s);
-    string *res = parse_qname(s);
+    string *res = binary_bits_to_ascii_string(s);
 
     // Free memory
     string_free(nscount);
