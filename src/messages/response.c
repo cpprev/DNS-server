@@ -53,6 +53,9 @@ response *build_response(server_config *cfg, request *req)
             }
         }
     }
+
+    // TODO Copy some bits from request (like QDCOUNT, etc)
+
     resp->msg->id = req->msg->id;
     resp->msg->answer = answer_init();
     resp->msg->answer->records = r_arr;
@@ -109,7 +112,7 @@ string *response_to_bits(response *resp)
     printf("RCODE: %s\n", rcode->arr);
     string_add_str(s, rcode->arr);
     // QDCOUNT (16 bits)
-    string *qdcount = string_init();
+    string *qdcount = decimal_to_binary(resp->msg->qdcount);
     string_pad_zeroes(&qdcount, 16);
     printf("QDCOUNT: %s\n", qdcount->arr);
     string_add_str(s, qdcount->arr);
@@ -167,9 +170,7 @@ string *response_to_bits(response *resp)
                 }
             }
             else
-            {
                 count = r->domain->arr[i];
-            }
             string *cur_qname = decimal_to_binary(count);
             string_pad_zeroes(&cur_qname, 8);
             string_add_str(s, cur_qname->arr);
@@ -231,9 +232,6 @@ string *response_to_bits(response *resp)
     string *res = parse_qname(s);
 
     // Free memory
-    //string_free(qtype);
-    //string_free(qclass);
-    //string_free(question);
     string_free(nscount);
     string_free(arcount);
     string_free(qdcount);

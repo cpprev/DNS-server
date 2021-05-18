@@ -42,8 +42,11 @@ typedef struct
     int ancount;
     int nscount;
     int arcount;
+    // TODO question_section object containing question_array object (like answer)
     question **questions;
+    // TODO rename answer class to answer_section
     answer *answer;
+    // TODO auth + additional sections (unless not asked in subject)
 } message;
 
 message *message_init();
