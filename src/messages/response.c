@@ -225,7 +225,7 @@ string *response_to_bits(response *resp)
         string_add_str(s, ttl->arr);
         printf("TTL: %s\n", ttl->arr);
         string_free(ttl);
-        // RDLENGTH (RDATA len) TODO
+        // RDLENGTH (RDATA len)
         int rdlenInt = 0;
         switch (r->type)
         {
@@ -250,7 +250,6 @@ string *response_to_bits(response *resp)
             default:
                 break;
         }
-
         string *rdlength = decimal_to_binary(rdlenInt);
         string_pad_zeroes(&rdlength, 16);
         string_add_str(s, rdlength->arr);
@@ -293,8 +292,8 @@ string *response_to_bits(response *resp)
         }
         else if (r->type == TXT)
         {
-            // Length of string (this is = length of string, where as
-            // RDLENGTH is = length of string + 1
+            // Single length octet (this is equals to length of string, where as
+            // RDLENGTH is equals to length of string + 1)
             rdlength = decimal_to_binary(r->value->size);
             string_pad_zeroes(&rdlength, 8);
             string_add_str(s, rdlength->arr);
