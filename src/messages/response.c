@@ -257,7 +257,6 @@ string *response_to_bits(response *resp)
         string_free(rdlength);
         if (r->type == A)
         {
-            // RDATA TODO only works for A records as of now
             string *tampon = string_init();
             for (size_t i = 0; r->value->arr[i]; ++i)
             {
