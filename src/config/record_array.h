@@ -18,6 +18,8 @@ typedef struct
 */
 record_array *record_array_init (void);
 
+record_array *record_array_copy (record_array *r_arr);
+
 /**
 ** \brief                           Frees the memory inside a record_array
 ** \param r_arr                     The record_array to free

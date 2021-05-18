@@ -27,7 +27,12 @@ response *build_response(server_config *cfg, request *req)
     // TODO Handle authority and additional sections in answer_array
 
     response *resp = response_init();
-    resp->msg = message_init();
+    resp->msg = message_copy(req->msg);
+
+    resp->msg->ra = true;
+    // TODO
+    resp->msg->qdcount = 0;
+
     record_array *r_arr = record_array_init();
     for (size_t i = 0; req->msg->questions->arr[i]; ++i)
     {
@@ -44,7 +49,7 @@ response *build_response(server_config *cfg, request *req)
                 {
                     if (!resp->msg->aa)
                     {
-                        resp->msg->aa = true;
+                        //resp->msg->aa = true;
                         resp->msg->rcode = NO_ERR;
                     }
                     record_array_add_copied_record(r_arr, r);

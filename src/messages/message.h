@@ -52,6 +52,8 @@ typedef struct
 
 message *message_init();
 
+message *message_copy(message *m);
+
 void message_free(message *m);
 
 #endif

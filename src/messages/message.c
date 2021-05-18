@@ -17,12 +17,12 @@ message *message_init()
     m->ancount = 0;
     m->nscount = 0;
     m->arcount = 0;
-    m->questions = question_array_init();
+    m->questions = NULL;
     m->answers = NULL;
     return m;
 }
 
-/*message *mesage_copy(message *m)
+message *message_copy(message *m)
 {
     message *new_m = message_init();
     new_m->id = m->id;
@@ -37,10 +37,10 @@ message *message_init()
     new_m->ancount = m->ancount;
     new_m->nscount = m->nscount;
     new_m->arcount = m->arcount;
-    new_m->questions = questionm->questions;
-    new_m->answer_array = NULL;
+    new_m->questions = question_array_copy(m->questions);
+    new_m->answers = record_array_copy(m->answers);
     return new_m;
-}*/
+}
 
 void message_free(message *m)
 {

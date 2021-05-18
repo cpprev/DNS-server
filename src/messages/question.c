@@ -9,6 +9,13 @@ question *question_init()
     return q;
 }
 
+question *question_copy(question *q)
+{
+    question *new_q = question_init();
+    string_copy(&new_q->qname, q->qname);
+    return new_q;
+}
+
 void question_free(question *q)
 {
     if (q == NULL)

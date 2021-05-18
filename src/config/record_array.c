@@ -15,6 +15,18 @@ record_array *record_array_init (void)
     return r_arr;
 }
 
+record_array *record_array_copy (record_array *r_arr)
+{
+    if (r_arr == NULL)
+        return NULL;
+    record_array *new_arr = record_array_init();
+    new_arr->capacity = r_arr->capacity;
+    new_arr->size = r_arr->size;
+    for (int i = 0; r_arr->arr[i]; ++i)
+        record_array_add_record(new_arr, r_arr->arr[i]);
+    return new_arr;
+}
+
 void record_array_free (record_array *r_arr)
 {
     if (r_arr == NULL)

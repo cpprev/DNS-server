@@ -14,6 +14,18 @@ question_array *question_array_init (void)
     return q_arr;
 }
 
+question_array *question_array_copy (question_array *q_arr)
+{
+    if (q_arr == NULL)
+        return NULL;
+    question_array *new_arr = question_array_init();
+    new_arr->capacity = q_arr->capacity;
+    new_arr->size = q_arr->size;
+    for (int i = 0; q_arr->arr[i]; ++i)
+        question_array_add_copied_question(new_arr, q_arr->arr[i]);
+    return new_arr;
+}
+
 void question_array_free (question_array *q_arr)
 {
     if (q_arr == NULL)
@@ -39,6 +51,15 @@ void question_array_add_question (question_array *q_arr, question *q)
     if (q_arr->size + 1 >= q_arr->capacity)
         question_array_resize(q_arr);
     q_arr->arr[q_arr->size] = q;
+    q_arr->size++;
+    q_arr->arr[q_arr->size] = NULL;
+}
+
+void question_array_add_copied_question (question_array *q_arr, question *q)
+{
+    if (q_arr->size + 1 >= q_arr->capacity)
+        question_array_resize(q_arr);
+    q_arr->arr[q_arr->size] = question_copy(q);
     q_arr->size++;
     q_arr->arr[q_arr->size] = NULL;
 }

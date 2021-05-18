@@ -13,6 +13,8 @@ typedef struct
 
 question *question_init();
 
+question *question_copy(question *q);
+
 void question_free();
 
 #endif

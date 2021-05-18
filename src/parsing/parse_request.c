@@ -80,6 +80,7 @@ string *parse_whole_qname(size_t *i, size_t *until, size_t sz, int *bits)
 request *parse_request(int *bits, size_t sz)
 {
     message *m = message_init();
+    m->questions = question_array_init();
 
     size_t i = 0, until = 0;
 
