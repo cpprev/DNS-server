@@ -13,6 +13,7 @@ question *question_copy(question *q)
 {
     question *new_q = question_init();
     string_copy(&new_q->qname, q->qname);
+    new_q->qtype = q->qtype;
     return new_q;
 }
 

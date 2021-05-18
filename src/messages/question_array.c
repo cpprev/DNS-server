@@ -19,10 +19,10 @@ question_array *question_array_copy (question_array *q_arr)
     if (q_arr == NULL)
         return NULL;
     question_array *new_arr = question_array_init();
-    new_arr->capacity = q_arr->capacity;
-    new_arr->size = q_arr->size;
     for (int i = 0; q_arr->arr[i]; ++i)
         question_array_add_copied_question(new_arr, q_arr->arr[i]);
+    new_arr->capacity = q_arr->capacity;
+    new_arr->size = q_arr->size;
     return new_arr;
 }
 

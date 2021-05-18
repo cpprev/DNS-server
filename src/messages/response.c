@@ -30,8 +30,6 @@ response *build_response(server_config *cfg, request *req)
     resp->msg = message_copy(req->msg);
 
     resp->msg->ra = true;
-    // TODO
-    resp->msg->qdcount = 0;
 
     record_array *r_arr = record_array_init();
     for (size_t i = 0; req->msg->questions->arr[i]; ++i)
@@ -136,18 +134,57 @@ string *response_to_bits(response *resp)
     printf("ARCOUNT: %s\n", arcount->arr);
     string_add_str(s, arcount->arr);
 
-    // 2. Question section (only 8 zeroes ?) TODO Apparently not needed
-    /*string *question = string_init();
-    string_pad_zeroes(&question, 8);
-    string_add_str(s, question->arr);
-    // QTYPE ? TODO
-    string *qtype = string_init();
-    string_pad_zeroes(&qtype, 16);
-    string_add_str(s, qtype->arr);
-    // QCLASS ? TODO
-    string *qclass = string_init();
-    string_pad_zeroes(&qclass, 16);
-    string_add_str(s, qclass->arr);*/
+    // 2. Question section TODO Apparently not needed
+    if (resp->msg->questions->size > 0)
+    {
+        for (int k = 0; resp->msg->questions->arr[k]; ++k)
+        {
+            question *cur_question = resp->msg->questions->arr[k];
+            string *cur_qname = cur_question->qname;
+            bool hit = false;
+            for (size_t i = 0; i < cur_qname->size; ++i)
+            {
+                char c = cur_qname->arr[i];
+                int count = 0;
+                if ((!hit && i == 0) || c == '.')
+                {
+                    if (!hit && i == 0)
+                    {
+                        hit = true;
+                        --i;
+                    }
+                    size_t temp_i = i + 1;
+                    while (temp_i < cur_qname->size && cur_qname->arr[temp_i] != '.')
+                    {
+                        count++;
+                        temp_i++;
+                    }
+                }
+                else
+                    count = cur_qname->arr[i];
+
+                string *tmp_qname = decimal_to_binary(count);
+                string_pad_zeroes(&tmp_qname, 8);
+                string_add_str(s, tmp_qname->arr);
+                string_free(tmp_qname);
+            }
+            string *question = string_init();
+            string_pad_zeroes(&question, 8);
+            string_add_str(s, question->arr);
+            string_free(question);
+            // QTYPE ? TODO
+            string *qtype = decimal_to_binary(cur_question->qtype);
+            string_pad_zeroes(&qtype, 16);
+            string_add_str(s, qtype->arr);
+            string_free(qtype);
+            // QCLASS ? TODO
+            string *qclass = string_init();
+            string_add_str(qclass, "1");
+            string_pad_zeroes(&qclass, 16);
+            string_add_str(s, qclass->arr);
+            string_free(qclass);
+        }
+    }
 
     // 3. Answer section
     for (size_t k = 0; resp->msg->answers->arr[k]; ++k)
