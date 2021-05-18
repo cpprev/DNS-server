@@ -226,31 +226,92 @@ string *response_to_bits(response *resp)
         printf("TTL: %s\n", ttl->arr);
         string_free(ttl);
         // RDLENGTH (RDATA len) TODO
-        string *rdlength = decimal_to_binary(4); // TODO 4 for now to work with IPv4 (A records)
+        int rdlenInt = 0;
+        switch (r->type)
+        {
+            case A:
+                rdlenInt = 4;
+                break;
+            case AAAA:
+                rdlenInt = 16;
+                break;
+            case TXT:
+                rdlenInt = r->value->size + 1; // + 1 -> important
+                break;
+            case CNAME:
+                // TODO
+                break;
+            case SOA:
+                // TODO
+                break;
+            case NS:
+                // TODO
+                break;
+            default:
+                break;
+        }
+
+        string *rdlength = decimal_to_binary(rdlenInt);
         string_pad_zeroes(&rdlength, 16);
         string_add_str(s, rdlength->arr);
         printf("RDLENGTH: %s\n", rdlength->arr);
         string_free(rdlength);
-        // RDATA TODO only works for A records as of now
-        string *tampon = string_init();
-        for (size_t i = 0; r->value->arr[i]; ++i)
+        if (r->type == A)
         {
-            char c = r->value->arr[i];
-            if (c == '.' || i == r->value->size - 1)
+            // RDATA TODO only works for A records as of now
+            string *tampon = string_init();
+            for (size_t i = 0; r->value->arr[i]; ++i)
             {
-                if (i == r->value->size - 1)
+                char c = r->value->arr[i];
+                if (c == '.' || i == r->value->size - 1)
+                {
+                    if (i == r->value->size - 1)
+                        string_add_char(tampon, c);
+                    string *rdata_temp = decimal_to_binary(atoi(tampon->arr));
+                    string_pad_zeroes(&rdata_temp, 8);
+                    string_add_str(s, rdata_temp->arr);
+                    printf("RDATA_TEMP: %s\n", rdata_temp->arr);
+                    string_free(rdata_temp);
+                    string_flush(tampon);
+                }
+                else
                     string_add_char(tampon, c);
-                string *rdata_temp = decimal_to_binary(atoi(tampon->arr));
-                string_pad_zeroes(&rdata_temp, 8);
-                string_add_str(s, rdata_temp->arr);
-                printf("RDATA_TEMP: %s\n", rdata_temp->arr);
-                string_free(rdata_temp);
-                string_flush(tampon);
             }
-            else
-                string_add_char(tampon, c);
+            string_free(tampon);
         }
-        string_free(tampon);
+        else if (r->type == AAAA)
+        {
+            // TODO
+        }
+        else if (r->type == CNAME)
+        {
+            // TODO
+        }
+        else if (r->type == SOA)
+        {
+            // TODO
+        }
+        else if (r->type == TXT)
+        {
+            // Length of string (this is = length of string, where as
+            // RDLENGTH is = length of string + 1
+            rdlength = decimal_to_binary(r->value->size);
+            string_pad_zeroes(&rdlength, 8);
+            string_add_str(s, rdlength->arr);
+            string_free(rdlength);
+
+            for (size_t i = 0; r->value->arr[i]; ++i)
+            {
+                string *temp = decimal_to_binary(r->value->arr[i]);
+                string_pad_zeroes(&temp, 8);
+                string_add_str(s, temp->arr);
+                string_free(temp);
+            }
+        }
+        else if (r->type == NS)
+        {
+            // TODO
+        }
     }
 
     //string_print(s);
