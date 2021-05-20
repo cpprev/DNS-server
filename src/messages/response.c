@@ -256,7 +256,8 @@ string *response_to_bits(response *resp)
                 rdlenInt = (mname->size + 1) + (rname->size + 1) + 4 + 4 + 4 + 4 + 4;
                 break;
             case NS:
-                // TODO Cf. 3.3.11. RFC 1035
+                // Length of string : <len_octet1>label1<len_octet2>label2,...,<null_octet>
+                rdlenInt = r->value->size + 1;
                 break;
             default:
                 break;
@@ -362,19 +363,20 @@ string *response_to_bits(response *resp)
             string_pad_zeroes(&minimumInt, 32);
             string_add_str(s, minimumInt->arr);
             string_free(minimumInt);
-
-            string_free(mname);
-            string_free(rname);
-            string_free(serial);
-            string_free(refresh);
-            string_free(retry);
-            string_free(expire);
-            string_free(minimum);
         }
         else if (r->type == NS)
         {
-            // TODO
+            write_domain_name_in_response(s, r->value);
         }
+
+        // SOA vals free
+        string_free(mname);
+        string_free(rname);
+        string_free(serial);
+        string_free(refresh);
+        string_free(retry);
+        string_free(expire);
+        string_free(minimum);
     }
 
     //string_print(s);
