@@ -15,8 +15,11 @@ set(SRC
 
     # Messages
     src/messages/message.c
-    src/messages/request.c
-    src/messages/response.c
+    src/messages/request/request.c
+    src/messages/response/response.c
+    src/messages/response/resp_headers.c
+    src/messages/response/resp_question.c
+    src/messages/response/resp_answer.c
     src/messages/question.c
     src/messages/question_array.c
 

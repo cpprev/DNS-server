@@ -3,7 +3,7 @@
 
 #include "config/server_config.h"
 
-#include "messages/request.h"
+#include "messages/request/request.h"
 #include "messages/message.h"
 
 typedef struct
@@ -18,5 +18,7 @@ void response_free(response *r);
 response *build_response(server_config *cfg, request *req);
 
 string *response_to_bits(response *resp);
+
+void write_domain_name_in_response(string *s, string *cur);
 
 #endif

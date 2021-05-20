@@ -15,8 +15,8 @@
 
 #include "parsing/parse_request.h"
 
-#include "messages/request.h"
-#include "messages/response.h"
+#include "messages/request/request.h"
+#include "messages/response/response.h"
 
 void server_listen(server_config *cfg)
 {

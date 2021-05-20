@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#include "messages/request.h"
+#include "messages/request/request.h"
 
 request *request_init()
 {

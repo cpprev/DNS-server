@@ -5,7 +5,7 @@
 
 #include "messages/question.h"
 #include "messages/message.h"
-#include "messages/request.h"
+#include "messages/request/request.h"
 #include "messages/question_array.h"
 
 #include "utils/string.h"

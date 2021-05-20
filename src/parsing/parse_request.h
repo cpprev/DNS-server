@@ -1,7 +1,7 @@
 #ifndef PARSE_REQUEST_H
 #define PARSE_REQUEST_H
 
-#include "messages/request.h"
+#include "messages/request/request.h"
 
 #include "utils/string.h"
 
