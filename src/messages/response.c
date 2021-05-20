@@ -2,6 +2,7 @@
 
 #include "messages/response.h"
 
+#include "utils/utils.h"
 #include "utils/base_convertions.h"
 
 #include "parsing/parse_request.h"
@@ -240,7 +241,8 @@ string *response_to_bits(response *resp)
                 rdlenInt = r->value->size + 1;
                 break;
             case CNAME:
-                // TODO Calculate length of string : <len_octet1>label1<len_octet2>label2,...,<null_octet>
+                // Length of string : <len_octet1>label1<len_octet2>label2,...,<null_octet>
+                rdlenInt = r->value->size + 1;
                 break;
             case SOA:
                 // TODO Cf. 3.3.13. RFC 1035
@@ -303,7 +305,7 @@ string *response_to_bits(response *resp)
         }
         else if (r->type == CNAME)
         {
-            // TODO
+            write_domain_name_in_response(s, r->value);
         }
         else if (r->type == SOA)
         {

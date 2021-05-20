@@ -28,6 +28,7 @@ set(SRC
     src/server/listen.c
 
     # Utils
+    src/utils/utils.c
     src/utils/string.c
     src/utils/error.c
     src/utils/file.c
