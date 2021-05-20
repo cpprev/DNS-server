@@ -7,4 +7,6 @@ int binary_to_decimal(string *in);
 
 string *decimal_to_binary(int in);
 
+string *hexa_to_binary(string *hex);
+
 #endif

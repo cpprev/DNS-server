@@ -280,7 +280,26 @@ string *response_to_bits(response *resp)
         }
         else if (r->type == AAAA)
         {
-            // TODO
+            string *tampon = string_init();
+            for (size_t i = 0; r->value->arr[i]; ++i)
+            {
+                char c = r->value->arr[i];
+                if (c == ':' || i == r->value->size - 1)
+                {
+                    if (i == r->value->size - 1)
+                        string_add_char(tampon, c);
+                    string *rdata_temp = hexa_to_binary(tampon);
+                    printf("HEX: %s\n", rdata_temp->arr);
+                    string_pad_zeroes(&rdata_temp, 16);
+                    string_add_str(s, rdata_temp->arr);
+                    printf("RDATA_TEMP: %s\n", rdata_temp->arr);
+                    string_free(rdata_temp);
+                    string_flush(tampon);
+                }
+                else
+                    string_add_char(tampon, c);
+            }
+            string_free(tampon);
         }
         else if (r->type == CNAME)
         {

@@ -58,10 +58,9 @@ void ipv6_extand(string **ip)
             ++count_after;
         ind = i + 1;
     }
-
-    if (count_before != 15)
+    if (count_before != 7)
     {
-        for (int i = 0; i < 16 - (count_before + count_after); ++i)
+        for (int i = 0; i < 8 - (count_before + count_after); ++i)
             string_add_str(extanded, "0:");
         for (size_t i = ind; i < (*ip)->size; ++i)
             string_add_char(extanded, (*ip)->arr[i]);
