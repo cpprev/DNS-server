@@ -70,6 +70,7 @@ void response_headers_to_bits(response *resp, string *s)
     printf("ARCOUNT: %s\n", arcount->arr);
     string_add_str(s, arcount->arr);
 
+    // Free memory
     string_free(nscount);
     string_free(arcount);
     string_free(qdcount);

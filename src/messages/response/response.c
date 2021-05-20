@@ -36,7 +36,9 @@ response *build_response(server_config *cfg, request *req)
     resp->msg = message_copy(req->msg);
 
     resp->msg->ra = true;
+
     // TODO handle authority and additional section
+
     resp->msg->arcount = 0;
     resp->msg->nscount = 0;
 
@@ -65,8 +67,6 @@ response *build_response(server_config *cfg, request *req)
             }
         }
     }
-
-    // TODO Copy some bits from request (like QDCOUNT, etc)
 
     resp->msg->id = req->msg->id;
     resp->msg->answers = r_arr;
@@ -119,5 +119,6 @@ string *response_to_bits(response *resp)
 
     // Free memory
     string_free(s);
+
     return res;
 }
