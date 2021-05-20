@@ -42,8 +42,6 @@ test_func_conf ()
     else
         echo -e "${red}[KO]""${cyan}""[$test_name]"
     fi
-
-    kill -PIPE $pid &> /dev/null
 }
 
 is_argument ()
