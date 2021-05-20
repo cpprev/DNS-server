@@ -13,6 +13,4 @@ sub.zone.example.com;NS;86400;ns2.sub.zone.example.com.
 ns1.sub.zone.example.com;A;86400;192.0.2.42
 ns1.sub.zone.example.com;AAAA;86400;2001:DB8::42
 ns2.sub.zone.example.com;A;86400;192.0.2.84
-ns2.sub.zone.example.com;AAAA;86400;2001:DB8::84
-
-
+ns2.sub.zone.example.com;AAAA;86400;2001:DB8:0:0:0:0:0:0:0:0:0:0:0:0:0:84

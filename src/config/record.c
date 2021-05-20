@@ -39,30 +39,63 @@ void record_free(record *r)
     free(r);
 }
 
-void process_record(record *r, string *tampon, int count_semicolon)
+void ipv6_extand(string **ip)
 {
-    if (string_is_empty(tampon))
+    if ((*ip)->size == 0)
+        return;
+    string *extanded = string_init();
+    string_add_char(extanded, (*ip)->arr[0]);
+    int count_before = 0, count_after = 0, ind = 0;
+    for (size_t i = 1; i < (*ip)->size && !((*ip)->arr[i - 1] == ':' && (*ip)->arr[i] == ':'); ++i)
+    {
+        if ((*ip)->arr[i] == ':')
+            ++count_before;
+        string_add_char(extanded, (*ip)->arr[i]);
+    }
+    for (int i = (*ip)->size - 2; i >= 0 && !((*ip)->arr[i + 1] == ':' && (*ip)->arr[i] == ':'); --i)
+    {
+        if ((*ip)->arr[i] == ':')
+            ++count_after;
+        ind = i + 1;
+    }
+
+    if (count_before != 15)
+    {
+        for (int i = 0; i < 16 - (count_before + count_after); ++i)
+            string_add_str(extanded, "0:");
+        for (size_t i = ind; i < (*ip)->size; ++i)
+            string_add_char(extanded, (*ip)->arr[i]);
+    }
+    string_free(*ip);
+    *ip = extanded;
+}
+
+void process_record(record *r, string **tampon, int count_semicolon)
+{
+    if (string_is_empty(*tampon))
         return;
     if (count_semicolon == 0)
     {
-        string_copy(&r->domain, tampon);
+        string_copy(&r->domain, *tampon);
     }
     else if (count_semicolon == 1)
     {
-        if (strcmp(tampon->arr, "A") == 0) r->type = A;
-        else if (strcmp(tampon->arr, "AAAA") == 0) r->type = AAAA;
-        else if (strcmp(tampon->arr, "CNAME") == 0) r->type = CNAME;
-        else if (strcmp(tampon->arr, "TXT") == 0) r->type = TXT;
-        else if (strcmp(tampon->arr, "SOA") == 0) r->type = SOA;
-        else if (strcmp(tampon->arr, "NS") == 0) r->type = NS;
+        if (strcmp((*tampon)->arr, "A") == 0) r->type = A;
+        else if (strcmp((*tampon)->arr, "AAAA") == 0) r->type = AAAA;
+        else if (strcmp((*tampon)->arr, "CNAME") == 0) r->type = CNAME;
+        else if (strcmp((*tampon)->arr, "TXT") == 0) r->type = TXT;
+        else if (strcmp((*tampon)->arr, "SOA") == 0) r->type = SOA;
+        else if (strcmp((*tampon)->arr, "NS") == 0) r->type = NS;
     }
     else if (count_semicolon == 2)
     {
-        r->ttl = atoi(tampon->arr);
+        r->ttl = atoi((*tampon)->arr);
     }
     else if (count_semicolon == 3)
     {
-        string_copy(&r->value, tampon);
+        if (r->type == AAAA)
+            ipv6_extand(tampon);
+        string_copy(&r->value, (*tampon));
     }
 }
 
@@ -78,7 +111,7 @@ record *parse_record(string *in)
         {
             if (i == in->size - 1)
                 string_add_char(tampon, c);
-            process_record(r, tampon, count_semicolon);
+            process_record(r, &tampon, count_semicolon);
             count_semicolon += 1;
             string_flush(tampon);
         }
