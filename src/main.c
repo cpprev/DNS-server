@@ -9,6 +9,7 @@
 #include "utils/file.h"
 
 #include "parser/input.h"
+#include "parser/options.h"
 
 #include "config/server_config.h"
 #include "config/zone.h"
@@ -27,12 +28,21 @@ void sigint_handler(int sig)
 
 int main(int argc, char *argv[])
 {
-    exit_if_true(argc != 2, "[Usage] ./dns [Input file]");
-    char *input_path = argv[1];
-    exit_if_true(!is_file(input_path), "[Runtime error] Input file cannot be found.");
+    string *error = string_init();
+    options *options = parse_options(argc, argv, &error);
 
-    server_config *server_cfg = parse_server_config(input_path);
+    exit_if_true(options == NULL, error->arr);
+
+    server_config *server_cfg = parse_server_config(options->file->arr);
     exit_if_true(server_cfg == NULL, "[Runtime error] Input file is not in valid format.");
+
+    string_free(error);
+    if (options->check)
+    {
+        options_free(options);
+        server_config_free(server_cfg);
+        return 0;
+    }
 
     // TODO Delete
     string_print(server_cfg->ip);
@@ -65,6 +75,7 @@ int main(int argc, char *argv[])
 
     // Free memory
     server_config_free(server_cfg);
+    options_free(options);
 
     return 0;
 }

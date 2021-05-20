@@ -94,7 +94,11 @@ void server_config_set_attribute(server_config **server_cfg, string *line, INPUT
 
 void server_config_free(server_config *server_cfg)
 {
-    string_free(server_cfg->ip);
-    zone_array_free(server_cfg->zones);
+    if (server_cfg == NULL)
+        return;
+    if (server_cfg->ip != NULL)
+        string_free(server_cfg->ip);
+    if (server_cfg->zones != NULL)
+        zone_array_free(server_cfg->zones);
     free(server_cfg);
 }

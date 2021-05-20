@@ -27,6 +27,7 @@ set(SRC
     src/parser/input.c
     src/parser/parse_request.c
     src/parser/parse_zone.c
+    src/parser/options.c
 
     # Server
     src/server/listen.c
