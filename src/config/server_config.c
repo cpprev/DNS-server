@@ -7,7 +7,7 @@
 #include "config/server_config.h"
 #include "config/zone_array.h"
 
-#include "parsing/parse_zone.h"
+#include "parser/parse_zone.h"
 
 server_config *server_config_init_empty()
 {

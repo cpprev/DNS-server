@@ -8,7 +8,7 @@
 #include "utils/string.h"
 #include "utils/file.h"
 
-#include "parsing/input.h"
+#include "parser/input.h"
 
 #include "config/server_config.h"
 #include "config/zone.h"

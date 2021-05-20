@@ -5,7 +5,7 @@
 
 #include "utils/string.h"
 #include "config/zone_array.h"
-#include "parsing/input_state.h"
+#include "parser/input_state.h"
 
 typedef struct
 {

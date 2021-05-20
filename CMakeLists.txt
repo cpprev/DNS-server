@@ -24,9 +24,9 @@ set(SRC
     src/messages/question_array.c
 
     # Parsing
-    src/parsing/input.c
-    src/parsing/parse_request.c
-    src/parsing/parse_zone.c
+    src/parser/input.c
+    src/parser/parse_request.c
+    src/parser/parse_zone.c
 
     # Server
     src/server/listen.c

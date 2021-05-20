@@ -1,7 +1,7 @@
 #include <string.h>
 
-#include "parsing/input.h"
-#include "parsing/input_state.h"
+#include "parser/input.h"
+#include "parser/input_state.h"
 
 #include "utils/file.h"
 
