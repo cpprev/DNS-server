@@ -2,7 +2,9 @@
 
 ## TODO
 
-    - [] Error handling (zone file, input file, request body, etc)
+    - [DOING] Error handling (zone file, input file, request body, etc)
+
+    - [DOING] Make verbose print for requests/input file/zone and remove trash prints.
 
     - [] Return right error codes (other than NO_ERR) in response (NXDOMAIN, NODATA, etc)
 
