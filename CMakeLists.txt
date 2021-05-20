@@ -46,3 +46,5 @@ add_compile_options(${CHECK_CFLAGS} -Wall -Wextra -Werror -pedantic -std=c99)
 add_executable(dns src/main.c ${SRC})
 
 target_link_libraries(dns asan)
+
+add_custom_target(check COMMAND cp dns ../tests && cd "${CMAKE_SOURCE_DIR}/tests" && ./main.sh)
