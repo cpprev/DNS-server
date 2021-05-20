@@ -39,6 +39,26 @@ void record_free(record *r)
     free(r);
 }
 
+void get_soa_values(string *s, string **mname, string **rname, string **serial, string **refresh, string **retry, string **expire, string **minimum)
+{
+    int cur = 1;
+    for (size_t i = 0; s->arr[i]; ++i)
+    {
+        if (s->arr[i] == ' ')
+            ++cur;
+        else
+        {
+            if (cur == 1) string_add_char(*mname, s->arr[i]);
+            else if (cur == 2) string_add_char(*rname, s->arr[i]);
+            else if (cur == 3) string_add_char(*serial, s->arr[i]);
+            else if (cur == 4) string_add_char(*refresh, s->arr[i]);
+            else if (cur == 5) string_add_char(*retry, s->arr[i]);
+            else if (cur == 6) string_add_char(*expire, s->arr[i]);
+            else if (cur == 7) string_add_char(*minimum, s->arr[i]);
+        }
+    }
+}
+
 void ipv6_extand(string **ip)
 {
     if ((*ip)->size == 0)

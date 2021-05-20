@@ -32,4 +32,6 @@ void record_free(record *r);
 
 record *parse_record(string *in);
 
+void get_soa_values(string *s, string **mname, string **rname, string **serial, string **refresh, string **retry, string **expire, string **minimum);
+
 #endif

@@ -2,7 +2,10 @@
 
 #include "messages/response.h"
 
+#include "config/record.h"
+
 #include "utils/utils.h"
+#include "utils/string.h"
 #include "utils/base_convertions.h"
 
 #include "parsing/parse_request.h"
@@ -228,6 +231,9 @@ string *response_to_bits(response *resp)
         string_free(ttl);
         // RDLENGTH (RDATA len)
         int rdlenInt = 0;
+        // SOA vals
+        string *mname = string_init(), *rname = string_init(), *serial = string_init(), *refresh = string_init(),
+               *retry = string_init(), *expire = string_init(), *minimum = string_init();
         switch (r->type)
         {
             case A:
@@ -245,7 +251,9 @@ string *response_to_bits(response *resp)
                 rdlenInt = r->value->size + 1;
                 break;
             case SOA:
-                // TODO Cf. 3.3.13. RFC 1035
+                // Length of : MNAME + RNAME + SERIAL + REFRESH + RETRY + EXPIRE + MINIMUM
+                get_soa_values(r->value, &mname, &rname, &serial, &refresh, &retry, &expire, &minimum);
+                rdlenInt = (mname->size + 1) + (rname->size + 1) + 4 + 4 + 4 + 4 + 4;
                 break;
             case NS:
                 // TODO Cf. 3.3.11. RFC 1035
@@ -307,10 +315,6 @@ string *response_to_bits(response *resp)
         {
             write_domain_name_in_response(s, r->value);
         }
-        else if (r->type == SOA)
-        {
-            // TODO
-        }
         else if (r->type == TXT)
         {
             // Single length octet (this is equals to length of string, where as
@@ -327,6 +331,45 @@ string *response_to_bits(response *resp)
                 string_add_str(s, temp->arr);
                 string_free(temp);
             }
+        }
+        else if (r->type == SOA)
+        {
+            write_domain_name_in_response(s, mname);
+
+            write_domain_name_in_response(s, rname);
+
+            string *serialInt = decimal_to_binary(atoi(serial->arr));
+            string_pad_zeroes(&serialInt, 32);
+            string_add_str(s, serialInt->arr);
+            string_free(serialInt);
+
+            string *refreshInt = decimal_to_binary(atoi(refresh->arr));
+            string_pad_zeroes(&refreshInt, 32);
+            string_add_str(s, refreshInt->arr);
+            string_free(refreshInt);
+
+            string *retryInt = decimal_to_binary(atoi(retry->arr));
+            string_pad_zeroes(&retryInt, 32);
+            string_add_str(s, retryInt->arr);
+            string_free(retryInt);
+
+            string *expireInt = decimal_to_binary(atoi(expire->arr));
+            string_pad_zeroes(&expireInt, 32);
+            string_add_str(s, expireInt->arr);
+            string_free(expireInt);
+
+            string *minimumInt = decimal_to_binary(atoi(minimum->arr));
+            string_pad_zeroes(&minimumInt, 32);
+            string_add_str(s, minimumInt->arr);
+            string_free(minimumInt);
+
+            string_free(mname);
+            string_free(rname);
+            string_free(serial);
+            string_free(refresh);
+            string_free(retry);
+            string_free(expire);
+            string_free(minimum);
         }
         else if (r->type == NS)
         {
