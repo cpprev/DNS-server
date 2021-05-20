@@ -16,6 +16,4 @@ zone *zone_init();
 
 void zone_free(zone *z);
 
-void parse_zone(zone *zone);
-
 #endif

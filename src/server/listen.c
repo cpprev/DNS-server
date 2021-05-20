@@ -79,7 +79,7 @@ void server_listen(server_config *cfg)
         string *resp_bits = response_to_bits(resp);
         string_print(resp_bits);
 
-        // TODO Send response
+        // Send response
         sendto(sockfd, resp_bits->arr, resp_bits->size, 0, (struct sockaddr *)&client, (socklen_t)c);
 
         // Free memory
