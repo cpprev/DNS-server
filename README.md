@@ -15,10 +15,7 @@ gcc
 
     mkdir build; cd build; cmake ..; make
 
-### TODEL Notes
+### Links
 
-Cf https://www.ques10.com/p/10908/explain-dns-message-format-with-neat-diagram-1/
-
-    DNS query : header + question section
-
-    DNS response : header + question section + answer_array section + authoritative section + additional section
+    https://datatracker.ietf.org/doc/html/rfc1035
+    https://www.ques10.com/p/10908/explain-dns-message-format-with-neat-diagram-1/
