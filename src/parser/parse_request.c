@@ -17,15 +17,10 @@ request *parse_request(string *req_bits)
     message *m = message_init();
     m->questions = question_array_init();
 
-    // 96 bits => header size
-    if (req_bits->size < 96)
-        m->rcode = FORMAT_ERR;
-
     size_t i = 0, until = 0;
 
     // 1. Header section
     parse_request_headers(m, req_bits, &i, &until);
-    check_request_headers(m);
 
     // 2. Question section
     parse_request_question(m, req_bits, &i, &until);
@@ -34,12 +29,6 @@ request *parse_request(string *req_bits)
     req->msg = m;
 
     return req;
-}
-
-void check_request_headers(message *m)
-{
-    if (m->qr != REQUEST || m->opcode < 0 || m->opcode > 2)
-        m->rcode = FORMAT_ERR;
 }
 
 string *get_next_field(size_t *until, size_t step, size_t *i, string *bits)
@@ -146,9 +135,6 @@ void parse_request_headers(message *m, string *req_bits, size_t *i, size_t *unti
     string *arcount = get_next_field(until, 16, i, req_bits);
     m->arcount = binary_to_decimal(arcount);
 
-    if ((rdInt != 0 && rdInt != 1) || (tcInt != 0 && tcInt != 1) || (raInt != 0 && raInt != 1))
-        m->rcode = FORMAT_ERR;
-
     // Free memory
     string_free(id);
     string_free(arcount);
@@ -167,23 +153,12 @@ void parse_request_question(message *m, string *req_bits, size_t *i, size_t *unt
     // 2.1. QNAME (domain name)
     for (int j = 0; j < m->qdcount; ++j)
     {
-        size_t cpy_i = *i;
         string *qname = parse_whole_qname(i, until, req_bits);
-        if (cpy_i == *i)
-        {
-            m->rcode = FORMAT_ERR;
-            question_array_free(m->questions);
-            m->questions = NULL;
-            string_free(qname);
-            return;
-        }
         question *q = question_init();
         string_copy(&q->qname, qname);
         // 2.2. QTYPE (16 req_bits) AAAA = 28; A = 1; etc -> Cf https://en.wikipedia.org/wiki/List_of_DNS_record_types
         string *qtype = get_next_field(until, 16, i, req_bits);
         int qtypeInt = binary_to_decimal(qtype);
-        if (!is_supported_record_type((RECORD_TYPE) qtypeInt))
-            m->rcode = NOT_IMPL;
         q->qtype = (RECORD_TYPE) qtypeInt;
         // 2.3. QCLASS (16 req_bits) -> IN class = 1 (ignore other classes)
         string *qclass = get_next_field(until, 16, i, req_bits);
