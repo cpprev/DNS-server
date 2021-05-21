@@ -8,21 +8,21 @@
 
     - [DOING] Return right error codes (other than NO_ERR) in response (NXDOMAIN, NODATA, etc)
 
-    - [] Use Union for the attribute "value" of the "record" object to be cleaner (specifically for SOA records)
+    - [DOING] Multithreading
 
     - [DOING] Add config tests
 
-    - [] Add dig tests
-
     - [DOING] Listen on TCP
+
+    - [] Use Union for the attribute "value" of the "record" object to be cleaner (specifically for SOA records)
+
+    - [] Add dig tests
 
     - [] Make sure IPv6 works (server listen)
 
     - [] Truncated req/response
 
     - [] MTU ? (in subject page 5, try to figure out what that is)
-
-    - [DOING] Multithreading
 
     - [] More than one question in request/answer
 

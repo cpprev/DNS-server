@@ -19,7 +19,7 @@
 #include "messages/request/request.h"
 #include "messages/response/response.h"
 
-#define UDP_THREAD_CAP 64
+#define UDP_THREAD_CAP 48
 
 void server_UDP_listen(server_config *cfg, options *options)
 {

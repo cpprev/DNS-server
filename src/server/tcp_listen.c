@@ -19,7 +19,7 @@
 #include "messages/request/request.h"
 #include "messages/response/response.h"
 
-#define TCP_THREAD_CAP 16
+#define TCP_THREAD_CAP 12
 
 int server_TCP_listen(void *args)
 {
