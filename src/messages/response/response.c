@@ -45,6 +45,7 @@ response *build_response(server_config *cfg, request *req)
     resp->msg->nscount = 0;
 
     record_array *r_arr = record_array_init();
+    bool hit_domain = false;
     for (size_t i = 0; req->msg->questions->arr[i]; ++i)
     {
         question *q = req->msg->questions->arr[i];
@@ -56,19 +57,20 @@ response *build_response(server_config *cfg, request *req)
             for (size_t k = 0; z->records->arr[k]; ++k)
             {
                 record *r = z->records->arr[k];
-                if (string_equals(qname, r->domain) && qtype == r->type)
+                if (string_equals(qname, r->domain))
                 {
-                    if (!resp->msg->aa)
-                    {
-                        //resp->msg->aa = true;
-                        resp->msg->rcode = NO_ERR;
-                    }
-                    record_array_add_copied_record(r_arr, r);
+                    hit_domain = true;
+                    if (qtype == r->type)
+                        record_array_add_copied_record(r_arr, r);
                 }
 
             }
         }
     }
+    if (hit_domain)
+        resp->msg->rcode = NO_ERR;
+    else
+        resp->msg->rcode = NXDOMAIN;
 
     resp->msg->id = req->msg->id;
     resp->msg->answers = r_arr;

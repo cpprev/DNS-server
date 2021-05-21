@@ -10,8 +10,8 @@ const char *rcode_to_string(RCODE rcode)
             return "FORMAT_ERR";
         case SERV_FAIL:
             return "SERV_FAIL";
-        case NAME_ERR:
-            return "NAME_ERR";
+        case NXDOMAIN:
+            return "NXDOMAIN";
         case NOT_IMPL:
             return "NOT_IMPL";
         case REFUSED:
