@@ -67,10 +67,7 @@ response *build_response(server_config *cfg, request *req)
             }
         }
     }
-    if (hit_domain)
-        resp->msg->rcode = NO_ERR;
-    else
-        resp->msg->rcode = NXDOMAIN;
+    resp->msg->rcode = hit_domain ? NO_ERR : NXDOMAIN;
 
     resp->msg->id = req->msg->id;
     resp->msg->answers = r_arr;
