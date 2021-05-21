@@ -6,15 +6,15 @@
 
     - [DOING] Make verbose print for requests/input file/zone and remove trash prints.
 
-    - [] Return right error codes (other than NO_ERR) in response (NXDOMAIN, NODATA, etc)
+    - [DOING] Return right error codes (other than NO_ERR) in response (NXDOMAIN, NODATA, etc)
 
     - [] Use Union for the attribute "value" of the "record" object to be cleaner (specifically for SOA records)
 
-    - [] Add config tests
+    - [DOING] Add config tests
 
     - [] Add dig tests
 
-    - [] Listen on TCP
+    - [DOING] Listen on TCP
 
     - [] Make sure IPv6 works (server listen)
 
@@ -22,7 +22,7 @@
 
     - [] MTU ? (in subject page 5, try to figure out what that is)
 
-    - [] Multithreading
+    - [DOING] Multithreading
 
     - [] More than one question in request/answer
 
