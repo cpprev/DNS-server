@@ -53,7 +53,7 @@ int udp_receive_request(void *args)
     struct sockaddr_in client;
     int c = sizeof(struct sockaddr_in);
 
-    int sz = recvfrom(udp_socket, client_message, 2048, 0, (struct sockaddr *)&client, (socklen_t*)&c);
+    int sz = recvfrom(udp_socket, client_message, 2048, 0, &client, (socklen_t*)&c);
     client_message[sz] = '\0';
     string *req_bits = string_init();
     for (int i = 0; i < sz; ++i)
@@ -75,7 +75,7 @@ int udp_receive_request(void *args)
     string *resp_bits = response_to_bits(resp);
 
     // Send response
-    sendto(udp_socket, resp_bits->arr, resp_bits->size, 0, (struct sockaddr *)&client, (socklen_t)c);
+    sendto(udp_socket, resp_bits->arr, resp_bits->size, 0, &client, (socklen_t)c);
 
     // Free memory
     string_free(req_bits);

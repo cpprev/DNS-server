@@ -60,7 +60,7 @@ int tcp_receive_request(void *args)
     struct sockaddr_in client;
     int c = sizeof(struct sockaddr_in);
 
-    int connfd = accept(tcp_socket, (struct sockaddr *)&client, (socklen_t*)&c);
+    int connfd = accept(tcp_socket, &client, (socklen_t*)&c);
     exit_if_true(connfd != 0, "Accept error");
 
     int sz = recv(connfd, client_message, 2048, 0);

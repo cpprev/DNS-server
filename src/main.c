@@ -55,9 +55,5 @@ int main(int argc, char *argv[])
     // UDP Listen
     server_UDP_listen(server_cfg, options);
 
-    // Free memory
-    server_config_free(server_cfg);
-    options_free(options);
-
     return 0;
 }
