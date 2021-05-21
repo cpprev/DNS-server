@@ -16,6 +16,6 @@ options *options_init();
 
 void options_free(options *o);
 
-options *parse_options(int argc, char *argv[], string **error);
+options *parse_options(int argc, char *argv[], string *error);
 
 #endif

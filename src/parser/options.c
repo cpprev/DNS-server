@@ -23,7 +23,7 @@ void options_free(options *o)
     free(o);
 }
 
-options *parse_options(int argc, char *argv[], string **error)
+options *parse_options(int argc, char *argv[], string *error)
 {
     options *o = options_init();
     for (int i = 1; i < argc; ++i)
@@ -38,7 +38,7 @@ options *parse_options(int argc, char *argv[], string **error)
             string_add_str(o->file, argv[i]);
             if (!is_file(o->file->arr))
             {
-                string_add_str(*error, "[Runtime error] Input file cannot be found.");
+                string_add_str(error, "[Runtime error] Input file cannot be found.");
                 options_free(o);
                 return NULL;
             }
@@ -46,7 +46,7 @@ options *parse_options(int argc, char *argv[], string **error)
     }
     if (argc == 1 || o->file == NULL)
     {
-        string_add_str(*error, "[Usage] ./dns [Input file] [-t/--check] [-v/--verbose] ");
+        string_add_str(error, "[Usage] ./dns [Input file] [-t/--check] [-v/--verbose] ");
         options_free(o);
         return NULL;
     }

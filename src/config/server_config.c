@@ -14,6 +14,7 @@ server_config *server_config_init_empty()
     server_config *serv_cfg = malloc(sizeof(server_config));
     serv_cfg->ip = NULL;
     serv_cfg->zones = NULL;
+    serv_cfg->port = -1;
     return serv_cfg;
 }
 
@@ -101,4 +102,14 @@ void server_config_free(server_config *server_cfg)
     if (server_cfg->zones != NULL)
         zone_array_free(server_cfg->zones);
     free(server_cfg);
+}
+
+bool is_server_config_valid(server_config *cfg, string *error)
+{
+    if (cfg == NULL || cfg->ip == NULL || cfg->port == -1)
+    {
+        string_add_str(error, "There needs to be atleast an IP (v4/v6) and a Port in your input file.");
+        return false;
+    }
+    return true;
 }

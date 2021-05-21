@@ -5,7 +5,7 @@
 
 #include "utils/file.h"
 
-server_config *parse_server_config(const char *path)
+server_config *parse_server_config(const char *path, string *error)
 {
     string *in = read_file(path);
     server_config *cfg = NULL;
@@ -36,5 +36,7 @@ server_config *parse_server_config(const char *path)
     }
     string_free(in);
     string_free(dummy);
+    if (!is_server_config_valid(cfg, error))
+        return NULL;
     return cfg;
 }

@@ -3,6 +3,6 @@
 
 #include "config/server_config.h"
 
-server_config *parse_server_config(const char *path);
+server_config *parse_server_config(const char *path, string *error);
 
 #endif

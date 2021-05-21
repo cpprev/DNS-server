@@ -20,4 +20,6 @@ void server_config_set_attribute(server_config **server_cfg, string *line, INPUT
 
 void server_config_free(server_config *server_cfg);
 
+bool is_server_config_valid(server_config *cfg, string *error);
+
 #endif

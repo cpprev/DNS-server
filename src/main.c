@@ -18,18 +18,19 @@
 int main(int argc, char *argv[])
 {
     string *error = string_init();
-    options *options = parse_options(argc, argv, &error);
+    options *options = parse_options(argc, argv, error);
 
     exit_if_true(options == NULL, error->arr);
 
-    server_config *server_cfg = parse_server_config(options->file->arr);
-    exit_if_true(server_cfg == NULL, "[Runtime error] Input file is not in valid format.");
+    server_config *server_cfg = parse_server_config(options->file->arr, error);
+    exit_if_true(server_cfg == NULL, error->arr);
 
     string_free(error);
     if (options->check)
     {
         options_free(options);
         server_config_free(server_cfg);
+        printf("Config valid ;)\n");
         return 0;
     }
 
