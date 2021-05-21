@@ -1,16 +1,30 @@
 #ifndef WRAPPER_H
 #define WRAPPER_H
 
+#include <netdb.h>
+
 #include "config/server_config.h"
 
 #include "parser/options.h"
+
+#include "server/protocol.h"
 
 typedef struct
 {
     server_config *cfg;
     options *opt;
-} wrapper;
+} server_wrapper;
 
-wrapper wrapper_init(server_config *server_cfg, options *options);
+typedef struct
+{
+    int socket;
+    server_wrapper s_wrapper;
+} request_wrapper;
+
+server_wrapper server_wrapper_init(server_config *server_cfg, options *options);
+
+request_wrapper request_wrapper_init(int socket, server_wrapper s_wrapper);
+
+int get_addrinfo_wrapper(server_config *cfg, PROTOCOL proto);
 
 #endif

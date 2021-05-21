@@ -1,6 +1,7 @@
 #define _GNU_SOURCE
 
 #include <sys/types.h>
+#include <threads.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -8,7 +9,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 
-#include "server/udp_listen.h"
+#include "server/tcp_listen.h"
 #include "server/wrapper.h"
 
 #include "utils/error.h"
@@ -20,86 +21,81 @@
 #include "messages/request/request.h"
 #include "messages/response/response.h"
 
+#define TCP_THREAD_CAP 32
+
 int server_TCP_listen(void *args)
 {
-    wrapper *w = (wrapper *) args;
+    server_wrapper *w = (server_wrapper *) args;
     server_config *cfg = w->cfg;
     options *options = w->opt;
 
-    struct addrinfo *res = NULL, *rp = NULL;
-
-    struct addrinfo hints;
-    memset(&hints, 0, sizeof(struct addrinfo));
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags = AI_PASSIVE;
-    hints.ai_protocol = 0;
-    hints.ai_canonname = NULL;
-    hints.ai_addr = NULL;
-    hints.ai_next = NULL;
-
-    char snum[10];
-    sprintf(snum, "%d", cfg->port);
-    int s = getaddrinfo(cfg->ip->arr, snum, &hints, &res);
-    exit_if_true(s != 0, "getaddrinfo error");
-
-    int tcp_socket = -1;
-    for (rp = res; rp != NULL; rp = rp->ai_next)
-    {
-        tcp_socket = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
-        int optval = 1;
-        setsockopt(tcp_socket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int));
-        if (tcp_socket == -1)
-            continue;
-        if (bind(tcp_socket, rp->ai_addr, rp->ai_addrlen) == 0)
-            break;
-        close(tcp_socket);
-    }
-    freeaddrinfo(res);
-    exit_if_true(rp == NULL, "No sockets found");
+    int tcp_socket = get_addrinfo_wrapper(cfg, TCP);
 
     puts("[TCP] Waiting for incoming connections...");
 
-    listen(tcp_socket, SOMAXCONN);
+    exit_if_true(listen(tcp_socket, SOMAXCONN) != 0, "Listen error");
 
-    struct sockaddr_in client;
-    int c = sizeof(struct sockaddr_in);
-    char client_message[4096];
-
-    int connfd;
+    thrd_t tid[TCP_THREAD_CAP];
+    int i = 0;
     while (true)
     {
-        connfd = accept(tcp_socket, (struct sockaddr *)&client, (socklen_t*)&c);
-        int sz = recv(connfd, client_message, 4096, 0);
-        client_message[sz] = '\0';
-        string *req_bits = string_init();
-        for (int i = 0; i < sz; ++i)
+        request_wrapper wrapper = request_wrapper_init(tcp_socket, server_wrapper_init(cfg, options));
+        thrd_create(&tid[i++], tcp_receive_request, (void*)&wrapper);
+
+        if (i >= TCP_THREAD_CAP - 10)
         {
-            string *cur_binary = decimal_to_binary(client_message[i]);
-            string_pad_zeroes(&cur_binary, 8);
-            string_add_str(req_bits, cur_binary->arr);
-            string_free(cur_binary);
+            i = 0;
+            while (i < TCP_THREAD_CAP - 10)
+                thrd_join(tid[i++],NULL);
         }
-
-        // Parse DNS request
-        request *req = parse_request(req_bits);
-        response *resp = build_response(cfg, req);
-        if (options->verbose)
-        {
-            print_request(req);
-            print_response(resp);
-        }
-        string *resp_bits = response_to_bits(resp);
-
-        // Send response
-        send(connfd, resp_bits->arr, resp_bits->size, 0);
-
-        // Free memory
-        string_free(req_bits);
-        string_free(resp_bits);
-        request_free(req);
-        response_free(resp);
     }
+    return 0;
+}
+
+int tcp_receive_request(void *args)
+{
+    request_wrapper *w = (request_wrapper *)args;
+    int tcp_socket = w->socket;
+    server_config *cfg = w->s_wrapper.cfg;
+    options *options = w->s_wrapper.opt;
+    char client_message[2048];
+    struct sockaddr_in client;
+    int c = sizeof(struct sockaddr_in);
+
+    int connfd = accept(tcp_socket, (struct sockaddr *)&client, (socklen_t*)&c);
+    exit_if_true(connfd != 0, "Accept error");
+
+    int sz = recv(connfd, client_message, 2048, 0);
+    client_message[sz] = '\0';
+    string *req_bits = string_init();
+    for (int i = 0; i < sz; ++i)
+    {
+        string *cur_binary = decimal_to_binary(client_message[i]);
+        string_pad_zeroes(&cur_binary, 8);
+        string_add_str(req_bits, cur_binary->arr);
+        string_free(cur_binary);
+    }
+
+    // Parse DNS request
+    request *req = parse_request(req_bits);
+    response *resp = build_response(cfg, req);
+    if (options->verbose)
+    {
+        print_request(req);
+        print_response(resp);
+    }
+    string *resp_bits = response_to_bits(resp);
+
+    // Send response
+    send(connfd, resp_bits->arr, resp_bits->size, 0);
+
+    close(connfd);
+
+    // Free memory
+    string_free(req_bits);
+    string_free(resp_bits);
+    request_free(req);
+    response_free(resp);
 
     return 0;
 }

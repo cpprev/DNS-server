@@ -7,4 +7,6 @@
 
 int server_TCP_listen(void *args);
 
+int tcp_receive_request(void *args);
+
 #endif
