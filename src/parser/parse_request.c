@@ -17,6 +17,10 @@ request *parse_request(string *req_bits)
     message *m = message_init();
     m->questions = question_array_init();
 
+    // 96 bits => header size
+    if (req_bits->size < 96)
+        m->rcode = FORMAT_ERR;
+
     size_t i = 0, until = 0;
 
     // 1. Header section
@@ -118,20 +122,14 @@ void parse_request_headers(message *m, string *req_bits, size_t *i, size_t *unti
     // 1.5. TC (1 bit)
     string *tc = get_next_field(until, 1, i, req_bits);
     int tcInt = binary_to_decimal(tc);
-    if (tcInt != 0 && tcInt != 1)
-        m->rcode = FORMAT_ERR;
     m->tc = tcInt == 1;
     // 1.6. RD (1 bit) -> optional
     string *rd = get_next_field(until, 1, i, req_bits);
     int rdInt = binary_to_decimal(rd);
-    if (rdInt != 0 && rdInt != 1)
-        m->rcode = FORMAT_ERR;
     m->rd = rdInt == 1;
     // 1.7. RA (1 bit)
     string *ra = get_next_field(until, 1, i, req_bits);
     int raInt = binary_to_decimal(ra);
-    if (raInt != 0 && raInt != 1)
-        m->rcode = FORMAT_ERR;
     m->ra = raInt == 1;
     // 1.8. / 1.9. Z (3 req_bits) AND RCODE (4 req_bits) -> ignore in request
     *i += 3 + 4; *until += 3 + 4;
@@ -147,6 +145,9 @@ void parse_request_headers(message *m, string *req_bits, size_t *i, size_t *unti
     // 1.13. ARCOUNT (16 req_bits)
     string *arcount = get_next_field(until, 16, i, req_bits);
     m->arcount = binary_to_decimal(arcount);
+
+    if ((rdInt != 0 && rdInt != 1) || (tcInt != 0 && tcInt != 1) || (raInt != 0 && raInt != 1))
+        m->rcode = FORMAT_ERR;
 
     // Free memory
     string_free(id);
@@ -166,8 +167,17 @@ void parse_request_question(message *m, string *req_bits, size_t *i, size_t *unt
     // 2.1. QNAME (domain name)
     for (int j = 0; j < m->qdcount; ++j)
     {
-        question *q = question_init();
+        size_t cpy_i = *i;
         string *qname = parse_whole_qname(i, until, req_bits);
+        if (cpy_i == *i)
+        {
+            m->rcode = FORMAT_ERR;
+            question_array_free(m->questions);
+            m->questions = NULL;
+            string_free(qname);
+            return;
+        }
+        question *q = question_init();
         string_copy(&q->qname, qname);
         // 2.2. QTYPE (16 req_bits) AAAA = 28; A = 1; etc -> Cf https://en.wikipedia.org/wiki/List_of_DNS_record_types
         string *qtype = get_next_field(until, 16, i, req_bits);
