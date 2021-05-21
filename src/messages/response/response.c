@@ -63,7 +63,6 @@ response *build_response(server_config *cfg, request *req)
                     if (qtype == r->type)
                         record_array_add_copied_record(r_arr, r);
                 }
-
             }
         }
     }

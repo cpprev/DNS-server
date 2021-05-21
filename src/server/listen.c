@@ -39,30 +39,31 @@ void server_listen(server_config *cfg, options *options)
     int s = getaddrinfo(cfg->ip->arr, snum, &hints, &res);
     exit_if_true(s != 0, "getaddrinfo error");
 
-    int sockfd = -1;
+    int udp_socket = -1;
     for (rp = res; rp != NULL; rp = rp->ai_next)
     {
-        sockfd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+        udp_socket = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
         int optval = 1;
-        setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int));
-        if (sockfd == -1)
+        setsockopt(udp_socket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int));
+        if (udp_socket == -1)
             continue;
-        if (bind(sockfd, rp->ai_addr, rp->ai_addrlen) == 0)
+        if (bind(udp_socket, rp->ai_addr, rp->ai_addrlen) == 0)
             break;
-        close(sockfd);
+        close(udp_socket);
     }
     freeaddrinfo(res);
     exit_if_true(rp == NULL, "No sockets found");
 
-    puts("Waiting for incoming connections...");
+    if (options->verbose)
+        puts("Waiting for incoming connections...");
 
     struct sockaddr_in client;
     int c = sizeof(struct sockaddr_in);
-    char client_message[2000];
+    char client_message[4096];
 
     while (true)
     {
-        int sz = recvfrom(sockfd, client_message, 2000, 0, (struct sockaddr *)&client, (socklen_t*)&c);
+        int sz = recvfrom(udp_socket, client_message, 4096, 0, (struct sockaddr *)&client, (socklen_t*)&c);
         client_message[sz] = '\0';
         string *req_bits = string_init();
         for (int i = 0; i < sz; ++i)
@@ -84,7 +85,7 @@ void server_listen(server_config *cfg, options *options)
         string *resp_bits = response_to_bits(resp);
 
         // Send response
-        sendto(sockfd, resp_bits->arr, resp_bits->size, 0, (struct sockaddr *)&client, (socklen_t)c);
+        sendto(udp_socket, resp_bits->arr, resp_bits->size, 0, (struct sockaddr *)&client, (socklen_t)c);
 
         // Free memory
         string_free(req_bits);

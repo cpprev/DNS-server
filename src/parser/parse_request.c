@@ -24,6 +24,8 @@ request *parse_request(string *req_bits)
     // 2. Question section
     parse_request_question(m, req_bits, &i, &until);
 
+    // TODO Add validity checker of request and set RCODE to FORMAT_ERROR incase
+
     request *req = request_init();
     req->msg = m;
 
