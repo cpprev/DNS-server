@@ -58,10 +58,9 @@ int tcp_receive_request(void *args)
     options *options = w->s_wrapper.opt;
     char client_message[2048];
     struct sockaddr_in client;
-    int c = sizeof(struct sockaddr_in);
+    socklen_t c = sizeof(struct sockaddr_in);
 
-    int connfd = accept(tcp_socket, &client, (socklen_t*)&c);
-    exit_if_true(connfd != 0, "Accept error");
+    int connfd = accept(tcp_socket, &client, &c);
 
     int sz = recv(connfd, client_message, 2048, 0);
     client_message[sz] = '\0';
