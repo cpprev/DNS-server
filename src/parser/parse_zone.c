@@ -1,11 +1,20 @@
+#include <string.h>
+
 #include "parser/parse_zone.h"
 
 #include "utils/file.h"
 
-void parse_zone(zone *z)
+void parse_zone(zone *z, string *error)
 {
     if (!is_file(z->path->arr))
+    {
+        string *custom_error = string_init();
+        string_add_str(custom_error, "Zone file at this path could not be found : ");
+        string_add_str(custom_error, z->path->arr);
+        string_add_str(error, custom_error->arr);
+        string_free(custom_error);
         return;
+    }
     string *zone_contents = read_file(z->path->arr);
     if (string_is_empty(zone_contents))
     {
@@ -23,9 +32,11 @@ void parse_zone(zone *z)
             if (c != '\n' && i == zone_contents->size - 1)
                 string_add_char(tampon, c);
 
-            record *r = parse_record(tampon);
+            record *r = parse_record(z->name, tampon, error);
             if (r != NULL)
                 record_array_add_record(z->records, r);
+            else if (!string_is_empty(error))
+                break;
             string_flush(tampon);
         }
         else

@@ -26,7 +26,7 @@ record *record_copy(record *r);
 
 void record_free(record *r);
 
-record *parse_record(string *in);
+record *parse_record(string *zone_name, string *in, string *error);
 
 void get_soa_values(string *s, string **mname, string **rname, string **serial, string **refresh, string **retry, string **expire, string **minimum);
 

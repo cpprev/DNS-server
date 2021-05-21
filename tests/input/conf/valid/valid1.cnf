@@ -4,4 +4,4 @@ port = 53
 
 [zone]
 name = abc
-path = ../input/zones/abc.zone
+path = input/zones/valid/abc.zone

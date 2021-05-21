@@ -1,0 +1,6 @@
+[server]
+ip = 127.0.0.1
+
+[zone]
+name = abc
+path = input/zones/valid/abc.zone

@@ -47,7 +47,7 @@ string *get_config_value(string *line)
     return s;
 }
 
-void server_config_set_attribute(server_config **server_cfg, string *line, INPUT_STATE st, size_t zone_ind)
+void server_config_set_attribute(server_config **server_cfg, string *line, INPUT_STATE st, size_t zone_ind, string *error)
 {
     if (*server_cfg == NULL)
         *server_cfg = server_config_init_empty();
@@ -87,7 +87,7 @@ void server_config_set_attribute(server_config **server_cfg, string *line, INPUT
         {
             string *path = get_config_value(line);
             string_copy(&(*server_cfg)->zones->arr[zone_ind]->path, path);
-            parse_zone((*server_cfg)->zones->arr[zone_ind]);
+            parse_zone((*server_cfg)->zones->arr[zone_ind], error);
             string_free(path);
         }
     }

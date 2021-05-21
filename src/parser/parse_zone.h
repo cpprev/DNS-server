@@ -3,6 +3,6 @@
 
 #include "config/zone.h"
 
-void parse_zone(zone *z);
+void parse_zone(zone *z, string *error);
 
 #endif

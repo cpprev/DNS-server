@@ -118,8 +118,10 @@ void process_record(record *r, string **tampon, int count_semicolon)
     }
 }
 
-record *parse_record(string *in)
+record *parse_record(string *zone_name, string *in, string *error)
 {
+    if (string_is_empty(in))
+        return NULL;
     record *r = record_init();
     string *tampon = string_init();
     int count_semicolon = 0;
@@ -143,6 +145,12 @@ record *parse_record(string *in)
     if (string_is_empty(r->domain) || string_is_empty(r->value) || r->ttl == -1 || r->type == RECORD_NONE)
     {
         record_free(r);
+        string *custom_error = string_init();
+        string_add_str(custom_error, "Invalid record found in zone \'");
+        string_add_str(custom_error, zone_name->arr);
+        string_add_str(custom_error, "\'. Records have to be in such format : example.com;A;86400;192.168.2.2");
+        string_add_str(error, custom_error->arr);
+        string_free(custom_error);
         return NULL;
     }
     return r;

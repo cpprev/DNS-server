@@ -28,7 +28,7 @@ server_config *parse_server_config(const char *path, string *error)
                 ++zone_ind;
             }
             else
-                server_config_set_attribute(&cfg, dummy, state, zone_ind);
+                server_config_set_attribute(&cfg, dummy, state, zone_ind, error);
             string_flush(dummy);
         }
         else
