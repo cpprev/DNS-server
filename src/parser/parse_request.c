@@ -21,15 +21,21 @@ request *parse_request(string *req_bits)
 
     // 1. Header section
     parse_request_headers(m, req_bits, &i, &until);
+    check_request_headers(m);
+
     // 2. Question section
     parse_request_question(m, req_bits, &i, &until);
-
-    // TODO Add validity checker of request and set RCODE to FORMAT_ERROR incase
 
     request *req = request_init();
     req->msg = m;
 
     return req;
+}
+
+void check_request_headers(message *m)
+{
+    if (m->qr != REQUEST || m->opcode < 0 || m->opcode > 2)
+        m->rcode = FORMAT_ERR;
 }
 
 string *get_next_field(size_t *until, size_t step, size_t *i, string *bits)
@@ -104,20 +110,29 @@ void parse_request_headers(message *m, string *req_bits, size_t *i, size_t *unti
     // 1.2. QR (1 bit)
     string *qr = get_next_field(until, 1, i, req_bits);
     m->qr = binary_to_decimal(qr) == 0 ? REQUEST : RESPONSE;
-    // 1.3. OPCode (4 req_bits)
+    // 1.3. OPCode (4 bits)
     string *opcode = get_next_field(until, 4, i, req_bits);
     m->opcode = binary_to_decimal(opcode);
     // 1.4. AA (1 bit) -> required in responses (ignore here)
     *i += 1; *until += 1;
     // 1.5. TC (1 bit)
     string *tc = get_next_field(until, 1, i, req_bits);
-    m->tc = binary_to_decimal(tc) == 1;
+    int tcInt = binary_to_decimal(tc);
+    if (tcInt != 0 && tcInt != 1)
+        m->rcode = FORMAT_ERR;
+    m->tc = tcInt == 1;
     // 1.6. RD (1 bit) -> optional
     string *rd = get_next_field(until, 1, i, req_bits);
-    m->rd = binary_to_decimal(rd) == 1;
+    int rdInt = binary_to_decimal(rd);
+    if (rdInt != 0 && rdInt != 1)
+        m->rcode = FORMAT_ERR;
+    m->rd = rdInt == 1;
     // 1.7. RA (1 bit)
     string *ra = get_next_field(until, 1, i, req_bits);
-    m->ra = binary_to_decimal(ra) == 1;
+    int raInt = binary_to_decimal(ra);
+    if (raInt != 0 && raInt != 1)
+        m->rcode = FORMAT_ERR;
+    m->ra = raInt == 1;
     // 1.8. / 1.9. Z (3 req_bits) AND RCODE (4 req_bits) -> ignore in request
     *i += 3 + 4; *until += 3 + 4;
     // 1.10. QDCOUNT (16 req_bits)
@@ -144,7 +159,6 @@ void parse_request_headers(message *m, string *req_bits, size_t *i, size_t *unti
     string_free(tc);
     string_free(opcode);
     string_free(qr);
-
 }
 
 void parse_request_question(message *m, string *req_bits, size_t *i, size_t *until)
@@ -158,6 +172,8 @@ void parse_request_question(message *m, string *req_bits, size_t *i, size_t *unt
         // 2.2. QTYPE (16 req_bits) AAAA = 28; A = 1; etc -> Cf https://en.wikipedia.org/wiki/List_of_DNS_record_types
         string *qtype = get_next_field(until, 16, i, req_bits);
         int qtypeInt = binary_to_decimal(qtype);
+        if (!is_supported_record_type((RECORD_TYPE) qtypeInt))
+            m->rcode = NOT_IMPL;
         q->qtype = (RECORD_TYPE) qtypeInt;
         // 2.3. QCLASS (16 req_bits) -> IN class = 1 (ignore other classes)
         string *qclass = get_next_field(until, 16, i, req_bits);

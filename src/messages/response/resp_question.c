@@ -4,6 +4,8 @@
 
 void response_question_to_bits(response *resp, string *s)
 {
+    if (resp->msg->questions == NULL)
+        return;
     if (resp->msg->questions->size > 0)
     {
         for (int k = 0; resp->msg->questions->arr[k]; ++k)

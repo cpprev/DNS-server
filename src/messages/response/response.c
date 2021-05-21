@@ -35,12 +35,15 @@ response *build_response(server_config *cfg, request *req)
     response *resp = response_init();
     resp->msg = message_copy(req->msg);
 
+    resp->msg->id = req->msg->id;
+
     resp->msg->qr = RESPONSE;
 
     resp->msg->ra = true;
 
     // TODO handle authority and additional section
 
+    resp->msg->tc = false;
     resp->msg->arcount = 0;
     resp->msg->nscount = 0;
 
@@ -66,11 +69,18 @@ response *build_response(server_config *cfg, request *req)
             }
         }
     }
-    resp->msg->rcode = hit_domain ? NO_ERR : NXDOMAIN;
+    if (resp->msg->rcode == NO_ERR)
+        resp->msg->rcode = hit_domain ? NO_ERR : NXDOMAIN;
 
-    resp->msg->id = req->msg->id;
-    resp->msg->answers = r_arr;
-    resp->msg->ancount = resp->msg->answers->size;
+    if (req->msg->rcode != NOT_IMPL)
+    {
+        resp->msg->answers = r_arr;
+        resp->msg->ancount = resp->msg->answers->size;
+    }
+    else
+    {
+        record_array_free(r_arr);
+    }
 
     return resp;
 }

@@ -32,6 +32,8 @@ int get_answer_value_length(record *r, int soa_size)
 
 void response_answer_to_bits(response *resp, string *s)
 {
+    if (resp->msg->answers == NULL)
+        return;
     for (size_t k = 0; resp->msg->answers->arr[k]; ++k)
     {
         record *r = resp->msg->answers->arr[k];

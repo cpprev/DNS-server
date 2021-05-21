@@ -1,6 +1,8 @@
 #ifndef RECORD_TYPE_H
 #define RECORD_TYPE_H
 
+#include <stdbool.h>
+
 // Cf. https://en.wikipedia.org/wiki/List_of_DNS_record_types
 typedef enum
 {
@@ -14,5 +16,7 @@ typedef enum
 } RECORD_TYPE;
 
 const char *record_type_to_string(RECORD_TYPE type);
+
+bool is_supported_record_type(RECORD_TYPE type);
 
 #endif
