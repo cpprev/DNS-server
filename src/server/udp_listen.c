@@ -1,9 +1,7 @@
 #define _GNU_SOURCE
 
-#include <sys/types.h>
 #include <threads.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include <sys/socket.h>
@@ -36,10 +34,10 @@ void server_UDP_listen(server_config *cfg, options *options)
         request_wrapper wrapper = request_wrapper_init(udp_socket, server_wrapper_init(cfg, options));
         thrd_create(&tid[i++], udp_receive_request, (void*)&wrapper);
 
-        if (i >= UDP_THREAD_CAP - 10)
+        if (i >= UDP_THREAD_CAP - 1)
         {
             i = 0;
-            while (i < UDP_THREAD_CAP - 10)
+            while (i < UDP_THREAD_CAP - 1)
                 thrd_join(tid[i++],NULL);
         }
     }

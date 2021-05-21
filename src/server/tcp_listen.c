@@ -1,9 +1,7 @@
 #define _GNU_SOURCE
 
-#include <sys/types.h>
 #include <threads.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include <sys/socket.h>
@@ -21,7 +19,7 @@
 #include "messages/request/request.h"
 #include "messages/response/response.h"
 
-#define TCP_THREAD_CAP 32
+#define TCP_THREAD_CAP 16
 
 int server_TCP_listen(void *args)
 {
@@ -42,10 +40,10 @@ int server_TCP_listen(void *args)
         request_wrapper wrapper = request_wrapper_init(tcp_socket, server_wrapper_init(cfg, options));
         thrd_create(&tid[i++], tcp_receive_request, (void*)&wrapper);
 
-        if (i >= TCP_THREAD_CAP - 10)
+        if (i >= TCP_THREAD_CAP - 1)
         {
             i = 0;
-            while (i < TCP_THREAD_CAP - 10)
+            while (i < TCP_THREAD_CAP - 1)
                 thrd_join(tid[i++],NULL);
         }
     }
