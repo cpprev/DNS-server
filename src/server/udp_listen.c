@@ -8,7 +8,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 
-#include "server/listen.h"
+#include "server/udp_listen.h"
 
 #include "utils/error.h"
 #include "utils/printer.h"
@@ -19,7 +19,7 @@
 #include "messages/request/request.h"
 #include "messages/response/response.h"
 
-void server_listen(server_config *cfg, options *options)
+void server_UDP_listen(server_config *cfg, options *options)
 {
     struct addrinfo *res = NULL, *rp = NULL;
 
@@ -27,7 +27,6 @@ void server_listen(server_config *cfg, options *options)
     memset(&hints, 0, sizeof(struct addrinfo));
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_DGRAM;
-    //hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
     hints.ai_protocol = 0;
     hints.ai_canonname = NULL;
@@ -54,8 +53,7 @@ void server_listen(server_config *cfg, options *options)
     freeaddrinfo(res);
     exit_if_true(rp == NULL, "No sockets found");
 
-    if (options->verbose)
-        puts("Waiting for incoming connections...");
+    puts("[UDP] Waiting for incoming connections...");
 
     struct sockaddr_in client;
     int c = sizeof(struct sockaddr_in);

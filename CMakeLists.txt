@@ -34,7 +34,9 @@ set(SRC
     src/parser/options.c
 
     # Server
-    src/server/listen.c
+    src/server/udp_listen.c
+    src/server/tcp_listen.c
+    src/server/wrapper.c
 
     # Utils
     src/utils/utils.c
@@ -51,6 +53,6 @@ add_compile_options(${CHECK_CFLAGS} -Wall -Wextra -Werror -pedantic -std=c99)
 
 add_executable(dns src/main.c ${SRC})
 
-target_link_libraries(dns asan)
+target_link_libraries(dns asan pthread)
 
 add_custom_target(check COMMAND make -j5 && cp dns ../tests && cd "${CMAKE_SOURCE_DIR}/tests" && ./main.sh)

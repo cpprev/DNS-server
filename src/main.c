@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <signal.h>
+#include <threads.h>
 
 #include "utils/error.h"
 #include "utils/string.h"
@@ -13,7 +14,9 @@
 
 #include "config/server_config.h"
 
-#include "server/listen.h"
+#include "server/udp_listen.h"
+#include "server/tcp_listen.h"
+#include "server/wrapper.h"
 
 int main(int argc, char *argv[])
 {
@@ -44,8 +47,13 @@ int main(int argc, char *argv[])
     };
     sigaction(SIGINT, &(si), 0);
 
-    // Launch server
-    server_listen(server_cfg, options);
+    // TCP Listen on separate thread
+    wrapper w = wrapper_init(server_cfg, options);
+    thrd_t thread_id;
+    thrd_create(&thread_id, server_TCP_listen, (void *)&w);
+
+    // UDP Listen
+    server_UDP_listen(server_cfg, options);
 
     // Free memory
     server_config_free(server_cfg);
