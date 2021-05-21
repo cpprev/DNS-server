@@ -36,7 +36,7 @@ server_config *parse_server_config(const char *path, string *error)
     }
     string_free(in);
     string_free(dummy);
-    if (!is_server_config_valid(cfg, error))
+    if (!is_server_config_valid(cfg, error) || !string_is_empty(error))
         return NULL;
     return cfg;
 }

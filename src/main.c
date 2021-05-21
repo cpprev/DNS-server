@@ -19,7 +19,6 @@ int main(int argc, char *argv[])
 {
     string *error = string_init();
     options *options = parse_options(argc, argv, error);
-
     exit_if_true(options == NULL, error->arr);
 
     server_config *server_cfg = parse_server_config(options->file->arr, error);
