@@ -15,6 +15,4 @@ void parse_request_headers(message *m, string *req_bits, size_t *i, size_t *unti
 
 void parse_request_question(message *m, string *req_bits, size_t *i, size_t *until);
 
-RCODE validate_request(string *req_bits);
-
 #endif

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "parser/parse_request.h"
+#include "parser/validate_request.h"
 
 #include "messages/question.h"
 #include "messages/message.h"
@@ -17,10 +18,15 @@ request *parse_request(string *req_bits)
     message *m = message_init();
     m->questions = question_array_init();
 
+    request *req = request_init();
+
     // TODO Implement checker that validates the request bits separately from the parsing part and make it return an ERROR_CODE (NO_ERR, NOT_IMPL, etc)
-    // TODO and from that error code, try to return right response
     RCODE rcode = validate_request(req_bits);
-    (void) rcode;
+    if (rcode == NOT_IMPL || rcode == FORMAT_ERR)
+    {
+        req->msg = m;
+        return req;
+    }
 
     size_t i = 0, until = 0;
 
@@ -30,17 +36,8 @@ request *parse_request(string *req_bits)
     // 2. Question section
     parse_request_question(m, req_bits, &i, &until);
 
-    request *req = request_init();
     req->msg = m;
-
     return req;
-}
-
-RCODE validate_request(string *req_bits)
-{
-    // TODO
-    (void) req_bits;
-    return NO_ERR;
 }
 
 string *get_next_field(size_t *until, size_t step, size_t *i, string *bits)
