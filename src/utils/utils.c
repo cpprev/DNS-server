@@ -1,12 +1,15 @@
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "utils/utils.h"
 
-int count_number_dots(string *in)
+void sigint_handler(int sig)
 {
-    int res = 0;
-    for (size_t i = 0; in->arr[i]; ++i)
+    if (sig == SIGINT)
     {
-        if (in->arr[i] == '.')
-            ++res;
+        printf("\nExited\n");
+        exit(0);
     }
-    return res;
 }
+

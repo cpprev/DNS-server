@@ -1,30 +1,19 @@
 #define _GNU_SOURCE
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <signal.h>
 
 #include "utils/error.h"
 #include "utils/string.h"
-#include "utils/file.h"
+#include "utils/utils.h"
+#include "utils/printer.h"
 
 #include "parser/input.h"
 #include "parser/options.h"
 
 #include "config/server_config.h"
-#include "config/zone.h"
-#include "config/record_type.h"
 
 #include "server/listen.h"
-
-void sigint_handler(int sig)
-{
-    if (sig == SIGINT)
-    {
-        printf("\nExited\n");
-        exit(0);
-    }
-}
 
 int main(int argc, char *argv[])
 {
@@ -44,23 +33,8 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    // TODO Delete
-    string_print(server_cfg->ip);
-    printf("%d\n", server_cfg->port);
-    if (server_cfg->zones != NULL)
-    {
-        for (int i = 0; server_cfg->zones->arr[i]; ++i)
-        {
-            for(int j = 0; server_cfg->zones->arr[i]->records->arr[j]; ++j)
-            {
-                record *r = server_cfg->zones->arr[i]->records->arr[j];
-                printf("%s\t", r->domain->arr);
-                print_record_type(r->type);
-                printf("\t%d\t%s\n", r->ttl, r->value->arr);
-            }
-            puts("-------------------------------------");
-        }
-    }
+    if (options->verbose)
+        print_server_config(server_cfg);
 
     // Catch sigints
     struct sigaction si =

@@ -3,6 +3,6 @@
 
 #include "utils/string.h"
 
-int count_number_dots(string *in);
+void sigint_handler(int sig);
 
 #endif

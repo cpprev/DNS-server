@@ -38,6 +38,7 @@ set(SRC
     src/utils/error.c
     src/utils/file.c
     src/utils/base_convertions.c
+    src/utils/printer.c
 )
 
 set(CHECK_CFLAGS -fsanitize=address -g)
