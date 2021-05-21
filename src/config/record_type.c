@@ -2,30 +2,23 @@
 
 #include "config/record_type.h"
 
-void print_record_type(RECORD_TYPE type)
+const char *record_type_to_string(RECORD_TYPE type)
 {
     switch (type)
     {
         case A:
-            printf("A");
-            break;
+            return "A";
         case NS:
-            printf("NS");
-            break;
+            return "NS";
         case CNAME:
-            printf("CNAME");
-            break;
+            return "CNAME";
         case SOA:
-            printf("SOA");
-            break;
+            return "SOA";
         case TXT:
-            printf("TXT");
-            break;
+            return "TXT";
         case AAAA:
-            printf("AAAA");
-            break;
+            return "AAAA";
         default:
-            printf("Unknown type");;
-            break;
+            return "Unknown type";;
     }
 }

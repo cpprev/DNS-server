@@ -52,7 +52,7 @@ void print_message(message *msg)
     {
         question *q = msg->questions->arr[i];
         printf("Question [%d] :\n", (int)i + 1);
-        printf("qname = %s ; qtype = %d ; qclass = %d\n", q->qname->arr, q->qtype, q->qclass);
+        printf("qname = %s ; qtype = %s ; qclass = %s\n", q->qname->arr, record_type_to_string(q->qtype), class_type_to_string(q->qclass));
     }
 
     // Answer section
@@ -61,7 +61,7 @@ void print_message(message *msg)
     {
         record *r = msg->answers->arr[i];
         printf("Answer [%d] :\n", (int)i + 1);
-        printf("%s ; %d ; %d ; %d ; %s\n", r->domain->arr, r->ttl, r->class, r->type, r->value->arr);
+        printf("%s\t%d\t%s\t%s\t%s\n", r->domain->arr, r->ttl, class_type_to_string(r->class), record_type_to_string(r->type), r->value->arr);
     }
 }
 
@@ -70,4 +70,9 @@ void string_print(string *s)
     for (size_t i = 0; i < s->size; ++i)
         printf("%c", s->arr[i]);
     printf("\n");
+}
+
+void print_record_type(RECORD_TYPE type)
+{
+    printf("%s", record_type_to_string(type));
 }

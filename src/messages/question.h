@@ -10,7 +10,7 @@ typedef struct
 {
     string *qname;
     RECORD_TYPE qtype;
-    CLASS qclass;
+    CLASS_TYPE qclass;
 } question;
 
 question *question_init();

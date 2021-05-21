@@ -13,6 +13,6 @@ typedef enum
     AAAA = 28
 } RECORD_TYPE;
 
-void print_record_type(RECORD_TYPE type);
+const char *record_type_to_string(RECORD_TYPE type);
 
 #endif

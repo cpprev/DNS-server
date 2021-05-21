@@ -4,11 +4,7 @@
 #include "utils/string.h"
 
 #include "config/record_type.h"
-
-typedef enum
-{
-    IN = 1
-} CLASS;
+#include "config/class_type.h"
 
 typedef struct
 {
@@ -21,7 +17,7 @@ typedef struct
     // 4th value
     string *value;
     // Class (IN class only, for now TODO)
-    CLASS class;
+    CLASS_TYPE class;
 } record;
 
 record *record_init();

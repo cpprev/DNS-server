@@ -16,4 +16,6 @@ void print_response(response* resp);
 
 void string_print(string *s);
 
+void print_record_type(RECORD_TYPE type);
+
 #endif
