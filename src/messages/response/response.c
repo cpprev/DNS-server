@@ -47,6 +47,13 @@ response *build_response(server_config *cfg, request *req)
     resp->msg->arcount = 0;
     resp->msg->nscount = 0;
 
+    // Handle weird requests here
+    if (req->msg->rcode == NOT_IMPL || req->msg->rcode == FORMAT_ERR)
+    {
+        // TODO flush questions/answers ?
+        return resp;
+    }
+
     record_array *r_arr = record_array_init();
     bool hit_domain = false;
     for (size_t i = 0; req->msg->questions && req->msg->questions->arr[i]; ++i)
@@ -72,16 +79,8 @@ response *build_response(server_config *cfg, request *req)
     if (resp->msg->rcode == NO_ERR)
         resp->msg->rcode = hit_domain ? NO_ERR : NXDOMAIN;
 
-    if (req->msg->rcode == NO_ERR)
-    {
-        resp->msg->answers = r_arr;
-        resp->msg->ancount = resp->msg->answers->size;
-    }
-    // Else, NOT_IMPL, NXDOMAIN, FORMAT_ERR, etc.
-    else
-    {
-        record_array_free(r_arr);
-    }
+    resp->msg->answers = r_arr;
+    resp->msg->ancount = resp->msg->answers->size;
 
     return resp;
 }
