@@ -1,0 +1,7 @@
+example.com;SOA;3600;ns0.example.com. postmaster.example.com. 2020092501 86400 3600 604800 3600
+example.com;NS;86400;ns0.example.com.
+example.com;NS;86400;ns1.example.com.
+example.com;A;3600
+example.com;TXT;10;Hello there\; how are you?
+ent.sub.example.com;TXT;86400;bzzpaoz aim benz
+
