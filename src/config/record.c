@@ -89,7 +89,7 @@ void ipv6_extand(string **ip)
     *ip = extanded;
 }
 
-void process_record(record *r, string **tampon, int count_semicolon)
+void process_record(record *r, string **tampon, int count_semicolon, string *error)
 {
     if (string_is_empty(*tampon))
         return;
@@ -105,6 +105,7 @@ void process_record(record *r, string **tampon, int count_semicolon)
         else if (strcmp((*tampon)->arr, "TXT") == 0) r->type = TXT;
         else if (strcmp((*tampon)->arr, "SOA") == 0) r->type = SOA;
         else if (strcmp((*tampon)->arr, "NS") == 0) r->type = NS;
+        else string_add_str(error, "Unknown record type. ");
     }
     else if (count_semicolon == 2)
     {
@@ -132,7 +133,7 @@ record *parse_record(string *zone_name, string *in, string *error)
         {
             if (i == in->size - 1)
                 string_add_char(tampon, c);
-            process_record(r, &tampon, count_semicolon);
+            process_record(r, &tampon, count_semicolon, error);
             count_semicolon += 1;
             string_flush(tampon);
         }

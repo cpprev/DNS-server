@@ -1,0 +1,7 @@
+[server]
+ip = 127.0.0.1
+port = 53
+
+[zone]
+name = abc
+path = input/zones/invalid/invalid5.zone

@@ -14,3 +14,4 @@ test_func_conf "invalid" "invalid zone record no ttl" "input/conf/invalid/invali
 test_func_conf "invalid" "invalid zone record no domain" "input/conf/invalid/invalid6.cnf"
 test_func_conf "invalid" "invalid zone record no value" "input/conf/invalid/invalid7.cnf"
 test_func_conf "invalid" "invalid zone record no record type" "input/conf/invalid/invalid8.cnf"
+test_func_conf "invalid" "invalid zone record no record type" "input/conf/invalid/invalid9.cnf"
