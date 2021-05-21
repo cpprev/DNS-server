@@ -58,13 +58,6 @@ bool string_is_empty(string *s)
     return s == NULL || s->size == 0;
 }
 
-void string_print(string *s)
-{
-    for (size_t i = 0; i < s->size; ++i)
-        printf("%c", s->arr[i]);
-    printf("\n");
-}
-
 void string_copy(string **dst, string *src)
 {
     if (*dst == NULL)

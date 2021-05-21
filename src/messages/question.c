@@ -6,6 +6,8 @@ question *question_init()
 {
     question *q = malloc(sizeof(question));
     q->qname = NULL;
+    q->qclass = IN;
+    q->qtype = RECORD_NONE;
     return q;
 }
 

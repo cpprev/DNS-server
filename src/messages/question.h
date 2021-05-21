@@ -4,11 +4,13 @@
 #include "utils/string.h"
 
 #include "config/record_type.h"
+#include "config/record.h"
 
 typedef struct
 {
     string *qname;
     RECORD_TYPE qtype;
+    CLASS qclass;
 } question;
 
 question *question_init();

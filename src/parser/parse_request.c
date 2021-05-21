@@ -131,20 +131,7 @@ void parse_request_headers(message *m, string *req_bits, size_t *i, size_t *unti
     string *arcount = get_next_field(until, 16, i, req_bits);
     m->arcount = binary_to_decimal(arcount);
 
-    // TODO print delete later
-    printf("ID = %d\n", m->id);
-    printf("QR = %s\n", qr->arr);
-    printf("Opcode = %d\n", m->opcode);
-    printf("TC = %s\n", tc->arr);
-    printf("RD = %s\n", rd->arr);
-    printf("RA = %s\n", ra->arr);
-    printf("qdcount = %s\n", qdcount->arr);
-    printf("ancount = %s\n", ancount->arr);
-    printf("nscount = %s\n", nscount->arr);
-    printf("arcount = %s\n", arcount->arr);
-
     // Free memory
-    printf("ID = %d\n", m->id);
     string_free(id);
     string_free(arcount);
     string_free(nscount);
@@ -173,13 +160,7 @@ void parse_request_question(message *m, string *req_bits, size_t *i, size_t *unt
         // 2.3. QCLASS (16 req_bits) -> IN class = 1 (ignore other classes)
         string *qclass = get_next_field(until, 16, i, req_bits);
 
-        printf("%ld\n", m->questions->size);
         question_array_add_question(m->questions, q);
-
-        // TODO print delete later
-        printf("qname = %s\n", m->questions->arr[0]->qname->arr);
-        printf("qtype = %s\n", qtype->arr);
-        printf("qclassZ = %s\n", qclass->arr);
 
         string_free(qname);
         string_free(qtype);

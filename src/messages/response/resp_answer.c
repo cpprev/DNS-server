@@ -46,19 +46,16 @@ void response_answer_to_bits(response *resp, string *s)
         string *rtype = decimal_to_binary(r->type);
         string_pad_zeroes(&rtype, 16);
         string_add_str(s, rtype->arr);
-        printf("TYPE: %s\n", rtype->arr);
         string_free(rtype);
         // CLASS
         string *class = decimal_to_binary(r->class);
         string_pad_zeroes(&class, 16);
         string_add_str(s, class->arr);
-        printf("CLASS: %s\n", class->arr);
         string_free(class);
         // TTL
         string *ttl = decimal_to_binary(r->ttl);
         string_pad_zeroes(&ttl, 32);
         string_add_str(s, ttl->arr);
-        printf("TTL: %s\n", ttl->arr);
         string_free(ttl);
 
         // SOA vals
@@ -72,7 +69,6 @@ void response_answer_to_bits(response *resp, string *s)
         string *rdlength = decimal_to_binary(rdlenInt);
         string_pad_zeroes(&rdlength, 16);
         string_add_str(s, rdlength->arr);
-        printf("RDLENGTH: %s\n", rdlength->arr);
         string_free(rdlength);
         if (r->type == A)
             write_answer_A_record(r, s);

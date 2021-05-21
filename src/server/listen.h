@@ -3,6 +3,8 @@
 
 #include "config/server_config.h"
 
-void server_listen(server_config *cfg);
+#include "parser/options.h"
+
+void server_listen(server_config *cfg, options *options);
 
 #endif

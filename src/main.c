@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     sigaction(SIGINT, &(si), 0);
 
     // Launch server
-    server_listen(server_cfg);
+    server_listen(server_cfg, options);
 
     // Free memory
     server_config_free(server_cfg);

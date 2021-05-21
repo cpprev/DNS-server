@@ -35,6 +35,8 @@ response *build_response(server_config *cfg, request *req)
     response *resp = response_init();
     resp->msg = message_copy(req->msg);
 
+    resp->msg->qr = RESPONSE;
+
     resp->msg->ra = true;
 
     // TODO handle authority and additional section
@@ -70,6 +72,8 @@ response *build_response(server_config *cfg, request *req)
 
     resp->msg->id = req->msg->id;
     resp->msg->answers = r_arr;
+    resp->msg->ancount = resp->msg->answers->size;
+
     return resp;
 }
 

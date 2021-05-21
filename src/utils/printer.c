@@ -20,3 +20,54 @@ void print_server_config(server_config* cfg)
         }
     }
 }
+
+void print_request(request* req)
+{
+    printf("---\nRequest received :\n");
+    print_message(req->msg);
+    printf("---\n");
+}
+
+void print_response(response* resp)
+{
+    printf("---\nResponse :\n");
+    print_message(resp->msg);
+    printf("---\n");
+}
+
+void print_message(message *msg)
+{
+    // Header section
+    printf("Header section :\n");
+    printf("ID: %d\n", msg->id);
+    printf("QR : %d | OPCODE : %d | AA : %d | TC : %d | RD : %d | RA : %d | Z : 0 | RCODE : %d\n", msg->qr, msg->opcode, msg->aa, msg->tc, msg->rd, msg->ra, msg->rcode);
+    printf("QDCOUNT : %d\n", msg->qdcount);
+    printf("ANCOUNT : %d\n", msg->ancount);
+    printf("NSCOUNT : %d\n", msg->nscount);
+    printf("ARCOUNT : %d\n", msg->arcount);
+
+    // Question section
+    printf("Question section :\n");
+    for (size_t i = 0; msg->questions && msg->questions->arr[i]; ++i)
+    {
+        question *q = msg->questions->arr[i];
+        printf("Question [%d] :\n", (int)i + 1);
+        printf("qname = %s ; qtype = %d ; qclass = %d\n", q->qname->arr, q->qtype, q->qclass);
+    }
+
+    // Answer section
+    printf("Answer section :\n");
+    for (size_t i = 0; msg->answers && msg->answers->arr[i]; ++i)
+    {
+        record *r = msg->answers->arr[i];
+        printf("Answer [%d] :\n", (int)i + 1);
+        printf("%s ; %d ; %d ; %d ; %s\n", r->domain->arr, r->ttl, r->class, r->type, r->value->arr);
+    }
+}
+
+void string_print(string *s)
+{
+    for (size_t i = 0; i < s->size; ++i)
+        printf("%c", s->arr[i]);
+    printf("\n");
+}

@@ -11,6 +11,7 @@
 #include "server/listen.h"
 
 #include "utils/error.h"
+#include "utils/printer.h"
 #include "utils/base_convertions.h"
 
 #include "parser/parse_request.h"
@@ -18,7 +19,7 @@
 #include "messages/request/request.h"
 #include "messages/response/response.h"
 
-void server_listen(server_config *cfg)
+void server_listen(server_config *cfg, options *options)
 {
     struct addrinfo *res = NULL, *rp = NULL;
 
@@ -75,9 +76,12 @@ void server_listen(server_config *cfg)
         // Parse DNS request
         request *req = parse_request(req_bits);
         response *resp = build_response(cfg, req);
-        printf("\n\n------------------\nRESPONSE:\n");
+        if (options->verbose)
+        {
+            print_request(req);
+            print_response(resp);
+        }
         string *resp_bits = response_to_bits(resp);
-        string_print(resp_bits);
 
         // Send response
         sendto(sockfd, resp_bits->arr, resp_bits->size, 0, (struct sockaddr *)&client, (socklen_t)c);

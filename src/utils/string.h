@@ -53,9 +53,6 @@ void string_add_str (string *s, char *s2);
 // TODO comment
 bool string_is_empty(string *s);
 
-// TODO comment
-void string_print(string *s);
-
 // TODO Comment
 void string_copy(string **dst, string *src);
 

@@ -47,7 +47,6 @@ void question_array_resize (question_array *q_arr)
 
 void question_array_add_question (question_array *q_arr, question *q)
 {
-    printf("%ld\n", q_arr->size);
     if (q_arr->size + 1 >= q_arr->capacity)
         question_array_resize(q_arr);
     q_arr->arr[q_arr->size] = q;
