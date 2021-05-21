@@ -17,6 +17,11 @@ request *parse_request(string *req_bits)
     message *m = message_init();
     m->questions = question_array_init();
 
+    // TODO Implement checker that validates the request bits separately from the parsing part and make it return an ERROR_CODE (NO_ERR, NOT_IMPL, etc)
+    // TODO and from that error code, try to return right response
+    RCODE rcode = validate_request(req_bits);
+    (void) rcode;
+
     size_t i = 0, until = 0;
 
     // 1. Header section
@@ -29,6 +34,13 @@ request *parse_request(string *req_bits)
     req->msg = m;
 
     return req;
+}
+
+RCODE validate_request(string *req_bits)
+{
+    // TODO
+    (void) req_bits;
+    return NO_ERR;
 }
 
 string *get_next_field(size_t *until, size_t step, size_t *i, string *bits)
