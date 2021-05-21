@@ -16,6 +16,9 @@ set(SRC
 
     # Messages
     src/messages/message.c
+    src/messages/rcode.c
+    src/messages/qr.c
+    src/messages/opcode.c
     src/messages/request/request.c
     src/messages/response/response.c
     src/messages/response/resp_headers.c

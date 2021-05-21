@@ -2,32 +2,11 @@
 #define MESSAGE_H
 
 #include "messages/question_array.h"
+#include "messages/rcode.h"
+#include "messages/qr.h"
+#include "messages/opcode.h"
 
 #include "config/record_array.h"
-
-typedef enum
-{
-    QR_NONE,
-    REQUEST = 0,
-    RESPONSE = 1
-} QR;
-
-typedef enum
-{
-    OPCODE_QUERY = 0,
-    OPCODE_IQUERY = 1,
-    OPCODE_STATUS = 2
-} OPCODE;
-
-typedef enum
-{
-    NO_ERR = 0,
-    FORMAT_ERR = 1,
-    SERV_FAIL = 2,
-    NAME_ERR = 3,
-    NOT_IMPL = 4,
-    REFUSED = 5
-} RCODE;
 
 typedef struct
 {

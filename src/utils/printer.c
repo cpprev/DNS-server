@@ -40,7 +40,8 @@ void print_message(message *msg)
     // Header section
     printf("Header section :\n");
     printf("ID: %d\n", msg->id);
-    printf("QR : %d | OPCODE : %d | AA : %d | TC : %d | RD : %d | RA : %d | Z : 0 | RCODE : %d\n", msg->qr, msg->opcode, msg->aa, msg->tc, msg->rd, msg->ra, msg->rcode);
+    printf("QR : %s | OPCODE : %s | AA : %d | TC : %d | RD : %d | RA : %d | Z : 0 | RCODE : %s\n",
+           qr_to_string(msg->qr), opcode_to_string(msg->opcode), msg->aa, msg->tc, msg->rd, msg->ra, rcode_to_string(msg->rcode));
     printf("QDCOUNT : %d\n", msg->qdcount);
     printf("ANCOUNT : %d\n", msg->ancount);
     printf("NSCOUNT : %d\n", msg->nscount);
