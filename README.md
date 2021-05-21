@@ -8,8 +8,6 @@
 
     - [DOING] Add config tests
 
-    - [] Use Union for the attribute "value" of the "record" object to be cleaner (specifically for SOA records)
-
     - [] Add dig tests
 
     - [] Truncated req/response
