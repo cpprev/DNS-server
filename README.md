@@ -40,4 +40,3 @@ gcc
 ### Links
 
     https://datatracker.ietf.org/doc/html/rfc1035
-    https://www.ques10.com/p/10908/explain-dns-message-format-with-neat-diagram-1/
