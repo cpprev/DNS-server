@@ -30,10 +30,10 @@ void server_UDP_listen(server_config *cfg, options *options)
 
     puts("[UDP] Waiting for incoming connections...");
 
+    server_wrapper serv_wrapper = { .opt = options, .cfg = cfg };
+    request_wrapper req_wrapper = { .s_wrapper = serv_wrapper, .socket = udp_socket };
     while (true)
     {
-        server_wrapper serv_wrapper = { .opt = options, .cfg = cfg };
-        request_wrapper req_wrapper = { .s_wrapper = serv_wrapper, .socket = udp_socket };
         udp_receive_request((void*)&req_wrapper);
     }
 

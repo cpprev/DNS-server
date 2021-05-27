@@ -36,10 +36,10 @@ int server_TCP_listen(void *args)
 
     exit_if_true(listen(tcp_socket, SOMAXCONN) != 0, "Listen error");
 
+    server_wrapper serv_wrapper = { .opt = options, .cfg = cfg };
+    request_wrapper req_wrapper = { .s_wrapper = serv_wrapper, .socket = tcp_socket };
     while (true)
     {
-        server_wrapper serv_wrapper = { .opt = options, .cfg = cfg };
-        request_wrapper req_wrapper = { .s_wrapper = serv_wrapper, .socket = tcp_socket };
         tcp_receive_request((void*)&req_wrapper);
     }
 
