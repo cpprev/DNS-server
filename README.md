@@ -6,13 +6,14 @@
 
     - [DOING] Return right error codes (other than NO_ERR) in response (NXDOMAIN, NODATA, etc)
 
-    - [DOING] Non blocking listening sockets (and try to add multithreading on top)
-    (Cf. https://stackoverflow.com/questions/8546273/is-non-blocking-i-o-really-faster-than-multi-threaded-blocking-i-o-how)
-
-    - [DOING] epoll server ? Cf. : https://github.com/eliben/code-for-blog/blob/master/2017/async-socket-server/epoll-server.c    
+    - [DOING] epoll server (epoll > select and poll)
+    Cf. https://www.suchprogramming.com/epoll-in-3-easy-steps/
+    Cf. : https://github.com/eliben/code-for-blog/blob/master/2017/async-socket-server/epoll-server.c    
     Also: https://github.com/NerDante/epollServer/tree/master/src
 
     - [DOING] Add config tests
+
+    - [] Add "threads" parameter in config to add optional multithreading (on top of epoll)
 
     - [] Add dig tests
 
