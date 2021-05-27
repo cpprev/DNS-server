@@ -56,13 +56,13 @@ int tcp_receive_request(void *args)
     int tcp_socket = w->socket;
     server_config *cfg = w->s_wrapper.cfg;
     options *options = w->s_wrapper.opt;
-    char client_message[2048];
+    char client_message[4096];
     struct sockaddr_in client;
     socklen_t c = sizeof(struct sockaddr_in);
 
     int connfd = accept(tcp_socket, &client, &c);
 
-    int sz = recv(connfd, client_message, 2048, 0);
+    int sz = recv(connfd, client_message, 4096, 0);
     client_message[sz] = '\0';
     string *req_bits = string_init();
     for (int i = 0; i < sz; ++i)
@@ -74,14 +74,14 @@ int tcp_receive_request(void *args)
     }
 
     // Parse DNS request
-    request *req = parse_request(req_bits);
+    request *req = parse_request(TCP, req_bits);
     response *resp = build_response(cfg, req);
     if (options->verbose)
     {
         print_request(req);
         print_response(resp);
     }
-    string *resp_bits = response_to_bits(resp);
+    string *resp_bits = response_to_bits(TCP, resp);
 
     // Send response
     send(connfd, resp_bits->arr, resp_bits->size, 0);

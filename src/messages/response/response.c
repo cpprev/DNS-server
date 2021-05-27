@@ -70,7 +70,7 @@ response *build_response(server_config *cfg, request *req)
                 if (string_equals(qname, r->domain))
                 {
                     hit_domain = true;
-                    if (qtype == r->type)
+                    if (qtype == r->type || qtype == ANY)
                         record_array_add_copied_record(r_arr, r);
                 }
             }
@@ -116,7 +116,7 @@ void write_domain_name_in_response(string *s, string *cur)
     }
 }
 
-string *response_to_bits(response *resp)
+string *response_to_bits(PROTOCOL proto, response *resp)
 {
     string *s = string_init();
 
@@ -127,10 +127,19 @@ string *response_to_bits(response *resp)
     // 3. Answer section
     response_answer_to_bits(resp, s);
 
-    string *res = binary_bits_to_ascii_string(s);
-
-    // Free memory
+    string *res = NULL;
+    if (proto == TCP)
+    {
+        string *sizeString = decimal_to_binary((s->size / 8));
+        string_pad_zeroes(&sizeString, 16);
+        string_add_str(sizeString, s->arr);
+        res = binary_bits_to_ascii_string(sizeString);
+        string_free(sizeString);
+    }
+    else if (proto == UDP)
+    {
+        res = binary_bits_to_ascii_string(s);
+    }
     string_free(s);
-
     return res;
 }

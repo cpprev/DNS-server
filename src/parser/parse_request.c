@@ -13,7 +13,7 @@
 #include "utils/base_convertions.h"
 
 // Cf https://datatracker.ietf.org/doc/html/rfc1035#section-4
-request *parse_request(string *req_bits)
+request *parse_request(PROTOCOL proto, string *req_bits)
 {
     message *m = message_init();
     m->questions = question_array_init();
@@ -31,7 +31,7 @@ request *parse_request(string *req_bits)
     size_t i = 0, until = 0;
 
     // 1. Header section
-    parse_request_headers(m, req_bits, &i, &until);
+    parse_request_headers(proto, m, req_bits, &i, &until);
 
     // 2. Question section
     parse_request_question(m, req_bits, &i, &until);
@@ -104,8 +104,13 @@ string *parse_whole_qname(size_t *i, size_t *until, string *req_bits)
     return qname;
 }
 
-void parse_request_headers(message *m, string *req_bits, size_t *i, size_t *until)
+void parse_request_headers(PROTOCOL proto, message *m, string *req_bits, size_t *i, size_t *until)
 {
+    if (proto == TCP)
+    {
+        string *msg_size = get_next_field(until, 16, i, req_bits);
+        string_free(msg_size);
+    }
     // 1.1. ID: 16 req_bits
     string *id = get_next_field(until, 16, i, req_bits);
     m->id = binary_to_decimal(id);
@@ -167,7 +172,7 @@ void parse_request_question(message *m, string *req_bits, size_t *i, size_t *unt
         string_copy(&q->qname, qname);
         // 2.2. QTYPE (16 req_bits) AAAA = 28; A = 1; etc -> Cf https://en.wikipedia.org/wiki/List_of_DNS_record_types
         string *qtype = get_next_field(until, 16, i, req_bits);
-        int qtypeInt = binary_to_decimal(qtype);
+        int qtypeInt = binary_to_decimal_unsigned(qtype);
         q->qtype = (RECORD_TYPE) qtypeInt;
         // 2.3. QCLASS (16 req_bits) -> IN class = 1 (ignore other classes)
         string *qclass = get_next_field(until, 16, i, req_bits);

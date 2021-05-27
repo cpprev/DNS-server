@@ -12,7 +12,8 @@ typedef enum
     CNAME = 5,
     SOA = 6,
     TXT = 16,
-    AAAA = 28
+    AAAA = 28,
+    ANY = 255
 } RECORD_TYPE;
 
 const char *record_type_to_string(RECORD_TYPE type);

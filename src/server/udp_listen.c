@@ -65,14 +65,14 @@ int udp_receive_request(void *args)
     }
 
     // Parse DNS request
-    request *req = parse_request(req_bits);
+    request *req = parse_request(UDP, req_bits);
     response *resp = build_response(cfg, req);
     if (options->verbose)
     {
         print_request(req);
         print_response(resp);
     }
-    string *resp_bits = response_to_bits(resp);
+    string *resp_bits = response_to_bits(UDP, resp);
 
     // Send response
     sendto(udp_socket, resp_bits->arr, resp_bits->size, 0, &client, c);

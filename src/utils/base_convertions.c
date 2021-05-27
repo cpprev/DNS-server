@@ -12,7 +12,7 @@ int power(int a, int b)
     return res;
 }
 
-int binary_to_decimal(string *in)
+int binary_to_decimal_unsigned(string *in)
 {
     int res = 0;
     for (int i = in->size - 1; i >= 0; --i)
@@ -20,6 +20,12 @@ int binary_to_decimal(string *in)
         char c = in->arr[i];
         res += (c - '0') * power(2, in->size - i - 1);
     }
+    return res;
+}
+
+int binary_to_decimal(string *in)
+{
+    int res = binary_to_decimal_unsigned(in);
     if (res > 127 && res < 256)
         res -= 256;
     return res;

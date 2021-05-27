@@ -18,6 +18,8 @@ const char *record_type_to_string(RECORD_TYPE type)
             return "TXT";
         case AAAA:
             return "AAAA";
+        case ANY:
+            return "ANY";
         default:
             return "Unknown type";;
     }
@@ -25,5 +27,5 @@ const char *record_type_to_string(RECORD_TYPE type)
 
 bool is_supported_record_type(RECORD_TYPE type)
 {
-    return type == A || type == AAAA || type == NS || type == TXT || type == SOA || type == CNAME;
+    return type == A || type == AAAA || type == NS || type == TXT || type == SOA || type == CNAME || type == ANY;
 }
