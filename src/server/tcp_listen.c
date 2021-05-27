@@ -38,8 +38,9 @@ int server_TCP_listen(void *args)
 
     while (true)
     {
-        request_wrapper wrapper = request_wrapper_init(tcp_socket, server_wrapper_init(cfg, options));
-        tcp_receive_request((void*)&wrapper);
+        server_wrapper serv_wrapper = { .opt = options, .cfg = cfg };
+        request_wrapper req_wrapper = { .s_wrapper = serv_wrapper, .socket = tcp_socket };
+        tcp_receive_request((void*)&req_wrapper);
     }
 
     // TODO TODEL later (thread pool solution, but may not be best)

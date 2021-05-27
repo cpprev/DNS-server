@@ -2,7 +2,6 @@
 
 #include <stdio.h>
 #include <unistd.h>
-#include <stdlib.h>
 #include <fcntl.h>
 #include <string.h>
 #include <sys/socket.h>
@@ -12,22 +11,6 @@
 #include "server/protocol.h"
 
 #include "utils/error.h"
-
-server_wrapper server_wrapper_init(server_config *server_cfg, options *options)
-{
-    server_wrapper w;
-    w.cfg = server_cfg;
-    w.opt = options;
-    return w;
-}
-
-request_wrapper request_wrapper_init(int socket,server_wrapper s_wrapper)
-{
-    request_wrapper r;
-    r.socket = socket;
-    r.s_wrapper = s_wrapper;
-    return r;
-}
 
 void set_socket_non_blocking(int socket)
 {

@@ -21,10 +21,6 @@ typedef struct
     server_wrapper s_wrapper;
 } request_wrapper;
 
-server_wrapper server_wrapper_init(server_config *server_cfg, options *options);
-
-request_wrapper request_wrapper_init(int socket, server_wrapper s_wrapper);
-
 int get_addrinfo_wrapper(server_config *cfg, PROTOCOL proto);
 
 void set_socket_non_blocking(int socket);

@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
     sigaction(SIGINT, &(si), 0);
 
     // TCP Listen on separate thread
-    server_wrapper w = server_wrapper_init(server_cfg, options);
+    server_wrapper w = { .opt = options, .cfg = server_cfg };
     thrd_t thread_id;
     thrd_create(&thread_id, server_TCP_listen, (void *)&w);
 

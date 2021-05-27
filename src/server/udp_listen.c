@@ -32,8 +32,9 @@ void server_UDP_listen(server_config *cfg, options *options)
 
     while (true)
     {
-        request_wrapper wrapper = request_wrapper_init(udp_socket, server_wrapper_init(cfg, options));
-        udp_receive_request((void*)&wrapper);
+        server_wrapper serv_wrapper = { .opt = options, .cfg = cfg };
+        request_wrapper req_wrapper = { .s_wrapper = serv_wrapper, .socket = udp_socket };
+        udp_receive_request((void*)&req_wrapper);
     }
 
     // TODO TODEL later (thread pool solution, but may not be best)
