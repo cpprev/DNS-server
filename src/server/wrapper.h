@@ -27,4 +27,6 @@ request_wrapper request_wrapper_init(int socket, server_wrapper s_wrapper);
 
 int get_addrinfo_wrapper(server_config *cfg, PROTOCOL proto);
 
+void set_socket_non_blocking(int socket);
+
 #endif

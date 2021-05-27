@@ -2,6 +2,8 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <fcntl.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <netdb.h>
@@ -25,6 +27,12 @@ request_wrapper request_wrapper_init(int socket,server_wrapper s_wrapper)
     r.socket = socket;
     r.s_wrapper = s_wrapper;
     return r;
+}
+
+void set_socket_non_blocking(int socket)
+{
+    int flags = fcntl(socket, F_GETFL);
+    fcntl(socket, F_SETFL, flags | O_NONBLOCK);
 }
 
 int get_addrinfo_wrapper(server_config *cfg, PROTOCOL proto)

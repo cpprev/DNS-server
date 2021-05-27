@@ -27,11 +27,13 @@
 void server_UDP_listen(server_config *cfg, options *options)
 {
     int udp_socket = get_addrinfo_wrapper(cfg, UDP);
+    //set_socket_non_blocking(udp_socket);
 
     puts("[UDP] Waiting for incoming connections...");
 
     thrd_t tid[UDP_THREAD_CAP];
     int i = 0;
+
     while (true)
     {
         request_wrapper wrapper = request_wrapper_init(udp_socket, server_wrapper_init(cfg, options));
