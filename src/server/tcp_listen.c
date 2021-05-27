@@ -76,7 +76,6 @@ int tcp_receive_request(void *args)
     // Parse DNS request
     request *req = parse_request(TCP, req_bits);
     response *resp = build_response(cfg, req);
-
     string *resp_bits = response_to_bits(TCP, resp);
 
     // Send response

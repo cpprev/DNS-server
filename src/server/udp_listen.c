@@ -70,9 +70,9 @@ int udp_receive_request(void *args)
     // Parse DNS request
     request *req = parse_request(UDP, req_bits);
     response *resp = build_response(cfg, req);
-
     string *resp_bits = response_to_bits(UDP, resp);
-    // Response too big -> switch to TCP
+
+    // Response too big -> switch to TCP (by setting TC bit)
     if (resp_bits->size >= UDP_MTU)
     {
         string_free(resp_bits);
