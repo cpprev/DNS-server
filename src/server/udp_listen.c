@@ -14,12 +14,15 @@
 #include "utils/printer.h"
 #include "utils/base_convertions.h"
 
+#include "messages/response/resp_headers.h"
+
 #include "parser/parse_request.h"
 
 #include "messages/request/request.h"
 #include "messages/response/response.h"
 
 #define UDP_THREAD_CAP 48
+#define UDP_MTU 512
 
 void server_UDP_listen(server_config *cfg, options *options)
 {
@@ -67,15 +70,30 @@ int udp_receive_request(void *args)
     // Parse DNS request
     request *req = parse_request(UDP, req_bits);
     response *resp = build_response(cfg, req);
+
+    string *resp_bits = response_to_bits(UDP, resp);
+    // Response too big -> switch to TCP
+    if (resp_bits->size >= UDP_MTU)
+    {
+        string_free(resp_bits);
+        resp->msg->tc = true;
+
+        string *s = string_init();
+        response_headers_to_bits(resp, s);
+        resp_bits = binary_bits_to_ascii_string(s);
+        sendto(udp_socket, resp_bits->arr, resp_bits->size, 0, &client, c);
+    }
+    else
+    {
+        // Regular UDP response sending
+        sendto(udp_socket, resp_bits->arr, resp_bits->size, 0, &client, c);
+    }
+
     if (options->verbose)
     {
-        print_request(req);
+        print_request(UDP, req);
         print_response(resp);
     }
-    string *resp_bits = response_to_bits(UDP, resp);
-
-    // Send response
-    sendto(udp_socket, resp_bits->arr, resp_bits->size, 0, &client, c);
 
     // Free memory
     string_free(req_bits);

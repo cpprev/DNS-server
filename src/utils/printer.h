@@ -10,7 +10,7 @@ void print_server_config(server_config* cfg);
 
 void print_message(message *msg);
 
-void print_request(request* req);
+void print_request(PROTOCOL proto, request* req);
 
 void print_response(response* resp);
 

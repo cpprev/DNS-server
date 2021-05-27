@@ -76,17 +76,19 @@ int tcp_receive_request(void *args)
     // Parse DNS request
     request *req = parse_request(TCP, req_bits);
     response *resp = build_response(cfg, req);
-    if (options->verbose)
-    {
-        print_request(req);
-        print_response(resp);
-    }
+
     string *resp_bits = response_to_bits(TCP, resp);
 
     // Send response
     send(connfd, resp_bits->arr, resp_bits->size, 0);
 
     close(connfd);
+
+    if (options->verbose)
+    {
+        print_request(TCP, req);
+        print_response(resp);
+    }
 
     // Free memory
     string_free(req_bits);

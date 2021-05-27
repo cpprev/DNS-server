@@ -21,9 +21,12 @@ void print_server_config(server_config* cfg)
     }
 }
 
-void print_request(request* req)
+void print_request(PROTOCOL proto, request* req)
 {
-    printf("---\nRequest received :\n");
+    if (proto == TCP)
+        printf("---\nTCP request received :\n");
+    else if (proto == UDP)
+        printf("---\nUDP request received :\n");
     print_message(req->msg);
     printf("---\n");
 }

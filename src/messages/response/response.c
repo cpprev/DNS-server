@@ -130,7 +130,7 @@ string *response_to_bits(PROTOCOL proto, response *resp)
     string *res = NULL;
     if (proto == TCP)
     {
-        string *sizeString = decimal_to_binary((s->size / 8));
+        string *sizeString = decimal_to_binary(s->size / 8);
         string_pad_zeroes(&sizeString, 16);
         string_add_str(sizeString, s->arr);
         res = binary_bits_to_ascii_string(sizeString);
