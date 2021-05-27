@@ -10,6 +10,7 @@
     (Cf. https://stackoverflow.com/questions/8546273/is-non-blocking-i-o-really-faster-than-multi-threaded-blocking-i-o-how)
 
     - [DOING] epoll server ? Cf. : https://github.com/eliben/code-for-blog/blob/master/2017/async-socket-server/epoll-server.c    
+    Also: https://github.com/NerDante/epollServer/tree/master/src
 
     - [DOING] Add config tests
 
