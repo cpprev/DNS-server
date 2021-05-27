@@ -27,6 +27,7 @@
 void server_UDP_listen(server_config *cfg, options *options)
 {
     int udp_socket = get_addrinfo_wrapper(cfg, UDP);
+    set_socket_non_blocking(udp_socket);
 
     puts("[UDP] Waiting for incoming connections...");
 
@@ -65,49 +66,53 @@ int udp_receive_request(void *args)
     socklen_t c = sizeof(struct sockaddr_in);
 
     int sz = recvfrom(udp_socket, client_message, 2048, 0, &client, &c);
-    client_message[sz] = '\0';
-    string *req_bits = string_init();
-    for (int i = 0; i < sz; ++i)
+    if (sz > 0)
     {
-        string *cur_binary = decimal_to_binary(client_message[i]);
-        string_pad_zeroes(&cur_binary, 8);
-        string_add_str(req_bits, cur_binary->arr);
-        string_free(cur_binary);
-    }
+        client_message[sz] = '\0';
+        string *req_bits = string_init();
+        for (int i = 0; i < sz; ++i)
+        {
+            string *cur_binary = decimal_to_binary(client_message[i]);
+            string_pad_zeroes(&cur_binary, 8);
+            string_add_str(req_bits, cur_binary->arr);
+            string_free(cur_binary);
+        }
 
-    // Parse DNS request
-    request *req = parse_request(UDP, req_bits);
-    response *resp = build_response(cfg, req);
-    string *resp_bits = response_to_bits(UDP, resp);
+        // Parse DNS request
+        request *req = parse_request(UDP, req_bits);
+        response *resp = build_response(cfg, req);
+        string *resp_bits = response_to_bits(UDP, resp);
 
-    // Response too big -> switch to TCP (by setting TC bit)
-    if (resp_bits->size >= UDP_MTU)
-    {
+        // Response too big -> switch to TCP (by setting TC bit)
+        if (resp_bits->size >= UDP_MTU)
+        {
+            string_free(resp_bits);
+            resp->msg->tc = true;
+
+            string *s = string_init();
+            response_headers_to_bits(resp, s);
+            resp_bits = binary_bits_to_ascii_string(s);
+            sendto(udp_socket, resp_bits->arr, resp_bits->size, 0, &client, c);
+        }
+        else
+        {
+            // Regular UDP response sending
+            sendto(udp_socket, resp_bits->arr, resp_bits->size, 0, &client, c);
+        }
+
+        if (options->verbose)
+        {
+            print_request(UDP, req);
+            print_response(resp);
+        }
+
+        // Free memory
+        string_free(req_bits);
         string_free(resp_bits);
-        resp->msg->tc = true;
-
-        string *s = string_init();
-        response_headers_to_bits(resp, s);
-        resp_bits = binary_bits_to_ascii_string(s);
-        sendto(udp_socket, resp_bits->arr, resp_bits->size, 0, &client, c);
-    }
-    else
-    {
-        // Regular UDP response sending
-        sendto(udp_socket, resp_bits->arr, resp_bits->size, 0, &client, c);
+        request_free(req);
+        response_free(resp);
     }
 
-    if (options->verbose)
-    {
-        print_request(UDP, req);
-        print_response(resp);
-    }
-
-    // Free memory
-    string_free(req_bits);
-    string_free(resp_bits);
-    request_free(req);
-    response_free(resp);
 
     return 0;
 }
