@@ -40,3 +40,6 @@ gcc
 ### Links
 
     https://datatracker.ietf.org/doc/html/rfc1035
+    https://powerdns.org/hello-dns/auth.md.html
+    https://stackoverflow.com/questions/41512591/dns-query-over-tcp
+    https://serverfault.com/questions/698251/how-does-the-dns-protocol-switch-from-udp-to-tcp
