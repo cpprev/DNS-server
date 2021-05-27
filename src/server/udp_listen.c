@@ -21,13 +21,12 @@
 #include "messages/request/request.h"
 #include "messages/response/response.h"
 
-#define UDP_THREAD_CAP 48
+#define UDP_THREAD_CAP 2
 #define UDP_MTU 512
 
 void server_UDP_listen(server_config *cfg, options *options)
 {
     int udp_socket = get_addrinfo_wrapper(cfg, UDP);
-    //set_socket_non_blocking(udp_socket);
 
     puts("[UDP] Waiting for incoming connections...");
 
