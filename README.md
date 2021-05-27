@@ -6,13 +6,12 @@
 
     - [DOING] Return right error codes (other than NO_ERR) in response (NXDOMAIN, NODATA, etc)
 
-    - [DOING] Truncated req/response
+    - [DOING] Non blocking listening sockets (and try to add multithreading on top)
+    (Cf. https://stackoverflow.com/questions/8546273/is-non-blocking-i-o-really-faster-than-multi-threaded-blocking-i-o-how)
     
     - [DOING] Add config tests
 
     - [] Add dig tests
-
-    - [] MTU ? (in subject page 5, try to figure out what that is)
 
     - [] More than one question in request/answer
 
