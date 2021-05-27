@@ -21,7 +21,7 @@
 #include "messages/request/request.h"
 #include "messages/response/response.h"
 
-#define TCP_THREAD_CAP 2
+//#define TCP_THREAD_CAP 2
 
 int server_TCP_listen(void *args)
 {
@@ -36,7 +36,14 @@ int server_TCP_listen(void *args)
 
     exit_if_true(listen(tcp_socket, SOMAXCONN) != 0, "Listen error");
 
-    thrd_t tid[TCP_THREAD_CAP];
+    while (true)
+    {
+        request_wrapper wrapper = request_wrapper_init(tcp_socket, server_wrapper_init(cfg, options));
+        tcp_receive_request((void*)&wrapper);
+    }
+
+    // TODO TODEL later (thread pool solution, but may not be best)
+    /*thrd_t tid[TCP_THREAD_CAP];
     int i = 0;
     while (true)
     {
@@ -49,7 +56,8 @@ int server_TCP_listen(void *args)
             while (i < TCP_THREAD_CAP - 1)
                 thrd_join(tid[i++],NULL);
         }
-    }
+    }*/
+
     return 0;
 }
 

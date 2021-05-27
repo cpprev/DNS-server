@@ -21,7 +21,7 @@
 #include "messages/request/request.h"
 #include "messages/response/response.h"
 
-#define UDP_THREAD_CAP 2
+//#define UDP_THREAD_CAP 2
 #define UDP_MTU 512
 
 void server_UDP_listen(server_config *cfg, options *options)
@@ -30,9 +30,15 @@ void server_UDP_listen(server_config *cfg, options *options)
 
     puts("[UDP] Waiting for incoming connections...");
 
-    thrd_t tid[UDP_THREAD_CAP];
-    int i = 0;
+    while (true)
+    {
+        request_wrapper wrapper = request_wrapper_init(udp_socket, server_wrapper_init(cfg, options));
+        udp_receive_request((void*)&wrapper);
+    }
 
+    // TODO TODEL later (thread pool solution, but may not be best)
+    /*thrd_t tid[UDP_THREAD_CAP];
+    int i = 0;
     while (true)
     {
         request_wrapper wrapper = request_wrapper_init(udp_socket, server_wrapper_init(cfg, options));
@@ -44,7 +50,7 @@ void server_UDP_listen(server_config *cfg, options *options)
             while (i < UDP_THREAD_CAP - 1)
                 thrd_join(tid[i++],NULL);
         }
-    }
+    }*/
 }
 
 int udp_receive_request(void *args)
