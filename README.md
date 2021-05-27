@@ -6,11 +6,11 @@
 
     - [DOING] Return right error codes (other than NO_ERR) in response (NXDOMAIN, NODATA, etc)
 
+    - [DOING] Truncated req/response
+    
     - [DOING] Add config tests
 
     - [] Add dig tests
-
-    - [] Truncated req/response
 
     - [] MTU ? (in subject page 5, try to figure out what that is)
 
