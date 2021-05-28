@@ -8,6 +8,8 @@
 
     - [DOING] Add config tests
 
+    - [DOING] Create DNS client (add multithreading feature to spam server)
+
     - [] Add "threads" parameter in config to add optional multithreading (on top of epoll)
 
     - [] Add dig tests
