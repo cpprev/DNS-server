@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <sys/epoll.h>
 #include <netdb.h>
 #include <errno.h>
 
@@ -21,7 +22,8 @@
 #include "messages/request/request.h"
 #include "messages/response/response.h"
 
-//#define TCP_THREAD_CAP 2
+#define TCP_READ_SIZE 4096
+#define TCP_MAX_EVENTS 10000
 
 int server_TCP_listen(void *args)
 {
@@ -31,62 +33,75 @@ int server_TCP_listen(void *args)
 
     int tcp_socket = get_addrinfo_wrapper(cfg, TCP);
     set_socket_non_blocking(tcp_socket);
+    exit_if_true(listen(tcp_socket, SOMAXCONN) != 0, "Listen error");
 
     puts("[TCP] Waiting for incoming connections...");
 
-    exit_if_true(listen(tcp_socket, SOMAXCONN) != 0, "Listen error");
+    int running = 1, event_count, i;
+    struct epoll_event event, events[TCP_MAX_EVENTS];
+    int epoll_fd = epoll_create(TCP_MAX_EVENTS);
+    exit_if_true(epoll_fd == -1, "Failed to create epoll FD.");
 
-    server_wrapper serv_wrapper = { .opt = options, .cfg = cfg };
-    request_wrapper req_wrapper = { .s_wrapper = serv_wrapper, .socket = tcp_socket };
-    while (true)
+    event.events = EPOLLIN;
+    event.data.fd = tcp_socket;
+    if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, tcp_socket, &event) < 0)
     {
-        tcp_receive_request((void*)&req_wrapper);
+        close(epoll_fd);
+        exit_if_true(true, "Failed to add FD to epoll.");
     }
 
-    // TODO TODEL later (thread pool solution, but may not be best)
-    /*thrd_t tid[TCP_THREAD_CAP];
-    int i = 0;
-    while (true)
+    while (running)
     {
-        request_wrapper wrapper = request_wrapper_init(tcp_socket, server_wrapper_init(cfg, options));
-        thrd_create(&tid[i++], tcp_receive_request, (void*)&wrapper);
+        event_count = epoll_wait(epoll_fd, events, TCP_MAX_EVENTS, 1000);
+        exit_if_true(event_count < 0, "tcp epoll_wait error");
+        if (event_count == 0) continue;
 
-        if (i >= TCP_THREAD_CAP - 1)
+        for (i = 0; i < event_count; ++i)
         {
-            i = 0;
-            while (i < TCP_THREAD_CAP - 1)
-                thrd_join(tid[i++],NULL);
+            if (events[i].data.fd == tcp_socket)
+            {
+                tcp_accept(epoll_fd, tcp_socket);
+            }
+            else
+            {
+                tcp_recv(cfg, options, epoll_fd, events[i].data.fd);
+            }
         }
-    }*/
+    }
 
+    exit_if_true(close(epoll_fd), "Failed to close epoll FD");
     return 0;
 }
 
-int tcp_receive_request(void *args)
+void tcp_accept(int epoll_fd, int tcp_socket)
 {
-    request_wrapper *w = (request_wrapper *)args;
-    int tcp_socket = w->socket;
-    server_config *cfg = w->s_wrapper.cfg;
-    options *options = w->s_wrapper.opt;
-    char client_message[4096];
+    int cliFd;
+    struct sockaddr_in cliaddr;
+    socklen_t socklen = sizeof(struct sockaddr_in);
+    struct epoll_event ev;
 
-    int connfd = accept(tcp_socket, NULL, NULL);
-    if (connfd == -1)
+    cliFd = accept(tcp_socket, (struct sockaddr*)&cliaddr, &socklen);
+    exit_if_true(cliFd < 0, "accept error");
+
+    set_socket_non_blocking(cliFd);
+
+    ev.events = EPOLLIN;
+    ev.data.fd = cliFd;
+
+    epoll_ctl(epoll_fd, EPOLL_CTL_ADD, cliFd, &ev);
+}
+
+void tcp_recv(server_config *cfg, options *options, int epoll_fd, int connFd)
+{
+    char read_buffer[TCP_READ_SIZE + 1];
+    int bytes_read = recv(connFd, read_buffer, TCP_READ_SIZE, 0);
+    if (bytes_read > 0)
     {
-        if (errno != EWOULDBLOCK)
-        {
-            perror("accept error");
-            exit(1);
-        }
-    }
-    else
-    {
-        int sz = recv(connfd, client_message, 4096, 0);
-        client_message[sz] = '\0';
         string *req_bits = string_init();
-        for (int i = 0; i < sz; ++i)
+        read_buffer[bytes_read] = '\0';
+        for (int k = 0; k < bytes_read; ++k)
         {
-            string *cur_binary = decimal_to_binary(client_message[i]);
+            string *cur_binary = decimal_to_binary(read_buffer[k]);
             string_pad_zeroes(&cur_binary, 8);
             string_add_str(req_bits, cur_binary->arr);
             string_free(cur_binary);
@@ -98,9 +113,9 @@ int tcp_receive_request(void *args)
         string *resp_bits = response_to_bits(TCP, resp);
 
         // Send response
-        send(connfd, resp_bits->arr, resp_bits->size, 0);
+        send(connFd, resp_bits->arr, resp_bits->size, 0);
 
-        close(connfd);
+        close(connFd);
 
         if (options->verbose)
         {
@@ -113,7 +128,10 @@ int tcp_receive_request(void *args)
         string_free(resp_bits);
         request_free(req);
         response_free(resp);
-    }
 
-    return 0;
+        struct epoll_event ev;
+        ev.data.fd = connFd;
+        epoll_ctl(epoll_fd, EPOLL_CTL_DEL, connFd, &ev);
+        close(connFd);
+    }
 }

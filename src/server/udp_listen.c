@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <sys/epoll.h>
 #include <netdb.h>
 
 #include "server/udp_listen.h"
@@ -21,8 +22,9 @@
 #include "messages/request/request.h"
 #include "messages/response/response.h"
 
-//#define UDP_THREAD_CAP 2
 #define UDP_MTU 512
+#define UDP_READ_SIZE 4096
+#define UDP_MAX_EVENTS 10000
 
 void server_UDP_listen(server_config *cfg, options *options)
 {
@@ -31,48 +33,51 @@ void server_UDP_listen(server_config *cfg, options *options)
 
     puts("[UDP] Waiting for incoming connections...");
 
-    server_wrapper serv_wrapper = { .opt = options, .cfg = cfg };
-    request_wrapper req_wrapper = { .s_wrapper = serv_wrapper, .socket = udp_socket };
-    while (true)
+    int running = 1, event_count, i;
+    struct epoll_event event, events[UDP_MAX_EVENTS];
+    int epoll_fd = epoll_create(UDP_MAX_EVENTS);
+    exit_if_true(epoll_fd == -1, "Failed to create epoll FD.");
+
+    event.events = EPOLLIN;
+    event.data.fd = udp_socket;
+    if (epoll_ctl(epoll_fd, EPOLL_CTL_ADD, udp_socket, &event) < 0)
     {
-        udp_receive_request((void*)&req_wrapper);
+        close(epoll_fd);
+        exit_if_true(true, "Failed to add FD to epoll.");
     }
 
-    // TODO TODEL later (thread pool solution, but may not be best)
-    /*thrd_t tid[UDP_THREAD_CAP];
-    int i = 0;
-    while (true)
+    while (running)
     {
-        request_wrapper wrapper = request_wrapper_init(udp_socket, server_wrapper_init(cfg, options));
-        thrd_create(&tid[i++], udp_receive_request, (void*)&wrapper);
+        event_count = epoll_wait(epoll_fd, events, UDP_MAX_EVENTS, 1000);
+        exit_if_true(event_count < 0, "udp epoll_wait error");
+        if (event_count == 0) continue;
 
-        if (i >= UDP_THREAD_CAP - 1)
+        for (i = 0; i < event_count; ++i)
         {
-            i = 0;
-            while (i < UDP_THREAD_CAP - 1)
-                thrd_join(tid[i++],NULL);
+            if (events[i].data.fd == udp_socket)
+            {
+                udp_recvfrom(cfg, options, udp_socket);
+            }
         }
-    }*/
+    }
+
+    exit_if_true(close(epoll_fd), "Failed to close epoll FD");
 }
 
-int udp_receive_request(void *args)
+void udp_recvfrom(server_config *cfg, options *options, int udp_socket)
 {
-    request_wrapper *w = (request_wrapper *)args;
-    int udp_socket = w->socket;
-    server_config *cfg = w->s_wrapper.cfg;
-    options *options = w->s_wrapper.opt;
-    char client_message[2048];
+    char read_buffer[UDP_READ_SIZE + 1];
     struct sockaddr_in client;
     socklen_t c = sizeof(struct sockaddr_in);
 
-    int sz = recvfrom(udp_socket, client_message, 2048, 0, &client, &c);
-    if (sz > 0)
+    int bytes_read = recvfrom(udp_socket, read_buffer, 2048, 0, &client, &c);
+    if (bytes_read > 0)
     {
-        client_message[sz] = '\0';
+        read_buffer[bytes_read] = '\0';
         string *req_bits = string_init();
-        for (int i = 0; i < sz; ++i)
+        for (int k = 0; k < bytes_read; ++k)
         {
-            string *cur_binary = decimal_to_binary(client_message[i]);
+            string *cur_binary = decimal_to_binary(read_buffer[k]);
             string_pad_zeroes(&cur_binary, 8);
             string_add_str(req_bits, cur_binary->arr);
             string_free(cur_binary);
@@ -112,7 +117,4 @@ int udp_receive_request(void *args)
         request_free(req);
         response_free(resp);
     }
-
-
-    return 0;
 }
