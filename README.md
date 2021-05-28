@@ -6,11 +6,6 @@
 
     - [DOING] Return right error codes (other than NO_ERR) in response (NXDOMAIN, NODATA, etc)
 
-    - [DOING] epoll server (epoll > select and poll)
-    Cf. https://www.suchprogramming.com/epoll-in-3-easy-steps/
-    Cf. : https://github.com/eliben/code-for-blog/blob/master/2017/async-socket-server/epoll-server.c    
-    Also: https://github.com/NerDante/epollServer/tree/master/src
-
     - [DOING] Add config tests
 
     - [] Add "threads" parameter in config to add optional multithreading (on top of epoll)
@@ -46,3 +41,6 @@ gcc
     https://powerdns.org/hello-dns/auth.md.html
     https://stackoverflow.com/questions/41512591/dns-query-over-tcp
     https://serverfault.com/questions/698251/how-does-the-dns-protocol-switch-from-udp-to-tcp
+    https://www.suchprogramming.com/epoll-in-3-easy-steps/
+    https://github.com/eliben/code-for-blog/blob/master/2017/async-socket-server/epoll-server.c
+    https://github.com/NerDante/epollServer/tree/master/src
