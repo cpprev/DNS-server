@@ -38,7 +38,6 @@ int tcp_send_request()
         if (buf_len > 0)
         {
             buf[buf_len] = '\0';
-            //printf("response from server: %s\n", buf);
             g_nb_req += 1;
         }
     }
@@ -58,16 +57,13 @@ void *udp_send_request()
     sin.sin_port = htons(g_port);
     inet_pton(AF_INET, g_ip->arr, &sin.sin_addr);
 
-    //set_socket_non_blocking(sock);
-
-    if (sendto(sock, g_message->arr, g_message->size, 0, (struct sockaddr *) &sin, sin_len) >= 0)
+    if (sendto(sock, g_message->arr, g_message->size, 0, (struct sockaddr *) &sin, sin_len) != -1)
     {
         char buf[RECV_SIZE + 1];
-        int buf_len = recv(sock, buf, RECV_SIZE, 0);
+        int buf_len = recvfrom(sock, buf, RECV_SIZE, 0, (struct sockaddr *)&sin, (socklen_t *)&sin_len);
         if (buf_len > 0)
         {
             buf[buf_len] = '\0';
-            //printf("response from server: %s\n", buf);
             g_nb_req += 1;
         }
     }

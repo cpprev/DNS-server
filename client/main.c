@@ -11,10 +11,8 @@
 #include "stress_test.h"
 #include "connect.h"
 
-int main(int argc, char *argv[])
+int main()
 {
-    (void)argc; (void)argv;
-
     request *req = build_request();
     string *message = message_to_bits(UDP, req->msg);
 
@@ -30,4 +28,6 @@ int main(int argc, char *argv[])
     // Free memory
     request_free(req);
     string_free(message);
+    string_free(g_ip);
+    string_free(g_message);
 }
