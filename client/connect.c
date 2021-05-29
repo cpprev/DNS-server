@@ -1,6 +1,3 @@
-#include <netdb.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -8,55 +5,71 @@
 
 #include "utils/error.h"
 
+#include "server/wrapper.h"
+
 #include "connect.h"
 
-#define BUF_SIZE 1024
+#define RECV_SIZE 256
 
-void tcp_send_request(string *message, string *ip, int port)
+int g_nb_req = 0;
+string *g_message = NULL;
+string *g_ip = NULL;
+int g_port = 53;
+
+int tcp_send_request()
 {
     struct sockaddr_in sin;
     int sock;
-    //char buf[BUF_SIZE + 1];
-    //int buf_len;
 
     sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     exit_if_true(sock < 0, "socket error");
     memset ((char *) &sin, 0, sizeof(sin));
 
     sin.sin_family = AF_INET;
-    sin.sin_port = htons(port);
-	inet_pton(AF_INET, (const char*)ip, &sin.sin_addr);
+    sin.sin_port = htons(g_port);
+	inet_pton(AF_INET, g_ip->arr, &sin.sin_addr);
 
     exit_if_true(connect(sock, (struct sockaddr *)&sin, sizeof(sin)) < 0, "connect error");
 
-    if (send(sock, message->arr, message->size, 0) >= 0)
+    if (send(sock, g_message->arr, g_message->size, 0) >= 0)
     {
-        /*buf_len = recv(sock, buf, BUF_SIZE, 0);
-        buf[buf_len] = '\0';
-        printf("response from server: %s\n", buf);*/
+        char buf[RECV_SIZE + 1];
+        int buf_len = recv(sock, buf, RECV_SIZE, 0);
+        if (buf_len > 0)
+        {
+            buf[buf_len] = '\0';
+            //printf("response from server: %s\n", buf);
+            g_nb_req += 1;
+        }
     }
+    return 0;
 }
 
-void udp_send_request(string *message, string *ip, int port)
+void *udp_send_request()
 {
     struct sockaddr_in sin;
     int sin_len = sizeof(sin);
     int sock;
-    //char buf[BUF_SIZE + 1];
-    //int buf_len = 0;
-
     sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     exit_if_true(sock < 0, "socket error");
     memset ((char *) &sin, 0, sizeof (sin));
 
     sin.sin_family = AF_INET;
-    sin.sin_port = htons(port);
-    inet_pton(AF_INET, (const char*)ip, &sin.sin_addr);
+    sin.sin_port = htons(g_port);
+    inet_pton(AF_INET, g_ip->arr, &sin.sin_addr);
 
-    if (sendto(sock, message->arr, message->size, 0, (struct sockaddr *) &sin, sin_len) >= 0)
+    //set_socket_non_blocking(sock);
+
+    if (sendto(sock, g_message->arr, g_message->size, 0, (struct sockaddr *) &sin, sin_len) >= 0)
     {
-        /*buf_len = recv(sock, buf, BUF_SIZE, 0);
-        buf[buf_len] = '\0';
-        printf ("response from server: %s\n", buf);*/
+        char buf[RECV_SIZE + 1];
+        int buf_len = recv(sock, buf, RECV_SIZE, 0);
+        if (buf_len > 0)
+        {
+            buf[buf_len] = '\0';
+            //printf("response from server: %s\n", buf);
+            g_nb_req += 1;
+        }
     }
+    return NULL;
 }

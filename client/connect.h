@@ -3,8 +3,13 @@
 
 #include "config/server_config.h"
 
-void tcp_send_request(string *message, string *ip, int port);
+int tcp_send_request();
 
-void udp_send_request(string *message, string *ip, int port);
+void *udp_send_request();
+
+extern int g_nb_req;
+extern string *g_message;
+extern string *g_ip;
+extern int g_port;
 
 #endif
