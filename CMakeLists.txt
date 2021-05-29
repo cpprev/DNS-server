@@ -46,6 +46,9 @@ set(SRC
     src/utils/file.c
     src/utils/base_convertions.c
     src/utils/printer.c
+
+    # Client
+    client/connect.c
 )
 
 set(CHECK_CFLAGS -fsanitize=address -g)
@@ -53,7 +56,9 @@ set(CHECK_CFLAGS -fsanitize=address -g)
 add_compile_options(${CHECK_CFLAGS} -Wall -Wextra -Werror -pedantic -std=c99)
 
 add_executable(dns src/main.c ${SRC})
+add_executable(client client/main.c ${SRC})
 
 target_link_libraries(dns asan pthread)
+target_link_libraries(client asan pthread)
 
 add_custom_target(check COMMAND make -j5 && cp dns ../tests && cd "${CMAKE_SOURCE_DIR}/tests" && ./main.sh)

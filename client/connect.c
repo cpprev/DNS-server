@@ -12,20 +12,20 @@
 
 #define BUF_SIZE 1024
 
-void tcp_send_request(server_config *cfg)
+void tcp_send_request(string *ip, int port)
 {
     struct sockaddr_in sin;
     int sock;
     char buf[BUF_SIZE + 1];
     int buf_len;
 
-    sock = socket (AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     exit_if_true(sock < 0, "socket error");
     memset ((char *) &sin, 0, sizeof(sin));
 
     sin.sin_family = AF_INET;
-    sin.sin_port = htons (cfg->port);
-	inet_pton(AF_INET, (const char*)cfg->ip, &sin.sin_addr);
+    sin.sin_port = htons(port);
+	inet_pton(AF_INET, (const char*)ip, &sin.sin_addr);
 
     exit_if_true(connect(sock, (struct sockaddr *)&sin, sizeof(sin)) < 0, "connect error");
 
@@ -38,7 +38,7 @@ void tcp_send_request(server_config *cfg)
     }
 }
 
-void udp_send_request(server_config *cfg)
+void udp_send_request(string *ip, int port)
 {
     struct sockaddr_in sin;
     int sin_len = sizeof(sin);
@@ -51,8 +51,8 @@ void udp_send_request(server_config *cfg)
     memset ((char *) &sin, 0, sizeof (sin));
 
     sin.sin_family = AF_INET;
-    sin.sin_port = htons (cfg->port);
-    inet_pton(AF_INET, (const char*)cfg->ip, &sin.sin_addr);
+    sin.sin_port = htons(port);
+    inet_pton(AF_INET, (const char*)ip, &sin.sin_addr);
 
     strcpy(buf, "test");
     if (sendto(sock, buf, strlen(buf), 0, (struct sockaddr *) &sin, sin_len) >= 0)
