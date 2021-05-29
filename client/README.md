@@ -6,6 +6,10 @@ Github repository:
 
     https://github.com/DNS-OARC/dnsperf
 
+Install:
+
+    sudo snap install dnsperf --beta
+
 Usage example:
 
     echo "example.com A" > in.txt
