@@ -19,7 +19,7 @@ void response_free(response *r);
 
 response *build_response(server_config *cfg, request *req);
 
-string *response_to_bits(PROTOCOL proto, response *resp);
+string *message_to_bits(PROTOCOL proto, message *msg);
 
 void write_domain_name_in_response(string *s, string *cur);
 

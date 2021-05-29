@@ -49,6 +49,7 @@ set(SRC
 
     # Client
     client/connect.c
+    client/build_req.c
 )
 
 set(CHECK_CFLAGS -fsanitize=address -g)

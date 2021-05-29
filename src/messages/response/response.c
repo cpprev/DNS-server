@@ -116,16 +116,16 @@ void write_domain_name_in_response(string *s, string *cur)
     }
 }
 
-string *response_to_bits(PROTOCOL proto, response *resp)
+string *message_to_bits(PROTOCOL proto, message *msg)
 {
     string *s = string_init();
 
     // 1. Header section
-    response_headers_to_bits(resp, s);
+    message_headers_to_bits(msg, s);
     // 2. Question section
-    response_question_to_bits(resp, s);
+    message_question_to_bits(msg, s);
     // 3. Answer section
-    response_answer_to_bits(resp, s);
+    message_answer_to_bits(msg, s);
 
     string *res = NULL;
     if (proto == TCP)

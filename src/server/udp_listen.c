@@ -86,7 +86,7 @@ void udp_recvfrom(server_config *cfg, options *options, int udp_socket)
         // Parse DNS request
         request *req = parse_request(UDP, req_bits);
         response *resp = build_response(cfg, req);
-        string *resp_bits = response_to_bits(UDP, resp);
+        string *resp_bits = message_to_bits(UDP, resp->msg);
 
         // Response too big -> switch to TCP (by setting TC bit)
         if (resp_bits->size >= UDP_MTU)
@@ -95,7 +95,7 @@ void udp_recvfrom(server_config *cfg, options *options, int udp_socket)
             resp->msg->tc = true;
 
             string *s = string_init();
-            response_headers_to_bits(resp, s);
+            message_headers_to_bits(resp->msg, s);
             resp_bits = binary_bits_to_ascii_string(s);
             sendto(udp_socket, resp_bits->arr, resp_bits->size, 0, &client, c);
         }

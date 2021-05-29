@@ -110,7 +110,7 @@ void tcp_recv(server_config *cfg, options *options, int epoll_fd, int connFd)
         // Parse DNS request
         request *req = parse_request(TCP, req_bits);
         response *resp = build_response(cfg, req);
-        string *resp_bits = response_to_bits(TCP, resp);
+        string *resp_bits = message_to_bits(TCP, resp->msg);
 
         // Send response
         send(connFd, resp_bits->arr, resp_bits->size, 0);

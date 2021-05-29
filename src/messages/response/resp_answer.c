@@ -30,13 +30,13 @@ int get_answer_value_length(record *r, int soa_size)
     }
 }
 
-void response_answer_to_bits(response *resp, string *s)
+void message_answer_to_bits(message *msg, string *s)
 {
-    if (resp->msg->answers == NULL)
+    if (msg->answers == NULL)
         return;
-    for (size_t k = 0; resp->msg->answers->arr[k]; ++k)
+    for (size_t k = 0; msg->answers->arr[k]; ++k)
     {
-        record *r = resp->msg->answers->arr[k];
+        record *r = msg->answers->arr[k];
         // NAME
         write_domain_name_in_response(s, r->domain);
         // Null byte after name

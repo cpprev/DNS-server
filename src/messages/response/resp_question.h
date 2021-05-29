@@ -5,6 +5,6 @@
 
 #include "messages/response/response.h"
 
-void response_question_to_bits(response *resp, string *s);
+void message_question_to_bits(message *msg, string *s);
 
 #endif

@@ -5,7 +5,7 @@
 
 #include "messages/response/response.h"
 
-void response_answer_to_bits(response *resp, string *s);
+void message_answer_to_bits(message *msg, string *s);
 
 void write_answer_A_record(record *r, string *s);
 

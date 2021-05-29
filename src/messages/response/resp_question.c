@@ -2,15 +2,15 @@
 
 #include "utils/base_convertions.h"
 
-void response_question_to_bits(response *resp, string *s)
+void message_question_to_bits(message *msg, string *s)
 {
-    if (resp->msg->questions == NULL)
+    if (msg->questions == NULL)
         return;
-    if (resp->msg->questions->size > 0)
+    if (msg->questions->size > 0)
     {
-        for (int k = 0; resp->msg->questions->arr[k]; ++k)
+        for (int k = 0; msg->questions->arr[k]; ++k)
         {
-            question *cur_question = resp->msg->questions->arr[k];
+            question *cur_question = msg->questions->arr[k];
             // QNAME
             string *cur_qname = cur_question->qname;
             write_domain_name_in_response(s, cur_qname);
