@@ -164,9 +164,9 @@ void parse_request_headers(PROTOCOL proto, message *m, string *req_bits, size_t 
 
 void parse_request_question(message *m, string *req_bits, size_t *i, size_t *until)
 {
-    // 2.1. QNAME (domain name)
     for (int j = 0; j < m->qdcount; ++j)
     {
+        // 2.1. QNAME (domain name)
         string *qname = parse_whole_qname(i, until, req_bits);
         question *q = question_init();
         string_copy(&q->qname, qname);

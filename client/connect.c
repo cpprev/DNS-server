@@ -5,8 +5,6 @@
 
 #include "utils/error.h"
 
-#include "server/wrapper.h"
-
 #include "connect.h"
 
 #define RECV_SIZE 256

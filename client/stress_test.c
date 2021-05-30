@@ -7,7 +7,7 @@
 #include "stress_test.h"
 #include "connect.h"
 
-#define THREAD_CAP 4
+#define THREAD_CAP 2
 
 void *udp_routine()
 {

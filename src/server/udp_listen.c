@@ -70,7 +70,7 @@ void udp_recvfrom(server_config *cfg, options *options, int udp_socket)
     struct sockaddr_in client;
     socklen_t c = sizeof(struct sockaddr_in);
 
-    int bytes_read = recvfrom(udp_socket, read_buffer, 2048, 0, &client, &c);
+    int bytes_read = recvfrom(udp_socket, read_buffer, UDP_READ_SIZE, 0, &client, &c);
     if (bytes_read > 0)
     {
         read_buffer[bytes_read] = '\0';
@@ -82,7 +82,6 @@ void udp_recvfrom(server_config *cfg, options *options, int udp_socket)
             string_add_str(req_bits, cur_binary->arr);
             string_free(cur_binary);
         }
-
         // Parse DNS request
         request *req = parse_request(UDP, req_bits);
         response *resp = build_response(cfg, req);
