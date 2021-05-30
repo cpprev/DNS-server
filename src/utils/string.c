@@ -18,6 +18,8 @@ string *string_init (void)
 
 void string_free (string *s)
 {
+    if (s == NULL)
+        return;
     if (s->arr != NULL)
         free(s->arr);
     free(s);

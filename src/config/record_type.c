@@ -21,7 +21,7 @@ const char *record_type_to_string(RECORD_TYPE type)
         case ANY:
             return "ANY";
         default:
-            return "Unknown type";;
+            return "Unknown";
     }
 }
 

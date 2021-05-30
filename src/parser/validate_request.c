@@ -28,12 +28,10 @@ RCODE validate_request(string *req_bits, PROTOCOL proto)
 RCODE validate_request_headers(string *req_bits, PROTOCOL proto, size_t *i, size_t *until, int *qdcountint)
 {
     RCODE res = NO_ERR;
+    string *msg_size = NULL;
     if (proto == TCP)
     {
-        string *msg_size = get_next_field(until, 16, i, req_bits);
-        if (msg_size->size != 16 || (size_t)binary_to_decimal(msg_size) != (req_bits->size / 8) - 2)
-            res = FORMAT_ERR;
-        string_free(msg_size);
+        msg_size = get_next_field(until, 16, i, req_bits);
     }
     string *id = get_next_field(until, 16, i, req_bits);
     string *qr = get_next_field(until, 1, i, req_bits);
@@ -52,6 +50,9 @@ RCODE validate_request_headers(string *req_bits, PROTOCOL proto, size_t *i, size
 
     if (binary_to_decimal(opcode) > 2 || binary_to_decimal(qr) != 0 || binary_to_decimal(ancount) != 0)
         res = NOT_IMPL;
+
+    if (msg_size && (msg_size->size != 16 || (size_t)binary_to_decimal(msg_size) != (req_bits->size / 8) - 2))
+        res = FORMAT_ERR;
 
     if (id->size != 16 || qr->size != 1 || opcode->size != 4 || aa->size != 1 || tc->size != 1 || rd->size != 1
         || ra->size != 1 || z->size != 3 || rcode->size != 4 || qdcount->size != 16 || ancount->size != 16
@@ -72,6 +73,7 @@ RCODE validate_request_headers(string *req_bits, PROTOCOL proto, size_t *i, size
     string_free(tc);
     string_free(opcode);
     string_free(qr);
+    string_free(msg_size);
 
     return res;
 }
@@ -88,6 +90,12 @@ RCODE validate_request_questions(string *req_bits, size_t *i, size_t *until, int
         int qtypeInt = binary_to_decimal_unsigned(qtype);
         q->qtype = (RECORD_TYPE) qtypeInt;
         string *qclass = get_next_field(until, 16, i, req_bits);
+        q->qclass = class_from_int(binary_to_decimal(qclass));
+
+        if (!is_supported_record_type(q->qtype) || is_supported_class(q->qclass))
+        {
+            res = NOT_IMPL;
+        }
 
         if (qclass->size != 16 || qtype->size != 16 || qname->size == 0)
         {
