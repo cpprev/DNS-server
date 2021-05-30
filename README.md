@@ -4,8 +4,6 @@
 
     - [DOING] Error handling (request, etc)
 
-    - [DOING] Return right error codes (other than NO_ERR) in response (NXDOMAIN, NODATA, etc)
-
     - [DOING] Add config tests
 
     - [DOING] Create DNS client (add multithreading feature to spam server)
