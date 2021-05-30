@@ -21,10 +21,11 @@ request *parse_request(PROTOCOL proto, string *req_bits)
     request *req = request_init();
 
     // TODO Implement checker that validates the request bits separately from the parsing part and make it return an ERROR_CODE (NO_ERR, NOT_IMPL, etc)
-    RCODE rcode = validate_request(req_bits);
+    RCODE rcode = validate_request(req_bits, proto);
     if (rcode == NOT_IMPL || rcode == FORMAT_ERR)
     {
         req->msg = m;
+        req->msg->rcode = rcode;
         return req;
     }
 
@@ -113,7 +114,7 @@ void parse_request_headers(PROTOCOL proto, message *m, string *req_bits, size_t 
     }
     // 1.1. ID: 16 req_bits
     string *id = get_next_field(until, 16, i, req_bits);
-    m->id = binary_to_decimal(id);
+    m->id = binary_to_decimal_unsigned(id);
     // 1.2. QR (1 bit)
     string *qr = get_next_field(until, 1, i, req_bits);
     m->qr = binary_to_decimal(qr) == 0 ? REQUEST : RESPONSE;
