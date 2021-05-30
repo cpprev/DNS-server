@@ -1,6 +1,6 @@
 # DNS Server
 
-## TODO
+### TODO
 
     - [DOING] Error handling (request, etc)
 
@@ -10,13 +10,11 @@
 
     - [DOING] Create DNS client (add multithreading feature to spam server)
 
+    - [DOING] Handle some more record types
+
     - [] Add "threads" parameter in config to add optional multithreading (on top of epoll)
 
     - [] Add dig tests
-
-    - [] More than one question in request/answer
-
-    - [] Handle some more record types
 
     - [] Handle wildcard records
 
