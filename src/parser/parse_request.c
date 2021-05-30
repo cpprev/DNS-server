@@ -20,7 +20,6 @@ request *parse_request(PROTOCOL proto, string *req_bits)
 
     request *req = request_init();
 
-    // TODO Implement checker that validates the request bits separately from the parsing part and make it return an ERROR_CODE (NO_ERR, NOT_IMPL, etc)
     RCODE rcode = validate_request(req_bits, proto);
     if (rcode == NOT_IMPL || rcode == FORMAT_ERR)
     {

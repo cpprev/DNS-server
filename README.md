@@ -12,6 +12,8 @@
 
     - [DOING] Handle some more record types
 
+    - [DOING] additional and auth sections
+
     - [] Add "threads" parameter in config to add optional multithreading (on top of epoll)
 
     - [] Add dig tests
