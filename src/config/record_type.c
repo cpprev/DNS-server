@@ -25,6 +25,12 @@ const char *record_type_to_string(RECORD_TYPE type)
     }
 }
 
+int record_type_to_int(RECORD_TYPE type)
+{
+    if (is_supported_record_type(type)) return type;
+    return RECORD_NONE;
+}
+
 bool is_supported_record_type(RECORD_TYPE type)
 {
     return type == A || type == AAAA || type == NS || type == TXT || type == SOA || type == CNAME || type == ANY;

@@ -5,7 +5,7 @@
 
 RCODE validate_request(string *req_bits, PROTOCOL proto)
 {
-    RCODE res = NO_ERR;
+    RCODE res = NO_ERR, prev_res = NO_ERR;
 
     /// Wrong request cases :
     /// If tcp : wrong request len
@@ -18,10 +18,15 @@ RCODE validate_request(string *req_bits, PROTOCOL proto)
     int qdcount = 0;
     res = validate_request_headers(req_bits, proto, &i, &until, &qdcount);
 
-    RCODE prev_res = res;
+    prev_res = res;
     res = validate_request_questions(req_bits, &i, &until, qdcount);
     if (res != FORMAT_ERR)
         return prev_res;
+
+    // TODO Validate request answer section
+    // TODO Validate request authority section
+    // TODO Validate request additional section
+
     return res;
 }
 
@@ -84,15 +89,10 @@ RCODE validate_request_questions(string *req_bits, size_t *i, size_t *until, int
     for (int j = 0; j < qdcount; ++j)
     {
         string *qname = parse_whole_qname(i, until, req_bits);
-        question *q = question_init();
-        string_copy(&q->qname, qname);
         string *qtype = get_next_field(until, 16, i, req_bits);
         int qtypeInt = binary_to_decimal_unsigned(qtype);
-        q->qtype = (RECORD_TYPE) qtypeInt;
         string *qclass = get_next_field(until, 16, i, req_bits);
-        q->qclass = class_from_int(binary_to_decimal(qclass));
-
-        if (!is_supported_record_type(q->qtype) || is_supported_class(q->qclass))
+        if (!is_supported_record_type(record_type_to_int(qtypeInt)) || is_supported_class(binary_to_decimal(qclass)))
         {
             res = NOT_IMPL;
         }

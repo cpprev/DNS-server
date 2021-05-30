@@ -18,6 +18,8 @@ typedef enum
 
 const char *record_type_to_string(RECORD_TYPE type);
 
+int record_type_to_int(RECORD_TYPE type);
+
 bool is_supported_record_type(RECORD_TYPE type);
 
 #endif

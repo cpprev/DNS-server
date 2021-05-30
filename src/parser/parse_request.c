@@ -32,9 +32,14 @@ request *parse_request(PROTOCOL proto, string *req_bits)
 
     // 1. Header section
     parse_request_headers(proto, m, req_bits, &i, &until);
-
     // 2. Question section
     parse_request_question(m, req_bits, &i, &until);
+    // 3. Answer section (just pass it since it's a request)
+    // TODO
+    // 4. Authority section (pass it for now)
+    // TODO
+    // 5. Additional section
+    // TODO
 
     req->msg = m;
     return req;
@@ -173,7 +178,7 @@ void parse_request_question(message *m, string *req_bits, size_t *i, size_t *unt
         // 2.2. QTYPE (16 req_bits) AAAA = 28; A = 1; etc -> Cf https://en.wikipedia.org/wiki/List_of_DNS_record_types
         string *qtype = get_next_field(until, 16, i, req_bits);
         int qtypeInt = binary_to_decimal_unsigned(qtype);
-        q->qtype = (RECORD_TYPE) qtypeInt;
+        q->qtype = record_type_to_int(qtypeInt);
         // 2.3. QCLASS (16 req_bits) -> IN class = 1 (ignore other classes)
         string *qclass = get_next_field(until, 16, i, req_bits);
 
