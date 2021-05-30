@@ -51,6 +51,7 @@ set(SRC
     client/connect.c
     client/build_req.c
     client/stress_test.c
+    client/client_options.c
 )
 
 set(CHECK_CFLAGS -fsanitize=address -g)

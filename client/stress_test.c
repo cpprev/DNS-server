@@ -47,9 +47,9 @@ void basic_stress_test(PROTOCOL proto)
     while (1)
     {
         if (proto == UDP)
-            udp_send_request(g_message, g_ip, g_port);
+            udp_send_request(g_options->message, g_options->ip, g_options->port);
         else if (proto == TCP)
-            tcp_send_request(g_message, g_ip, g_port);
+            tcp_send_request(g_options->message, g_options->ip, g_options->port);
         printf("NB requests sent: %d\n", g_nb_req);
     }
 }
