@@ -126,6 +126,8 @@ string *message_to_bits(PROTOCOL proto, message *msg)
     message_question_to_bits(msg, s);
     // 3. Answer section
     message_answer_to_bits(msg, s);
+    // TODO 4. Authority section
+    // TODO 5. Additional section
 
     string *res = NULL;
     if (proto == TCP)

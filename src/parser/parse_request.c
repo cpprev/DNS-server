@@ -34,9 +34,9 @@ request *parse_request(PROTOCOL proto, string *req_bits)
     parse_request_headers(proto, m, req_bits, &i, &until);
     // 2. Question section
     parse_request_question(m, req_bits, &i, &until);
-    // 3. Answer section (just pass it since it's a request)
+    // 3. Answer section (just skip it since it's a request)
     // TODO
-    // 4. Authority section (pass it for now)
+    // 4. Authority section (skip it for now)
     // TODO
     // 5. Additional section
     // TODO
