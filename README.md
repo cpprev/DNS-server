@@ -20,7 +20,7 @@
 
 ## Brief
 
-📍 This is an authoritative DNS server which can support multiple clients concurently (using epoll syscall).
+📍 This is an authoritative DNS server which can support multiple clients concurrently (using epoll syscall).
 
 📍 It listens on UDP and TCP
 
