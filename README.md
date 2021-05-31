@@ -45,7 +45,7 @@
 
 ## Usage
 
-    ./dns { input_file } [-t] [-v]
+    ./dns { configuration_file } [-t] [-v]
 
 ## Configuration files
 
