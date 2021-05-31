@@ -1,6 +1,6 @@
 # DNS Server
 
-### TODO
+## TODO
 
     - [DOING] Error handling (request, etc)
 
@@ -18,7 +18,17 @@
 
     - [] Message compression (RFC 1035 section 4.1.4.)
 
-### Requirements
+## Brief
+
+📍 This is an authoritative DNS server which can support multiple clients concurently (using epoll syscall).
+
+📍 It listens on UDP and TCP
+
+📍 This server supports : A, AAAA, CNAME, NS, TXT, SOA records.
+
+📍 It can handle wrongly formatted DNS requests
+
+## Requirements
 
 CMake
 
@@ -29,9 +39,46 @@ gcc
     sudo apt-get install gcc
 
 
-### Build
+## Build
 
     mkdir build; cd build; cmake ..; make
+
+## Usage
+
+    ./dns { input_file } [-t] [-v]
+
+## Configuration files
+
+Example of configuration file :
+
+    [server]
+    ip = 127.0.0.1
+    port = 53
+
+    [zone]
+    name = abc
+    path = /home/prev/Desktop/DNS_serv/input/zones/abc.zone
+
+## Zone files
+
+Example of zone file :
+
+    example.com;SOA;3600;ns0.example.com. postmaster.example.com. 2020092501 86400 3600 604800 3600
+    example.com;NS;86400;ns0.example.com.
+    example.com;NS;86400;ns1.example.com.
+    example.com;A;3600;192.0.2.1
+    example.com;TXT;10;Hello there\; how are you?
+    ent.sub.example.com;TXT;86400;bzzpaoz aim benz
+    www.example.com;AAAA;7200;2001:DB8::1
+    www-dev.example.com;CNAME;7200;www.example.com.
+    ns0.example.com;A;86400;192.0.2.3
+    ns1.example.com;A;7200;192.0.2.4
+    sub.zone.example.com;NS;86400;ns1.sub.zone.example.com.
+    sub.zone.example.com;NS;86400;ns2.sub.zone.example.com.
+    ns1.sub.zone.example.com;A;86400;192.0.2.42
+    ns1.sub.zone.example.com;AAAA;86400;2001:DB8::42
+    ns2.sub.zone.example.com;A;86400;192.0.2.84
+    ns2.sub.zone.example.com;AAAA;86400;2001:DB8:0:0:0:0:0:84
 
 ### Links
 
