@@ -30,11 +30,11 @@
 
 ## Requirements
 
-CMake
+#### CMake
 
     sudo apt-get install cmake
 
-gcc
+#### gcc
 
     sudo apt-get install gcc
 
@@ -61,7 +61,7 @@ gcc
 
 ## Zone files
 
-Example of zone file :
+#### Example of zone file :
 
     example.com;SOA;3600;ns0.example.com. postmaster.example.com. 2020092501 86400 3600 604800 3600
     example.com;NS;86400;ns0.example.com.
