@@ -49,7 +49,7 @@ gcc
 
 ## Configuration files
 
-Example of configuration file :
+#### Example of configuration file :
 
     [server]
     ip = 127.0.0.1
@@ -80,7 +80,7 @@ Example of zone file :
     ns2.sub.zone.example.com;A;86400;192.0.2.84
     ns2.sub.zone.example.com;AAAA;86400;2001:DB8:0:0:0:0:0:84
 
-### Links
+## Links
 
     https://datatracker.ietf.org/doc/html/rfc1035
     https://powerdns.org/hello-dns/auth.md.html
