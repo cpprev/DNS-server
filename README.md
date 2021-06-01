@@ -22,11 +22,11 @@
 
 📍 This is an authoritative DNS server which can support multiple clients concurrently (using epoll syscall).
 
-📍 It listens on UDP and TCP
+📍 It listens on UDP and TCP.
 
-📍 This server supports : A, AAAA, CNAME, NS, TXT, SOA records.
+📍 This server supports : A, AAAA, CNAME, NS, TXT and SOA records.
 
-📍 It can handle wrongly formatted DNS requests
+📍 It can also handle wrongly formatted DNS requests.
 
 ## Requirements
 
