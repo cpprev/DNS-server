@@ -22,7 +22,7 @@
 
 📍 This is an authoritative DNS server which can support multiple clients concurrently (using epoll syscall).
 
-📍 It listens on UDP and TCP.
+📍 It listens on UDP / TCP and is multithreaded.
 
 📍 This server supports : A, AAAA, CNAME, NS, TXT and SOA records.
 
