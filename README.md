@@ -10,8 +10,6 @@
 
     - [DOING] additional and auth sections
 
-    - [] Add "threads" parameter in config to add optional multithreading (on top of epoll)
-
     - [] Add dig tests
 
     - [] Handle wildcard records
