@@ -1,16 +1,12 @@
-# DNS Server
+# DNS Server [WIP]
 
-## TODO
+## TODO List
 
     - [DOING] Error handling (request, etc)
 
-    - [DOING] Add config tests
+    - [DOING] Handle / parse additional and auth sections
 
-    - [DOING] Create DNS client (add multithreading feature to spam server)
-
-    - [DOING] additional and auth sections
-
-    - [] Add dig tests
+    - [DOING] Add config and dig tests
 
     - [] Handle wildcard records
 
