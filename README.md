@@ -1,5 +1,15 @@
 # DNS Server [WIP]
 
+## Brief
+
+📍 This is an authoritative DNS server which can support multiple clients concurrently (using epoll syscall).
+
+📍 It listens on UDP / TCP and is multithreaded.
+
+📍 This server supports : A, AAAA, CNAME, NS, TXT and SOA records.
+
+📍 It can also handle wrongly formatted DNS requests.
+
 ## TODO List
 
     - [DOING] Wrongly formatted requests error handling (auth + additional sections left)
@@ -11,16 +21,6 @@
     - [] Handle wildcard records
 
     - [] Message compression (RFC 1035 section 4.1.4.)
-
-## Brief
-
-📍 This is an authoritative DNS server which can support multiple clients concurrently (using epoll syscall).
-
-📍 It listens on UDP / TCP and is multithreaded.
-
-📍 This server supports : A, AAAA, CNAME, NS, TXT and SOA records.
-
-📍 It can also handle wrongly formatted DNS requests.
 
 ## Requirements
 
