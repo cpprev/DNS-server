@@ -2,7 +2,7 @@
 
 ## TODO List
 
-    - [DOING] Error handling (request, etc)
+    - [DOING] Wrongly formatted requests error handling (auth + additional sections left)
 
     - [DOING] Handle / parse additional and auth sections
 
