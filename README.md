@@ -1,43 +1,80 @@
-# DNS Server
+# DNS Server [WIP]
 
-### TODO
+## Brief
 
-    - [DOING] Error handling (request, etc)
+📍 This is an authoritative DNS server which can support multiple clients concurrently (using epoll syscall).
 
-    - [DOING] Return right error codes (other than NO_ERR) in response (NXDOMAIN, NODATA, etc)
+📍 It listens on UDP / TCP and is multithreaded.
 
-    - [DOING] Add config tests
+📍 This server supports : A, AAAA, CNAME, NS, TXT and SOA records.
 
-    - [DOING] Create DNS client (add multithreading feature to spam server)
+📍 It can also handle wrongly formatted DNS requests.
 
-    - [DOING] Handle some more record types
+## TODO List
 
-    - [DOING] additional and auth sections
+    - [DOING] Wrongly formatted requests error handling (auth + additional sections left)
 
-    - [] Add "threads" parameter in config to add optional multithreading (on top of epoll)
+    - [DOING] Handle / parse additional and auth sections
 
-    - [] Add dig tests
+    - [DOING] Add config and dig tests
 
     - [] Handle wildcard records
 
     - [] Message compression (RFC 1035 section 4.1.4.)
 
-### Requirements
+## Requirements
 
-CMake
+#### CMake
 
     sudo apt-get install cmake
 
-gcc
+#### gcc
 
     sudo apt-get install gcc
 
 
-### Build
+## Build
 
     mkdir build; cd build; cmake ..; make
 
-### Links
+## Usage
+
+    ./dns { configuration_file } [-t] [-v]
+
+## Configuration files
+
+#### Example of configuration file
+
+    [server]
+    ip = 127.0.0.1
+    port = 53
+
+    [zone]
+    name = abc
+    path = /home/prev/Desktop/DNS_serv/input/zones/abc.zone
+
+## Zone files
+
+#### Example of zone file
+
+    example.com;SOA;3600;ns0.example.com. postmaster.example.com. 2020092501 86400 3600 604800 3600
+    example.com;NS;86400;ns0.example.com.
+    example.com;NS;86400;ns1.example.com.
+    example.com;A;3600;192.0.2.1
+    example.com;TXT;10;Hello there\; how are you?
+    ent.sub.example.com;TXT;86400;bzzpaoz aim benz
+    www.example.com;AAAA;7200;2001:DB8::1
+    www-dev.example.com;CNAME;7200;www.example.com.
+    ns0.example.com;A;86400;192.0.2.3
+    ns1.example.com;A;7200;192.0.2.4
+    sub.zone.example.com;NS;86400;ns1.sub.zone.example.com.
+    sub.zone.example.com;NS;86400;ns2.sub.zone.example.com.
+    ns1.sub.zone.example.com;A;86400;192.0.2.42
+    ns1.sub.zone.example.com;AAAA;86400;2001:DB8::42
+    ns2.sub.zone.example.com;A;86400;192.0.2.84
+    ns2.sub.zone.example.com;AAAA;86400;2001:DB8:0:0:0:0:0:84
+
+## Links
 
     https://datatracker.ietf.org/doc/html/rfc1035
     https://powerdns.org/hello-dns/auth.md.html
