@@ -5,7 +5,7 @@
 
 #include "parser/options.h"
 
-void server_UDP_listen(server_config *cfg, options *options);
+void *server_UDP_listen(void *args);
 
 void udp_recvfrom(server_config *cfg, options *options, int udp_socket);
 

@@ -26,8 +26,13 @@
 #define UDP_READ_SIZE 4096
 #define UDP_MAX_EVENTS 10000
 
-void server_UDP_listen(server_config *cfg, options *options)
+
+void *server_UDP_listen(void *args)
 {
+    server_wrapper *w = (server_wrapper *) args;
+    server_config *cfg = w->cfg;
+    options *options = w->opt;
+
     int udp_socket = get_addrinfo_wrapper(cfg, UDP);
     set_socket_non_blocking(udp_socket);
 
@@ -62,6 +67,7 @@ void server_UDP_listen(server_config *cfg, options *options)
     }
 
     exit_if_true(close(epoll_fd), "Failed to close epoll FD");
+    return 0;
 }
 
 void udp_recvfrom(server_config *cfg, options *options, int udp_socket)

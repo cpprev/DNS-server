@@ -5,7 +5,7 @@
 
 #include "parser/options.h"
 
-int server_TCP_listen(void *args);
+void *server_TCP_listen(void *args);
 
 void tcp_accept(int epoll_fd, int tcp_socket);
 

@@ -25,7 +25,7 @@
 #define TCP_READ_SIZE 4096
 #define TCP_MAX_EVENTS 10000
 
-int server_TCP_listen(void *args)
+void *server_TCP_listen(void *args)
 {
     server_wrapper *w = (server_wrapper *) args;
     server_config *cfg = w->cfg;

@@ -2,7 +2,8 @@
 
 #include <stdio.h>
 #include <signal.h>
-#include <threads.h>
+#include <pthread.h>
+#include <errno.h>
 
 #include "utils/error.h"
 #include "utils/string.h"
@@ -17,6 +18,8 @@
 #include "server/udp_listen.h"
 #include "server/tcp_listen.h"
 #include "server/wrapper.h"
+
+#define THREAD_CAP 32
 
 int main(int argc, char *argv[])
 {
@@ -49,11 +52,24 @@ int main(int argc, char *argv[])
 
     // TCP Listen on separate thread
     server_wrapper w = { .opt = options, .cfg = server_cfg };
-    thrd_t thread_id;
-    thrd_create(&thread_id, server_TCP_listen, (void *)&w);
+    pthread_t thread_id;
+    pthread_create(&thread_id, NULL, server_TCP_listen, (void *)&w);
 
     // UDP Listen
-    server_UDP_listen(server_cfg, options);
+    pthread_t tid[THREAD_CAP + 1];
+    int i = 0, p;
+    while (i < THREAD_CAP)
+    {
+        p = pthread_create(&tid[i++], NULL, server_UDP_listen, (void *)&w);
+        if (p != 0 || errno == EAGAIN)
+        {
+            --i;
+            break;
+        }
+    }
+
+    while (true)
+    {}
 
     return 0;
 }

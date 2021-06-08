@@ -45,7 +45,7 @@ int get_addrinfo_wrapper(server_config *cfg, PROTOCOL proto)
     {
         sockfd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
         int optval = 1;
-        setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(int));
+        setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &optval, sizeof(int));
         if (sockfd == -1)
             continue;
         if (bind(sockfd, rp->ai_addr, rp->ai_addrlen) == 0)
