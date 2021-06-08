@@ -82,7 +82,7 @@ string *parse_whole_qname(void *raw, size_t *b)
     uint8_t cur;
     while ((cur = qn[(*b)++]) != 0)
     {
-        if (cur > 0 && cur < 63)
+        if (cur > 0 && cur < 63 && cur != '-')
         {
             if (!string_is_empty(res))
                 string_add_char(res, '.');

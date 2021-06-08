@@ -13,6 +13,8 @@
 
 #include "parser/parse_request.h"
 
+#include "server/udp_listen.h"
+
 response *response_init()
 {
     response *r = malloc(sizeof(response));
@@ -149,7 +151,11 @@ void write_domain_name_in_response(string *s, string *cur)
 void message_to_bits(PROTOCOL proto, message *msg, void **bits, size_t *b)
 {
     // TODO give good size
-    *bits = malloc(32768);
+    if (proto == UDP)
+        *bits = malloc(UDP_MTU * 8 + 1);
+    else
+        *bits = malloc(32768);
+
     *b = proto == UDP ? 0 : 1;
 
     // 1. Header section

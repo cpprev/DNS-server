@@ -22,9 +22,6 @@
 #include "messages/request/request.h"
 #include "messages/response/response.h"
 
-#define TCP_READ_SIZE 4096
-#define TCP_MAX_EVENTS 10000
-
 void *server_TCP_listen(void *args)
 {
     server_wrapper *w = (server_wrapper *) args;

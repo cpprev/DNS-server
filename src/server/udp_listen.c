@@ -23,11 +23,6 @@
 #include "messages/request/request.h"
 #include "messages/response/response.h"
 
-#define UDP_MTU 512
-#define UDP_READ_SIZE 4096
-#define UDP_MAX_EVENTS 10000
-
-
 void *server_UDP_listen(void *args)
 {
     server_wrapper *w = (server_wrapper *) args;
