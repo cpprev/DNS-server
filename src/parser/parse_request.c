@@ -4,7 +4,6 @@
 #include <arpa/inet.h>
 
 #include "parser/parse_request.h"
-#include "parser/validate_request.h"
 
 #include "messages/question.h"
 #include "messages/message.h"
@@ -23,13 +22,6 @@ request *parse_request(PROTOCOL proto, void *raw)
     request *req = request_init();
 
     // TODO rework validate request with "raw" rather than "req_bits"
-    /*RCODE rcode = validate_request(req_bits, proto, raw);
-    if (rcode == NOT_IMPL || rcode == FORMAT_ERR)
-    {
-        req->msg = m;
-        req->msg->rcode = rcode;
-        return req;
-    }*/
 
     size_t b = 0;
     // 1. Header section
@@ -45,34 +37,6 @@ request *parse_request(PROTOCOL proto, void *raw)
 
     req->msg = m;
     return req;
-}
-
-string *get_next_field(size_t *until, size_t step, size_t *i, string *bits)
-{
-    string *res = string_init();
-    *until += step;
-    for (; *i < *until && *i < bits->size; (*i)++)
-        string_add_char(res, bits->arr[*i]);
-    return res;
-}
-
-string *binary_bits_to_ascii_string(string *qname_bits)
-{
-    string *res = string_init();
-    string *tampon = string_init();
-    for (size_t i = 0; i < qname_bits->size; ++i)
-    {
-        if ((i > 0 && i % 8 == 0) || i == qname_bits->size - 1)
-        {
-            if (i == qname_bits->size - 1)
-                string_add_char(tampon, qname_bits->arr[i]);
-            string_add_char(res, (char)binary_to_decimal(tampon));
-            string_flush(tampon);
-        }
-        string_add_char(tampon, qname_bits->arr[i]);
-    }
-    string_free(tampon);
-    return res;
 }
 
 string *parse_whole_qname(void *raw, size_t *b)

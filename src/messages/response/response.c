@@ -117,37 +117,6 @@ void domain_name_to_bits(string *qname, void *raw, size_t *b)
     }
 }
 
-void write_domain_name_in_response(string *s, string *cur)
-{
-    bool hit = false;
-    for (size_t i = 0; i < cur->size; ++i)
-    {
-        char c = cur->arr[i];
-        int count = 0;
-        if ((!hit && i == 0) || c == '.')
-        {
-            if (!hit && i == 0)
-            {
-                hit = true;
-                --i;
-            }
-            size_t temp_i = i + 1;
-            while (temp_i < cur->size && cur->arr[temp_i] != '.')
-            {
-                count++;
-                temp_i++;
-            }
-        }
-        else
-            count = cur->arr[i];
-
-        string *tmp_qname = decimal_to_binary(count);
-        string_pad_zeroes(&tmp_qname, 8);
-        string_add_str(s, tmp_qname->arr);
-        string_free(tmp_qname);
-    }
-}
-
 void message_to_bits(PROTOCOL proto, message *msg, void **bits, size_t *b)
 {
     if (proto == UDP)

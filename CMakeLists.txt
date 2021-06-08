@@ -30,7 +30,6 @@ set(SRC
     # Parsing
     src/parser/input.c
     src/parser/parse_request.c
-    src/parser/validate_request.c
     src/parser/parse_zone.c
     src/parser/options.c
 
