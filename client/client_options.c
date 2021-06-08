@@ -42,9 +42,11 @@ void client_options_free(client_options *opt)
 string *client_message_to_bits(PROTOCOL proto, message *msg, bool alter_headers)
 {
     string *s = string_init();
+    void *bits = malloc(65535);
+    size_t b = 0;
 
     // 1. Header section
-    message_headers_to_bits(msg, s);
+    message_headers_to_bits(msg, bits, &b);
     if (alter_headers)
     {
         string *new_s = string_init();
@@ -57,7 +59,7 @@ string *client_message_to_bits(PROTOCOL proto, message *msg, bool alter_headers)
     }
 
     // 2. Question section
-    message_question_to_bits(msg, s);
+    message_question_to_bits(msg, bits, &b);
 
     string *res = NULL;
     if (proto == TCP)

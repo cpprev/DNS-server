@@ -1,6 +1,8 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
+#include <stdint.h>
+
 #include "messages/question_array.h"
 #include "messages/rcode.h"
 #include "messages/qr.h"
@@ -10,7 +12,7 @@
 
 typedef struct
 {
-    int id;
+    uint16_t id;
     QR qr;
     OPCODE opcode;
     bool aa;
@@ -18,10 +20,10 @@ typedef struct
     bool rd;
     bool ra;
     RCODE rcode;
-    int qdcount;
-    int ancount;
-    int nscount;
-    int arcount;
+    uint16_t qdcount;
+    uint16_t ancount;
+    uint16_t nscount;
+    uint16_t arcount;
     // Question section
     question_array *questions;
     // Answer section

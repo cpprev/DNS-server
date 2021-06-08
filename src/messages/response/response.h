@@ -19,8 +19,10 @@ void response_free(response *r);
 
 response *build_response(server_config *cfg, request *req);
 
-string *message_to_bits(PROTOCOL proto, message *msg);
+void message_to_bits(PROTOCOL proto, message *msg, void **bits, size_t *b);
 
 void write_domain_name_in_response(string *s, string *cur);
+
+void domain_name_to_bits(string *qname, void *raw, size_t *b);
 
 #endif

@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <arpa/inet.h>
 
 #include "messages/response/response.h"
 #include "messages/response/resp_headers.h"
@@ -85,6 +86,35 @@ response *build_response(server_config *cfg, request *req)
     return resp;
 }
 
+void domain_name_to_bits(string *qname, void *raw, size_t *b)
+{
+    uint8_t *bits = raw;
+    bool hit = false;
+    for (size_t i = 0; i < qname->size; ++i)
+    {
+        char c = qname->arr[i];
+        uint8_t count = 0;
+        if ((!hit && i == 0) || c == '.')
+        {
+            if (!hit && i == 0)
+            {
+                hit = true;
+                --i;
+            }
+            size_t temp_i = i + 1;
+            while (temp_i < qname->size && qname->arr[temp_i] != '.')
+            {
+                count++;
+                temp_i++;
+            }
+        }
+        else
+            count = qname->arr[i];
+
+        bits[(*b)++] = count;
+    }
+}
+
 void write_domain_name_in_response(string *s, string *cur)
 {
     bool hit = false;
@@ -116,32 +146,22 @@ void write_domain_name_in_response(string *s, string *cur)
     }
 }
 
-string *message_to_bits(PROTOCOL proto, message *msg)
+void message_to_bits(PROTOCOL proto, message *msg, void **bits, size_t *b)
 {
-    string *s = string_init();
+    // TODO give good size
+    *bits = malloc(32768);
+    *b = proto == UDP ? 0 : 1;
 
     // 1. Header section
-    message_headers_to_bits(msg, s);
+    message_headers_to_bits(msg, *bits, b);
     // 2. Question section
-    message_question_to_bits(msg, s);
+    message_question_to_bits(msg, *bits, b);
     // 3. Answer section
-    message_answer_to_bits(msg, s);
+    message_answer_to_bits(msg, *bits, b);
     // TODO 4. Authority section
     // TODO 5. Additional section
 
-    string *res = NULL;
+    uint16_t *bits16 = *bits;
     if (proto == TCP)
-    {
-        string *sizeString = decimal_to_binary(s->size / 8);
-        string_pad_zeroes(&sizeString, 16);
-        string_add_str(sizeString, s->arr);
-        res = binary_bits_to_ascii_string(sizeString);
-        string_free(sizeString);
-    }
-    else if (proto == UDP)
-    {
-        res = binary_bits_to_ascii_string(s);
-    }
-    string_free(s);
-    return res;
+        bits16[0] = htons(*b - 2);
 }

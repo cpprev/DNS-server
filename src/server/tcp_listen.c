@@ -97,23 +97,15 @@ void tcp_recv(server_config *cfg, options *options, int epoll_fd, int connFd)
     int bytes_read = recv(connFd, read_buffer, TCP_READ_SIZE, 0);
     if (bytes_read > 0)
     {
-        string *req_bits = string_init();
-        read_buffer[bytes_read] = '\0';
-        for (int k = 0; k < bytes_read; ++k)
-        {
-            string *cur_binary = decimal_to_binary(read_buffer[k]);
-            string_pad_zeroes(&cur_binary, 8);
-            string_add_str(req_bits, cur_binary->arr);
-            string_free(cur_binary);
-        }
-
         // Parse DNS request
-        request *req = parse_request(TCP, req_bits);
+        request *req = parse_request(TCP, read_buffer);
         response *resp = build_response(cfg, req);
-        string *resp_bits = message_to_bits(TCP, resp->msg);
+        void *bits = NULL;
+        size_t b = 0;
+        message_to_bits(TCP, resp->msg, &bits, &b);
 
         // Send response
-        send(connFd, resp_bits->arr, resp_bits->size, 0);
+        send(connFd, bits, b, 0);
 
         close(connFd);
 
@@ -124,8 +116,6 @@ void tcp_recv(server_config *cfg, options *options, int epoll_fd, int connFd)
         }
 
         // Free memory
-        string_free(req_bits);
-        string_free(resp_bits);
         request_free(req);
         response_free(resp);
 

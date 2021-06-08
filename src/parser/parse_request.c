@@ -1,5 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <arpa/inet.h>
 
 #include "parser/parse_request.h"
 #include "parser/validate_request.h"
@@ -13,27 +15,27 @@
 #include "utils/base_convertions.h"
 
 // Cf https://datatracker.ietf.org/doc/html/rfc1035#section-4
-request *parse_request(PROTOCOL proto, string *req_bits)
+request *parse_request(PROTOCOL proto, void *raw)
 {
     message *m = message_init();
     m->questions = question_array_init();
 
     request *req = request_init();
 
-    RCODE rcode = validate_request(req_bits, proto);
+    // TODO rework validate request with "raw" rather than "req_bits"
+    /*RCODE rcode = validate_request(req_bits, proto, raw);
     if (rcode == NOT_IMPL || rcode == FORMAT_ERR)
     {
         req->msg = m;
         req->msg->rcode = rcode;
         return req;
-    }
+    }*/
 
-    size_t i = 0, until = 0;
-
+    size_t b = 0;
     // 1. Header section
-    parse_request_headers(proto, m, req_bits, &i, &until);
+    parse_request_headers(proto, m, raw, &b);
     // 2. Question section
-    parse_request_question(m, req_bits, &i, &until);
+    parse_request_question(m, raw, &b);
     // 3. Answer section (just skip it since it's a request)
     // TODO
     // 4. Authority section (skip it for now)
@@ -73,119 +75,77 @@ string *binary_bits_to_ascii_string(string *qname_bits)
     return res;
 }
 
-string *parse_whole_qname(size_t *i, size_t *until, string *req_bits)
+string *parse_whole_qname(void *raw, size_t *b)
 {
-    string *tampon = string_init(), *qname = string_init();
-    int tmp_len = 0;
-    size_t i_init = *i;
-    for (; *i < req_bits->size; ++(*i))
+    string *res = string_init();
+    uint8_t *qn = raw;
+    uint8_t cur;
+    while ((cur = qn[(*b)++]) != 0)
     {
-        if (*i > i_init && *i % 8 == 0)
+        if (cur > 0 && cur < 63)
         {
-            int dec = binary_to_decimal(tampon);
-            // 63 is max length for a label (label : test.com -> test is a label)
-            if (dec > 0 && dec < 63)
-            {
-                (*until) += tampon->size;
-                tmp_len = dec;
-                string *qnamebits = get_next_field(until, tmp_len * 8, i, req_bits);
-                string *tmp_name = binary_bits_to_ascii_string(qnamebits);
-                if (!string_is_empty(qname))
-                    string_add_char(qname, '.');
-                string_add_str(qname, tmp_name->arr);
-                string_free(qnamebits);
-                string_free(tmp_name);
-            }
-            else
-            {
-                (*until) += tampon->size;
-                break;
-            }
-            string_flush(tampon);
+            if (!string_is_empty(res))
+                string_add_char(res, '.');
         }
-        string_add_char(tampon, req_bits->arr[*i]);
+        else
+            string_add_char(res, cur);
     }
-    string_free(tampon);
-    return qname;
+    return res;
 }
 
-void parse_request_headers(PROTOCOL proto, message *m, string *req_bits, size_t *i, size_t *until)
+void parse_request_headers(PROTOCOL proto, message *m, void *raw, size_t *b)
 {
+    uint16_t *bits = raw;
     if (proto == TCP)
-    {
-        string *msg_size = get_next_field(until, 16, i, req_bits);
-        string_free(msg_size);
-    }
-    // 1.1. ID: 16 req_bits
-    string *id = get_next_field(until, 16, i, req_bits);
-    m->id = binary_to_decimal_unsigned(id);
-    // 1.2. QR (1 bit)
-    string *qr = get_next_field(until, 1, i, req_bits);
-    m->qr = binary_to_decimal(qr) == 0 ? REQUEST : RESPONSE;
-    // 1.3. OPCode (4 bits)
-    string *opcode = get_next_field(until, 4, i, req_bits);
-    m->opcode = binary_to_decimal(opcode);
-    // 1.4. AA (1 bit) -> required in responses (ignore here)
-    *i += 1; *until += 1;
-    // 1.5. TC (1 bit)
-    string *tc = get_next_field(until, 1, i, req_bits);
-    int tcInt = binary_to_decimal(tc);
-    m->tc = tcInt == 1;
-    // 1.6. RD (1 bit) -> optional
-    string *rd = get_next_field(until, 1, i, req_bits);
-    int rdInt = binary_to_decimal(rd);
-    m->rd = rdInt == 1;
-    // 1.7. RA (1 bit)
-    string *ra = get_next_field(until, 1, i, req_bits);
-    int raInt = binary_to_decimal(ra);
-    m->ra = raInt == 1;
-    // 1.8. / 1.9. Z (3 req_bits) AND RCODE (4 req_bits) -> ignore in request
-    *i += 3 + 4; *until += 3 + 4;
-    // 1.10. QDCOUNT (16 req_bits)
-    string *qdcount = get_next_field(until, 16, i, req_bits);
-    m->qdcount = binary_to_decimal(qdcount);
-    // 1.11. ANCOUNT (16 req_bits)
-    string *ancount = get_next_field(until, 16, i, req_bits);
-    m->ancount = binary_to_decimal(ancount);
-    // 1.12. NSCOUNT (16 req_bits)
-    string *nscount = get_next_field(until, 16, i, req_bits);
-    m->nscount = binary_to_decimal(nscount);
-    // 1.13. ARCOUNT (16 req_bits)
-    string *arcount = get_next_field(until, 16, i, req_bits);
-    m->arcount = binary_to_decimal(arcount);
+        (*b)++;
 
-    // Free memory
-    string_free(id);
-    string_free(arcount);
-    string_free(nscount);
-    string_free(qdcount);
-    string_free(ancount);
-    string_free(ra);
-    string_free(rd);
-    string_free(tc);
-    string_free(opcode);
-    string_free(qr);
+    // ID: 16 bits
+    m->id = ntohs(bits[(*b)++]);
+
+    uint16_t fl = ntohs(bits[(*b)++]);
+    // QR (1 bit)
+    m->qr = fl & 0x8000 ? RESPONSE : REQUEST;
+    // OPCode (4 bits)
+    m->opcode = (fl & 0x7800) >> 11;
+    // AA (1 bit) -> required in responses (ignore here)
+    m->aa = fl & 0x0400;
+    // TC (1 bit)
+    m->tc = fl & 0x0200;
+    // RD (1 bit) -> optional
+    m->rd = fl & 0x0100;
+    // RA (1 bit)
+    m->ra = fl & 0x0080;
+    // Z (3 req_bits) AND RCODE (4 req_bits) -> ignore in request
+
+    // QD/AN/NS/AR COUNT (16 bits each)
+    m->qdcount = ntohs(bits[(*b)++]);
+    m->ancount = ntohs(bits[(*b)++]);
+    m->nscount = ntohs(bits[(*b)++]);
+    m->arcount = ntohs(bits[(*b)++]);
+
+    // Since we will pass on from uint16_t arrays to uint8_t arrays next
+    (*b) *= 2;
 }
 
-void parse_request_question(message *m, string *req_bits, size_t *i, size_t *until)
+void parse_request_question(message *m, void *raw, size_t *b)
 {
     for (int j = 0; j < m->qdcount; ++j)
     {
         // 2.1. QNAME (domain name)
-        string *qname = parse_whole_qname(i, until, req_bits);
+        string *qname = parse_whole_qname(raw, b);
         question *q = question_init();
         string_copy(&q->qname, qname);
+
+        uint16_t *bits = (uint16_t *)((uint8_t *)raw + *b);
         // 2.2. QTYPE (16 req_bits) AAAA = 28; A = 1; etc -> Cf https://en.wikipedia.org/wiki/List_of_DNS_record_types
-        string *qtype = get_next_field(until, 16, i, req_bits);
-        int qtypeInt = binary_to_decimal_unsigned(qtype);
-        q->qtype = record_type_to_int(qtypeInt);
+        q->qtype = record_type_to_int(ntohs(bits[0]));
+        *b += 2;
         // 2.3. QCLASS (16 req_bits) -> IN class = 1 (ignore other classes)
-        string *qclass = get_next_field(until, 16, i, req_bits);
+        q->qclass = ntohs(bits[1]);
+        *b += 2;
 
         question_array_add_question(m->questions, q);
 
         string_free(qname);
-        string_free(qtype);
-        string_free(qclass);
     }
 }

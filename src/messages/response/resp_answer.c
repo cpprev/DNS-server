@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <arpa/inet.h>
 
 #include "messages/response/resp_answer.h"
 
@@ -30,60 +31,49 @@ int get_answer_value_length(record *r, int soa_size)
     }
 }
 
-void message_answer_to_bits(message *msg, string *s)
+void message_answer_to_bits(message *msg, void *raw, size_t *b)
 {
     if (msg->answers == NULL)
         return;
+    uint8_t *bits = raw;
     for (size_t k = 0; msg->answers->arr[k]; ++k)
     {
         record *r = msg->answers->arr[k];
         // NAME
-        write_domain_name_in_response(s, r->domain);
-        // Null byte after name
-        string *nb = string_init();
-        string_pad_zeroes(&nb, 8);
-        string_add_str(s, nb->arr);
-        string_free(nb);
-        // TYPE
-        string *rtype = decimal_to_binary(r->type);
-        string_pad_zeroes(&rtype, 16);
-        string_add_str(s, rtype->arr);
-        string_free(rtype);
-        // CLASS
-        string *class = decimal_to_binary(r->class);
-        string_pad_zeroes(&class, 16);
-        string_add_str(s, class->arr);
-        string_free(class);
-        // TTL
-        string *ttl = decimal_to_binary(r->ttl);
-        string_pad_zeroes(&ttl, 32);
-        string_add_str(s, ttl->arr);
-        string_free(ttl);
+        domain_name_to_bits(r->domain, bits, b);
 
+        // Null byte after name
+        bits[(*b)++] = 0;
+
+        // TYPE & CLASS & TTL
+        uint16_t *cur = (uint16_t *)((uint8_t *) raw + *b);
+        cur[0] = htons(r->type);
+        *b += 2;
+        cur[1] = htons(r->class);
+        *b += 2;
+        uint32_t *ttl = (uint32_t *)((uint8_t *)raw + *b);
+        ttl[0] = htonl(r->ttl);
+        *b += 4;
         // SOA vals
         string *mname = string_init(), *rname = string_init(), *serial = string_init(), *refresh = string_init(),
-               *retry = string_init(), *expire = string_init(), *minimum = string_init();
+                *retry = string_init(), *expire = string_init(), *minimum = string_init();
         get_soa_values(r->value, &mname, &rname, &serial, &refresh, &retry, &expire, &minimum);
-
-        // RDLENGTH (RDATA len)
         int rdlenInt = get_answer_value_length(r, (mname->size + 1) + (rname->size + 1));
+        cur[4] = htons(rdlenInt);
+        *b += 2;
 
-        string *rdlength = decimal_to_binary(rdlenInt);
-        string_pad_zeroes(&rdlength, 16);
-        string_add_str(s, rdlength->arr);
-        string_free(rdlength);
         if (r->type == A)
-            write_answer_A_record(r, s);
+            write_answer_A_record(r, raw, b);
         else if (r->type == AAAA)
-            write_answer_AAAA_record(r, s);
+            write_answer_AAAA_record(r, raw, b);
         else if (r->type == CNAME)
-            write_answer_CNAME_record(r, s);
+            write_answer_CNAME_record(r, raw, b);
         else if (r->type == TXT)
-            write_answer_TXT_record(r, s);
+            write_answer_TXT_record(r, raw, b);
         else if (r->type == SOA)
-            write_answer_SOA_record(s, mname, rname, serial, refresh, retry, expire, minimum);
+            write_answer_SOA_record(mname, rname, serial, refresh, retry, expire, minimum, raw, b);
         else if (r->type == NS)
-            write_answer_NS_record(r, s);
+            write_answer_NS_record(r, raw, b);
 
         // SOA vals free
         string_free(mname);
@@ -96,9 +86,10 @@ void message_answer_to_bits(message *msg, string *s)
     }
 }
 
-void write_answer_A_record(record *r, string *s)
+void write_answer_A_record(record *r, void *raw, size_t *b)
 {
     string *tampon = string_init();
+    uint8_t *bits = raw;
     for (size_t i = 0; r->value->arr[i]; ++i)
     {
         char c = r->value->arr[i];
@@ -106,10 +97,7 @@ void write_answer_A_record(record *r, string *s)
         {
             if (i == r->value->size - 1)
                 string_add_char(tampon, c);
-            string *rdata_temp = decimal_to_binary(atoi(tampon->arr));
-            string_pad_zeroes(&rdata_temp, 8);
-            string_add_str(s, rdata_temp->arr);
-            string_free(rdata_temp);
+            bits[(*b)++] = atoi(tampon->arr);
             string_flush(tampon);
         }
         else
@@ -118,9 +106,11 @@ void write_answer_A_record(record *r, string *s)
     string_free(tampon);
 }
 
-void write_answer_AAAA_record(record *r, string *s)
+void write_answer_AAAA_record(record *r, void *raw, size_t *b)
 {
     string *tampon = string_init();
+    uint16_t *bits = (uint16_t *) ((uint8_t *)raw + *b);
+    int cur_b = 0;
     for (size_t i = 0; r->value->arr[i]; ++i)
     {
         char c = r->value->arr[i];
@@ -129,9 +119,8 @@ void write_answer_AAAA_record(record *r, string *s)
             if (i == r->value->size - 1)
                 string_add_char(tampon, c);
             string *rdata_temp = hexa_to_binary(tampon);
-            string_pad_zeroes(&rdata_temp, 16);
-            string_add_str(s, rdata_temp->arr);
-            string_free(rdata_temp);
+            bits[cur_b++] = htons(binary_to_decimal(rdata_temp));
+            *b += 2;
             string_flush(tampon);
         }
         else
@@ -140,63 +129,42 @@ void write_answer_AAAA_record(record *r, string *s)
     string_free(tampon);
 }
 
-void write_answer_SOA_record(string *s, string *mname, string *rname, string *serial, string *refresh,
-                             string *retry, string *expire, string *minimum)
+void write_answer_SOA_record(string *mname, string *rname, string *serial, string *refresh,
+                             string *retry, string *expire, string *minimum, void *raw, size_t *b)
 {
-    write_domain_name_in_response(s, mname);
+    domain_name_to_bits(mname, raw, b);
 
-    write_domain_name_in_response(s, rname);
+    domain_name_to_bits(rname, raw, b);
 
-    string *serialInt = decimal_to_binary(atoi(serial->arr));
-    string_pad_zeroes(&serialInt, 32);
-    string_add_str(s, serialInt->arr);
-    string_free(serialInt);
-
-    string *refreshInt = decimal_to_binary(atoi(refresh->arr));
-    string_pad_zeroes(&refreshInt, 32);
-    string_add_str(s, refreshInt->arr);
-    string_free(refreshInt);
-
-    string *retryInt = decimal_to_binary(atoi(retry->arr));
-    string_pad_zeroes(&retryInt, 32);
-    string_add_str(s, retryInt->arr);
-    string_free(retryInt);
-
-    string *expireInt = decimal_to_binary(atoi(expire->arr));
-    string_pad_zeroes(&expireInt, 32);
-    string_add_str(s, expireInt->arr);
-    string_free(expireInt);
-
-    string *minimumInt = decimal_to_binary(atoi(minimum->arr));
-    string_pad_zeroes(&minimumInt, 32);
-    string_add_str(s, minimumInt->arr);
-    string_free(minimumInt);
+    uint32_t *bits = (uint32_t *) ((uint8_t *) raw + *b);
+    bits[0] = htonl(atoi(serial->arr));
+    *b += 4;
+    bits[1] = htonl(atoi(refresh->arr));
+    *b += 4;
+    bits[2] = htonl(atoi(retry->arr));
+    *b += 4;
+    bits[3] = htonl(atoi(expire->arr));
+    *b += 4;
+    bits[4] = htonl(atoi(minimum->arr));
+    *b += 4;
 }
 
-void write_answer_TXT_record(record *r, string *s)
+void write_answer_TXT_record(record *r, void *raw, size_t *b)
 {
-    // Single length octet (this is equals to length of string, where as
-    // RDLENGTH is equals to length of string + 1)
-    string *len = decimal_to_binary(r->value->size);
-    string_pad_zeroes(&len, 8);
-    string_add_str(s, len->arr);
-    string_free(len);
-
+    uint8_t *bits = raw;
+    bits[(*b)++] = r->value->size;
     for (size_t i = 0; r->value->arr[i]; ++i)
     {
-        string *temp = decimal_to_binary(r->value->arr[i]);
-        string_pad_zeroes(&temp, 8);
-        string_add_str(s, temp->arr);
-        string_free(temp);
+        bits[(*b)++] = r->value->arr[i];
     }
 }
 
-void write_answer_CNAME_record(record *r, string *s)
+void write_answer_CNAME_record(record *r, void *raw, size_t *b)
 {
-    write_domain_name_in_response(s, r->value);
+    domain_name_to_bits(r->value, raw, b);
 }
 
-void write_answer_NS_record(record *r, string *s)
+void write_answer_NS_record(record *r, void *raw, size_t *b)
 {
-    write_domain_name_in_response(s, r->value);
+    domain_name_to_bits(r->value, raw, b);
 }

@@ -2,6 +2,7 @@
 
 #include <threads.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include <sys/socket.h>
@@ -80,34 +81,30 @@ void udp_recvfrom(server_config *cfg, options *options, int udp_socket)
     if (bytes_read > 0)
     {
         read_buffer[bytes_read] = '\0';
-        string *req_bits = string_init();
-        for (int k = 0; k < bytes_read; ++k)
-        {
-            string *cur_binary = decimal_to_binary(read_buffer[k]);
-            string_pad_zeroes(&cur_binary, 8);
-            string_add_str(req_bits, cur_binary->arr);
-            string_free(cur_binary);
-        }
+
         // Parse DNS request
-        request *req = parse_request(UDP, req_bits);
+        request *req = parse_request(UDP, (void *) read_buffer);
         response *resp = build_response(cfg, req);
-        string *resp_bits = message_to_bits(UDP, resp->msg);
+        void *bits = NULL;
+        size_t b = 0;
+        message_to_bits(UDP, resp->msg, &bits, &b);
 
         // Response too big -> switch to TCP (by setting TC bit)
-        if (resp_bits->size >= UDP_MTU)
+        if (b >= UDP_MTU)
         {
-            string_free(resp_bits);
+            free(bits);
             resp->msg->tc = true;
 
-            string *s = string_init();
-            message_headers_to_bits(resp->msg, s);
-            resp_bits = binary_bits_to_ascii_string(s);
-            sendto(udp_socket, resp_bits->arr, resp_bits->size, 0, &client, c);
+            bits = malloc(32);
+            b = 0;
+            message_headers_to_bits(resp->msg, bits, &b);
+            sendto(udp_socket, bits, b, 0, &client, c);
         }
         else
         {
             // Regular UDP response sending
-            sendto(udp_socket, resp_bits->arr, resp_bits->size, 0, &client, c);
+            //sendto(udp_socket, resp_bits->arr, resp_bits->size, 0, &client, c);
+            sendto(udp_socket, bits, b, 0, &client, c);
         }
 
         if (options->verbose)
@@ -117,9 +114,8 @@ void udp_recvfrom(server_config *cfg, options *options, int udp_socket)
         }
 
         // Free memory
-        string_free(req_bits);
-        string_free(resp_bits);
         request_free(req);
         response_free(resp);
+        free(bits);
     }
 }
