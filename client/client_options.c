@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <arpa/inet.h>
 
 #include "utils/string.h"
 #include "utils/base_convertions.h"
@@ -10,6 +11,8 @@
 #include "messages/response/resp_question.h"
 
 #include "parser/parse_request.h"
+
+#include "server/udp_listen.h"
 
 #include "client_options.h"
 #include "build_req.h"
@@ -39,43 +42,31 @@ void client_options_free(client_options *opt)
     free(opt);
 }
 
-string *client_message_to_bits(PROTOCOL proto, message *msg, bool alter_headers)
+void client_message_to_bits(PROTOCOL proto, message *msg, bool alter_headers)
 {
-    string *s = string_init();
-    void *bits = malloc(65535);
-    size_t b = 0;
+    void *bits = NULL;
+    if (proto == UDP)
+        bits = malloc(UDP_MTU * 8 + 1);
+    else
+        bits = malloc(32768);
+    size_t b = proto == UDP ? 0 : 1;
 
     // 1. Header section
     message_headers_to_bits(msg, bits, &b);
     if (alter_headers)
     {
-        string *new_s = string_init();
-        int inf = rand() % (s->size / 4);
-        int sup = (rand() % s->size / 2 + (s->size / 2));
-        for (int i = inf; i < sup; ++i)
-            string_add_char(new_s, s->arr[i]);
-        string_free(s);
-        s = new_s;
+        // TODO REWORK
     }
 
     // 2. Question section
     message_question_to_bits(msg, bits, &b);
 
-    string *res = NULL;
+    // TODO 4. Authority section
+    // TODO 5. Additional section
+
+    uint16_t *bits16 = bits;
     if (proto == TCP)
-    {
-        string *sizeString = decimal_to_binary(s->size / 8);
-        string_pad_zeroes(&sizeString, 16);
-        string_add_str(sizeString, s->arr);
-        res = binary_bits_to_ascii_string(sizeString);
-        string_free(sizeString);
-    }
-    else if (proto == UDP)
-    {
-        res = binary_bits_to_ascii_string(s);
-    }
-    string_free(s);
-    return res;
+        bits16[0] = htons(b - 2);
 }
 
 client_options *parse_client_options(int argc, char *argv[], PROTOCOL proto)
@@ -100,7 +91,9 @@ client_options *parse_client_options(int argc, char *argv[], PROTOCOL proto)
         }
     }
     request *req = build_request();
-    opt->message = client_message_to_bits(proto, req->msg, alter_headers);
+    // TODO REWORK
+    (void)alter_headers;
+    //opt->message = client_message_to_bits(proto, req->msg, alter_headers);
     request_free(req);
     return opt;
 }

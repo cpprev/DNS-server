@@ -150,7 +150,6 @@ void write_domain_name_in_response(string *s, string *cur)
 
 void message_to_bits(PROTOCOL proto, message *msg, void **bits, size_t *b)
 {
-    // TODO give good size
     if (proto == UDP)
         *bits = malloc(UDP_MTU * 8 + 1);
     else
