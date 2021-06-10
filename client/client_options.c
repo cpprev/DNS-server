@@ -27,6 +27,7 @@ client_options *client_options_init(PROTOCOL proto)
     opt->port = 53;
 
     opt->message = NULL;
+    opt->message_size = 0;
 
     return opt;
 }
@@ -38,41 +39,13 @@ void client_options_free(client_options *opt)
     if (opt->ip != NULL)
         string_free(opt->ip);
     if (opt->message != NULL)
-        string_free(opt->message);
+        free(opt->message);
     free(opt);
-}
-
-void client_message_to_bits(PROTOCOL proto, message *msg, bool alter_headers)
-{
-    void *bits = NULL;
-    if (proto == UDP)
-        bits = malloc(UDP_MTU * 8 + 1);
-    else
-        bits = malloc(32768);
-    size_t b = proto == UDP ? 0 : 1;
-
-    // 1. Header section
-    message_headers_to_bits(msg, bits, &b);
-    if (alter_headers)
-    {
-        // TODO REWORK
-    }
-
-    // 2. Question section
-    message_question_to_bits(msg, bits, &b);
-
-    // TODO 4. Authority section
-    // TODO 5. Additional section
-
-    uint16_t *bits16 = bits;
-    if (proto == TCP)
-        bits16[0] = htons(b - 2);
 }
 
 client_options *parse_client_options(int argc, char *argv[], PROTOCOL proto)
 {
     client_options *opt = client_options_init(proto);
-    bool alter_headers = false;
     for (int i = 1; i < argc; ++i)
     {
         char *cur = argv[i];
@@ -87,13 +60,15 @@ client_options *parse_client_options(int argc, char *argv[], PROTOCOL proto)
         }
         else if (strcmp(cur, "-a") == 0 || strcmp(cur, "--alter-headers") == 0)
         {
-            alter_headers = true;
+            //alter_headers = true;
         }
     }
     request *req = build_request();
-    // TODO REWORK
-    (void)alter_headers;
-    //opt->message = client_message_to_bits(proto, req->msg, alter_headers);
+    void *msg = NULL;
+    size_t msg_size = 0;
+    message_to_bits(proto, req->msg, &msg, &msg_size);
+    opt->message = msg;
+    opt->message_size = msg_size;
     request_free(req);
     return opt;
 }

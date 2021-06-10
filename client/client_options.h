@@ -7,7 +7,8 @@ typedef struct
 {
     string *ip;
     int port;
-    string *message;
+    void *message;
+    size_t message_size;
 } client_options;
 
 client_options *client_options_init(PROTOCOL proto);

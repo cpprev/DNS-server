@@ -28,7 +28,7 @@ int tcp_send_request()
 
     exit_if_true(connect(sock, (struct sockaddr *)&sin, sizeof(sin)) < 0, "connect error");
 
-    if (send(sock, g_options->message->arr, g_options->message->size, 0) >= 0)
+    if (send(sock, g_options->message, g_options->message_size, 0) >= 0)
     {
         char buf[RECV_SIZE + 1];
         int buf_len = recv(sock, buf, RECV_SIZE, 0);
@@ -54,7 +54,7 @@ void *udp_send_request()
     sin.sin_port = htons(g_options->port);
     inet_pton(AF_INET, g_options->ip->arr, &sin.sin_addr);
 
-    if (sendto(sock, g_options->message->arr, g_options->message->size, 0, (struct sockaddr *) &sin, sin_len) != -1)
+    if (sendto(sock, g_options->message, g_options->message_size, 0, (struct sockaddr *) &sin, sin_len) != -1)
     {
         char buf[RECV_SIZE + 1];
         int buf_len = recvfrom(sock, buf, RECV_SIZE, 0, (struct sockaddr *)&sin, (socklen_t *)&sin_len);

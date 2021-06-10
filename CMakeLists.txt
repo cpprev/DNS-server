@@ -60,8 +60,10 @@ add_compile_options(${CHECK_CFLAGS} -Wall -Wextra -Werror -pedantic -std=c99)
 
 add_executable(dns src/main.c ${SRC})
 add_executable(client client/main.c ${SRC})
+add_executable(profiler profiler/main.c ${SRC})
 
 target_link_libraries(dns asan pthread)
 target_link_libraries(client asan pthread)
+target_link_libraries(profiler asan pthread)
 
 add_custom_target(check COMMAND make -j5 && cp dns ../tests && cd "${CMAKE_SOURCE_DIR}/tests" && ./main.sh)
