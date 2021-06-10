@@ -15,7 +15,10 @@ void message_answer_to_bits(message *msg, void *raw, size_t *b)
     {
         record *r = msg->answers->arr[k];
         // NAME
-        domain_name_to_bits(r->domain, bits, b);
+        uint8_t *domain = r->domain;
+        for (size_t i = 0; i < r->domain_size; ++i)
+            bits[(*b)++] = domain[i];
+        //domain_name_to_bits(r->domain, bits, b);
 
         // Null byte after name
         bits[(*b)++] = 0;

@@ -11,7 +11,9 @@
 typedef struct
 {
     // 1st value
-    string *domain;
+    void *domain;
+    size_t domain_size;
+    string *string_domain;
     // 2nd value
     RECORD_TYPE type;
     // 3rd value

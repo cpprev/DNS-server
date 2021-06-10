@@ -70,7 +70,7 @@ response *build_response(server_config *cfg, request *req)
             for (size_t k = 0; z->records->arr[k]; ++k)
             {
                 record *r = z->records->arr[k];
-                if (string_equals(qname, r->domain))
+                if (string_equals(qname, r->string_domain))
                 {
                     hit_domain = true;
                     if (qtype == r->type || qtype == ANY)

@@ -5,6 +5,8 @@
 #include "config/record.h"
 #include "config/record_values.h"
 
+#include "messages/response/response.h"
+
 #include "utils/file.h"
 #include "utils/utils.h"
 #include "utils/string.h"
@@ -15,6 +17,7 @@ record *record_init()
     r->type = RECORD_NONE;
     r->class = IN;
     r->domain = NULL;
+    r->string_domain= NULL;
     r->ttl = -1;
     r->value = NULL;
     r->string_value = NULL;
@@ -26,16 +29,23 @@ record *record_copy(record *r)
     record *new_record = record_init();
     new_record->type = r->type;
     new_record->ttl = r->ttl;
-    string_copy(&new_record->domain, r->domain);
-    new_record->value = malloc((r->value_size + 1) * sizeof(uint8_t));
-    uint8_t *new_bits = new_record->value;
-    uint8_t *old_bits = r->value;
-    for (size_t i = 0; i < r->value_size; ++i)
-    {
-        new_bits[i] = old_bits[i];
-    }
-    new_record->value_size = r->value_size;
+    string_copy(&new_record->string_domain, r->string_domain);
     string_copy(&new_record->string_value, r->string_value);
+
+    new_record->value = malloc((r->value_size + 1) * sizeof(uint8_t));
+    uint8_t *new_value = new_record->value;
+    uint8_t *old_value = r->value;
+    for (size_t i = 0; i < r->value_size; ++i)
+        new_value[i] = old_value[i];
+    new_record->value_size = r->value_size;
+
+    new_record->domain = malloc((r->domain_size + 1) * sizeof(uint8_t));
+    uint8_t *new_domain = new_record->domain;
+    uint8_t *old_domain = r->domain;
+    for (size_t i = 0; i < r->domain_size; ++i)
+        new_domain[i] = old_domain[i];
+    new_record->domain_size = r->domain_size;
+
     return new_record;
 }
 
@@ -43,12 +53,14 @@ void record_free(record *r)
 {
     if (r == NULL)
         return;
-    if (r->domain != NULL)
-        string_free(r->domain);
     if (r->string_value != NULL)
         string_free(r->string_value);
+    if (r->string_domain != NULL)
+        string_free(r->string_domain);
     if (r->value != NULL)
         free(r->value);
+    if (r->domain != NULL)
+        free(r->domain);
     free(r);
 }
 
@@ -72,13 +84,23 @@ void get_soa_values(string *s, string **mname, string **rname, string **serial, 
     }
 }
 
+void *domain_name_as_bits(string *tampon, size_t *b)
+{
+    uint8_t *bits = malloc((tampon->size * 2 + 1) * sizeof(uint8_t));
+    domain_name_to_bits(tampon, bits, b);
+    return bits;
+}
+
 void process_record(record *r, string **tampon, int count_semicolon, string *error)
 {
     if (string_is_empty(*tampon))
         return;
     if (count_semicolon == 0)
     {
-        string_copy(&r->domain, *tampon);
+        size_t b = 0;
+        r->domain = domain_name_as_bits(*tampon, &b);
+        r->domain_size = b;
+        string_copy(&r->string_domain, *tampon);
     }
     else if (count_semicolon == 1)
     {
@@ -130,7 +152,7 @@ record *parse_record(string *zone_name, string *in, string *error)
         }
     }
     string_free(tampon);
-    if (string_is_empty(r->domain) || r->ttl == -1 || r->type == RECORD_NONE)
+    if (string_is_empty(r->string_domain) || r->ttl == -1 || r->type == RECORD_NONE)
     {
         record_free(r);
         string *custom_error = string_init();
