@@ -18,6 +18,12 @@
 
     - [] Message compression (RFC 1035 section 4.1.4.)
 
+## Performances
+
+500'000 UDP requests per seconds (with 10 simultaneous clients) :
+
+![alt text](https://github.com/cpprev/DNS-server/blob/master/images/dnsperf_1.png?raw=true)
+
 ## Requirements
 
 #### CMake
