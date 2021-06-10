@@ -15,6 +15,7 @@
 
 #include "utils/error.h"
 #include "utils/printer.h"
+#include "utils/bits.h"
 #include "utils/base_convertions.h"
 
 #include "parser/parse_request.h"
@@ -91,11 +92,15 @@ void tcp_accept(int epoll_fd, int tcp_socket)
 void tcp_recv(server_config *cfg, options *options, int epoll_fd, int connFd)
 {
     char read_buffer[TCP_READ_SIZE + 1];
-    int bytes_read = recv(connFd, read_buffer, TCP_READ_SIZE, 0);
-    if (bytes_read > 0)
+    int bytes_read = 0;
+    bits *in = NULL;
+    while ((bytes_read = recv(connFd, read_buffer, TCP_READ_SIZE, 0)) > 0)
+        bits_add_bits(&in, read_buffer, bytes_read);
+    if (in->size > 0)
     {
         // Parse DNS request
-        request *req = parse_request(TCP, read_buffer);
+        request *req = parse_request(TCP, in->arr);
+        bits_free(in);
         response *resp = build_response(cfg, req);
         void *bits = NULL;
         size_t b = 0;

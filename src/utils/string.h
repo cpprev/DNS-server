@@ -28,27 +28,27 @@ void string_free (string *s);
 void string_flush (string *s);
 
 /**
-** \brief                           Resizes a string's arr argument
-** \param s                         The string to alter
+** \brief                           Resizes a string'b arr argument
+** \param b                         The string to alter
 ** \return                          The modified string
 */
-void string_resize (string *s);
+void string_resize (string *b);
 
 /**
 ** \brief                           Adds a char to a string
-** \param s                         The string to alter
+** \param b                         The string to alter
 ** \param c                         The character to add to the string
 ** \return                          The modified string
 */
-void string_add_char(string *s, char c);
+void string_add_char(string *b, char c);
 
 /**
 ** \brief                           Adds another string to a string object
-** \param s                         The string to alter
+** \param b                         The string to alter
 ** \param s2                        The string to add to the main string
 ** \return                          The modified string
 */
-void string_add_str (string *s, char *s2);
+void string_add_str (string *b, char *s2);
 
 // TODO comment
 bool string_is_empty(string *s);
