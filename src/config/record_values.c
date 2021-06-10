@@ -3,7 +3,6 @@
 #include <arpa/inet.h>
 
 #include "messages/response/response.h"
-#include "messages/response/resp_answer.h"
 
 #include "utils/base_convertions.h"
 
@@ -34,7 +33,6 @@ void *record_val_to_bits(RECORD_TYPE type, string *val, size_t *b)
 void *A_init(string *val, size_t *b)
 {
     uint8_t *bits = malloc((4) * sizeof(uint8_t));
-
     string *tampon = string_init();
     for (size_t i = 0; val->arr[i]; ++i)
     {
@@ -56,7 +54,6 @@ void *A_init(string *val, size_t *b)
 void *AAAA_init(string *val, size_t *b)
 {
     void *res = malloc((16) * sizeof(uint16_t));
-
     uint16_t *bits = res;
     int cur_b = 0;
     string *tampon = string_init();
@@ -117,7 +114,6 @@ void *SOA_init(string *val, size_t *b)
 void *TXT_init(string *val, size_t *b)
 {
     void *res = malloc((val->size + 1) * sizeof(uint8_t));
-
     uint8_t *bits = res;
     bits[(*b)++] = val->size;
     for (size_t i = 0; val->arr[i]; ++i)
@@ -130,7 +126,6 @@ void *TXT_init(string *val, size_t *b)
 void *CNAME_init(string *val, size_t *b)
 {
     void *res = malloc((val->size * 2 + 1) * sizeof(uint8_t));
-
     domain_name_to_bits(val, res, b);
     return res;
 }
@@ -138,7 +133,6 @@ void *CNAME_init(string *val, size_t *b)
 void *NS_init(string *val, size_t *b)
 {
     void *res = malloc((val->size * 2 + 1) * sizeof(uint8_t));
-
     domain_name_to_bits(val, res, b);
     return res;
 }
