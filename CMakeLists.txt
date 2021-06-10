@@ -13,6 +13,7 @@ set(SRC
     src/config/record.c
     src/config/record_type.c
     src/config/class_type.c
+    src/config/record_values.c
 
     # Messages
     src/messages/message.c

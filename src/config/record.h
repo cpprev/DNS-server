@@ -17,7 +17,9 @@ typedef struct
     // 3rd value
     int32_t ttl;
     // 4th value
-    string *value;
+    void *value;
+    size_t value_size;
+    string *string_value;
     // Class (IN class only, for now TODO)
     CLASS_TYPE class;
 } record;

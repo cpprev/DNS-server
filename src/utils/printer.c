@@ -15,7 +15,7 @@ void print_server_config(server_config* cfg)
                 record *r = z->records->arr[j];
                 printf("%s\t", r->domain->arr);
                 print_record_type(r->type);
-                printf("\t%d\t%s\n", r->ttl, r->value->arr);
+                printf("\t%d\t%s\n", r->ttl, r->string_value->arr);
             }
         }
     }
@@ -65,7 +65,7 @@ void print_message(message *msg)
     {
         record *r = msg->answers->arr[i];
         printf("Answer [%d] :\n", (int)i + 1);
-        printf("%s\t%d\t%s\t%s\t%s\n", r->domain->arr, r->ttl, class_type_to_string(r->class), record_type_to_string(r->type), r->value->arr);
+        printf("%s\t%d\t%s\t%s\t%s\n", r->domain->arr, r->ttl, class_type_to_string(r->class), record_type_to_string(r->type), r->string_value->arr);
     }
 }
 
