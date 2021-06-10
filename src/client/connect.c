@@ -5,8 +5,8 @@
 
 #include "utils/error.h"
 
-#include "connect.h"
-#include "client_options.h"
+#include "client/connect.h"
+#include "client/client_options.h"
 
 #define RECV_SIZE 256
 

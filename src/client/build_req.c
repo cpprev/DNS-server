@@ -4,7 +4,7 @@
 
 #include "parser/parse_request.h"
 
-#include "build_req.h"
+#include "client/build_req.h"
 
 request *build_request()
 {

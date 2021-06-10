@@ -4,8 +4,8 @@
 #include <errno.h>
 #include <pthread.h>
 
-#include "stress_test.h"
-#include "connect.h"
+#include "client/stress_test.h"
+#include "client/connect.h"
 
 #define THREAD_CAP 2
 

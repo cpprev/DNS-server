@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 
 project(dns VERSION 1.0 LANGUAGES C)
 
-include_directories(src/ client/)
+include_directories(src/)
 
 set(SRC
     # Config
@@ -49,10 +49,10 @@ set(SRC
     src/utils/printer.c
 
     # Client
-    client/connect.c
-    client/build_req.c
-    client/stress_test.c
-    client/client_options.c
+    src/client/connect.c
+    src/client/build_req.c
+    src/client/stress_test.c
+    src/client/client_options.c
 )
 
 set(DEBUG_CFLAGS -fsanitize=address -g)
@@ -61,8 +61,8 @@ set(DEFAULT_C_FLAGS -Wall -Wextra -Werror -pedantic -std=c99)
 add_compile_options(${DEFAULT_C_FLAGS})
 
 add_executable(dns src/main.c ${SRC})
-add_executable(client client/main.c ${SRC})
-add_executable(profiler profiler/main.c ${SRC})
+add_executable(client src/client/main.c ${SRC})
+add_executable(profiler src/profiler/main.c ${SRC})
 
 target_link_libraries(dns pthread)
 target_link_libraries(client asan pthread)

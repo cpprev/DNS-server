@@ -73,7 +73,7 @@ string *parse_whole_qname(void *raw, size_t *b, size_t size, uint8_t *raw_questi
             string_add_char(res, cur);
             temp_count--;
         }
-        if (*b + 1 >= size || temp_count < 0)
+        if (*b + 1 > size || temp_count < 0)
         {
             string_free(res);
             goto format_err;

@@ -13,8 +13,8 @@
 
 #include "server/udp_listen.h"
 
-#include "client_options.h"
-#include "build_req.h"
+#include "client/client_options.h"
+#include "client/build_req.h"
 
 #define OCCURENCES 128000
 

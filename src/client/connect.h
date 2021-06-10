@@ -3,7 +3,7 @@
 
 #include "config/server_config.h"
 
-#include "client_options.h"
+#include "client/client_options.h"
 
 int tcp_send_request();
 

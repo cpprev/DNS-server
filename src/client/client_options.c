@@ -14,8 +14,8 @@
 
 #include "server/udp_listen.h"
 
-#include "client_options.h"
-#include "build_req.h"
+#include "client/client_options.h"
+#include "client/build_req.h"
 
 client_options *client_options_init(PROTOCOL proto)
 {
@@ -74,9 +74,11 @@ client_options *parse_client_options(int argc, char *argv[], PROTOCOL proto)
         uint8_t *old_s = msg;
         int inf = rand() % (msg_size / 4);
         int sup = (rand() % msg_size / 2 + (msg_size / 2));
-        for (int i = inf; i < sup; ++i)
+        int i;
+        for (i = inf; i < sup; ++i)
             new_s[i] = old_s[i];
         free(msg);
+        msg_size = i;
         msg = new_s;
     }
     opt->message = msg;
