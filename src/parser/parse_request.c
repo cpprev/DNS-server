@@ -102,7 +102,7 @@ void parse_request_question(message *m, void *raw, size_t *b, size_t size)
         // 2.1. QNAME (domain name)
         string *qname = parse_whole_qname(raw, b, raw_questions, &raw_questions_b);
         question *q = question_init();
-        string_copy(&q->qname, qname);
+        q->qname = qname;
 
         uint16_t *bits = (uint16_t *)((uint8_t *)raw + *b);
         // 2.2. QTYPE (16 req_bits) AAAA = 28; A = 1; etc -> Cf https://en.wikipedia.org/wiki/List_of_DNS_record_types
@@ -118,8 +118,6 @@ void parse_request_question(message *m, void *raw, size_t *b, size_t size)
         raw_questions_b += 2;
 
         question_array_add_question(m->questions, q);
-
-        string_free(qname);
     }
     m->raw_questions = raw_questions;
     m->raw_questions_size = raw_questions_b;
