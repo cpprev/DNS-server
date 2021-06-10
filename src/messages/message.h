@@ -10,6 +10,9 @@
 
 #include "config/record_array.h"
 
+#define UDP_HEADER_SIZE (96 / 8)
+#define TCP_HEADER_SIZE (96 / 8 + 2)
+
 typedef struct
 {
     uint16_t id;

@@ -14,3 +14,8 @@ const char *opcode_to_string(OPCODE opcode)
             return "Unknown opcode";;
     }
 }
+
+bool is_opcode_valid(OPCODE opcode)
+{
+    return opcode == OPCODE_QUERY || opcode == OPCODE_IQUERY || opcode == OPCODE_STATUS;
+}

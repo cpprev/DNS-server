@@ -100,8 +100,12 @@ void tcp_recv(server_config *cfg, options *options, int epoll_fd, int connFd)
     {
         // Parse DNS request
         request *req = parse_request(TCP, in->arr, in->size);
+        if (options->verbose)
+            print_request(TCP, req);
         bits_free(in);
         response *resp = build_response(cfg, req);
+        if (options->verbose)
+            print_response(resp);
         void *bits = NULL;
         size_t b = 0;
         message_to_bits(TCP, resp->msg, &bits, &b);
@@ -110,12 +114,6 @@ void tcp_recv(server_config *cfg, options *options, int epoll_fd, int connFd)
         send(connFd, bits, b, 0);
 
         close(connFd);
-
-        if (options->verbose)
-        {
-            print_request(TCP, req);
-            print_response(resp);
-        }
 
         // Free memory
         request_free(req);

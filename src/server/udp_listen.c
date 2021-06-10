@@ -79,7 +79,11 @@ void udp_recvfrom(server_config *cfg, options *options, int udp_socket)
 
         // Parse DNS request
         request *req = parse_request(UDP, (void *) read_buffer, bytes_read);
+        if (options->verbose)
+            print_request(UDP, req);
         response *resp = build_response(cfg, req);
+        if (options->verbose)
+            print_response(resp);
         void *bits = NULL;
         size_t b = 0;
         message_to_bits(UDP, resp->msg, &bits, &b);
@@ -102,15 +106,7 @@ void udp_recvfrom(server_config *cfg, options *options, int udp_socket)
             sendto(udp_socket, bits, b, 0, &client, c);
         }
 
-        if (options->verbose)
-        {
-            print_request(UDP, req);
-            print_response(resp);
-        }
-
         // Free memory
-        // Since we copied the pointer to resp->msg, we don't want to free it twice later on
-        req->msg = NULL;
         request_free(req);
         response_free(resp);
         free(bits);

@@ -24,18 +24,29 @@ request *parse_request(PROTOCOL proto, void *raw, size_t size)
     // TODO rework validate request with "raw" rather than "req_bits"
 
     size_t b = 0;
+    RCODE rcode = NO_ERR;
     // 1. Header section
-    parse_request_headers(proto, m, raw, &b);
+    parse_request_headers(proto, m, raw, &b, size, &rcode);
+    if (rcode == NOT_IMPL || rcode == FORMAT_ERR) goto exit;
     // 2. Question section
-    parse_request_question(m, raw, &b, size);
+    parse_request_question(m, raw, &b, size, &rcode);
+    if (rcode == NOT_IMPL || rcode == FORMAT_ERR) goto exit;
     // 3. Answer section (just skip it since it's a request)
-    m->answers = parse_request_records(m->ancount, raw, &b);
+    m->answers = parse_request_records(m->ancount, raw, &b, &rcode);
+    if (rcode == NOT_IMPL || rcode == FORMAT_ERR) goto exit;
     // 4. Authority section (skip it for now)
-    m->authority = parse_request_records(m->nscount, raw, &b);
+    m->authority = parse_request_records(m->nscount, raw, &b, &rcode);
+    if (rcode == NOT_IMPL || rcode == FORMAT_ERR) goto exit;
     // 5. Additional section
-    m->additional = parse_request_records(m->arcount, raw, &b);
+    m->additional = parse_request_records(m->arcount, raw, &b, &rcode);
+    if (rcode == NOT_IMPL || rcode == FORMAT_ERR) goto exit;
 
     req->msg = m;
+    return req;
+
+exit:
+    req->msg = m;
+    req->msg->rcode = rcode;
     return req;
 }
 
@@ -61,11 +72,15 @@ string *parse_whole_qname(void *raw, size_t *b, uint8_t *raw_questions, size_t *
     return res;
 }
 
-void parse_request_headers(PROTOCOL proto, message *m, void *raw, size_t *b)
+void parse_request_headers(PROTOCOL proto, message *m, void *raw, size_t *b, size_t size, RCODE *rcode)
 {
+    if ((proto == UDP && size < UDP_HEADER_SIZE) || (proto == TCP && size < TCP_HEADER_SIZE))
+        goto format_err;
+
     uint16_t *bits = raw;
+    uint16_t msg_size = 0;
     if (proto == TCP)
-        (*b)++;
+        msg_size = ntohs(bits[(*b)++]);
 
     // ID: 16 bits
     m->id = ntohs(bits[(*b)++]);
@@ -93,10 +108,24 @@ void parse_request_headers(PROTOCOL proto, message *m, void *raw, size_t *b)
 
     // Since we will pass on from uint16_t arrays to uint8_t arrays next
     (*b) *= 2;
+
+    if (!is_opcode_valid(m->opcode) || m->qr != REQUEST || m->ancount != 0)
+        goto not_impl;
+    if (proto == TCP && msg_size != size - 2)
+        goto format_err;
+    return;
+
+not_impl:
+    *rcode = NOT_IMPL;
+    return;
+format_err:
+    *rcode = FORMAT_ERR;
+    return;
 }
 
-void parse_request_question(message *m, void *raw, size_t *b, size_t size)
+void parse_request_question(message *m, void *raw, size_t *b, size_t size, RCODE *rcode)
 {
+    (void)rcode;
     uint8_t *raw_questions = malloc((size + 1 - 96 / 8) * sizeof(uint8_t));
     size_t raw_questions_b = 0;
     for (int j = 0; j < m->qdcount; ++j)
@@ -125,8 +154,9 @@ void parse_request_question(message *m, void *raw, size_t *b, size_t size)
     m->raw_questions_size = raw_questions_b;
 }
 
-record_array *parse_request_records(int count, void *raw, size_t *b)
+record_array *parse_request_records(int count, void *raw, size_t *b, RCODE *rcode)
 {
+    (void)rcode;
     record_array *res = record_array_init();
     for (int i = 0; i < count; ++i)
     {

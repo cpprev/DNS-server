@@ -46,6 +46,7 @@ void client_options_free(client_options *opt)
 client_options *parse_client_options(int argc, char *argv[], PROTOCOL proto)
 {
     client_options *opt = client_options_init(proto);
+    bool alter_headers = false;
     for (int i = 1; i < argc; ++i)
     {
         char *cur = argv[i];
@@ -60,13 +61,24 @@ client_options *parse_client_options(int argc, char *argv[], PROTOCOL proto)
         }
         else if (strcmp(cur, "-a") == 0 || strcmp(cur, "--alter-headers") == 0)
         {
-            //alter_headers = true;
+            alter_headers = true;
         }
     }
     request *req = build_request();
     void *msg = NULL;
     size_t msg_size = 0;
     message_to_bits(proto, req->msg, &msg, &msg_size);
+    if (alter_headers)
+    {
+        uint8_t *new_s = malloc(msg_size * sizeof(uint8_t));
+        uint8_t *old_s = msg;
+        int inf = rand() % (msg_size / 4);
+        int sup = (rand() % msg_size / 2 + (msg_size / 2));
+        for (int i = inf; i < sup; ++i)
+            new_s[i] = old_s[i];
+        free(msg);
+        msg = new_s;
+    }
     opt->message = msg;
     opt->message_size = msg_size;
     request_free(req);

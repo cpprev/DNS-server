@@ -58,14 +58,14 @@ set(SRC
 set(DEBUG_CFLAGS -fsanitize=address -g)
 set(DEFAULT_C_FLAGS -Wall -Wextra -Werror -pedantic -std=c99)
 
-add_compile_options(${DEFAULT_C_FLAGS})
+add_compile_options(${DEBUG_CFLAGS} ${DEFAULT_C_FLAGS})
 
 add_executable(dns src/main.c ${SRC})
 add_executable(client client/main.c ${SRC})
 add_executable(profiler profiler/main.c ${SRC})
 
-target_link_libraries(dns pthread)
+target_link_libraries(dns asan pthread)
 target_link_libraries(client asan pthread)
-target_link_libraries(profiler pthread)
+target_link_libraries(profiler asan pthread)
 
 add_custom_target(check COMMAND make -j5 && cp dns ../tests && cd "${CMAKE_SOURCE_DIR}/tests" && ./main.sh)
