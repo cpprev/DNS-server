@@ -12,10 +12,6 @@
 
 ## TODO List
 
-    - [DOING] Wrongly formatted requests error handling (auth + additional sections left)
-
-    - [DOING] Handle / parse additional and auth sections
-
     - [DOING] Add config and dig tests
 
     - [] Handle wildcard records
