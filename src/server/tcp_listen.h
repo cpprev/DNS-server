@@ -5,7 +5,7 @@
 
 #include "parser/options.h"
 
-#define TCP_READ_SIZE 10
+#define TCP_READ_SIZE 4096
 #define TCP_MAX_EVENTS 10000
 
 void *server_TCP_listen(void *args);

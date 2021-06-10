@@ -95,7 +95,7 @@ void tcp_recv(server_config *cfg, options *options, int epoll_fd, int connFd)
     int bytes_read = 0;
     bits *in = NULL;
     while ((bytes_read = recv(connFd, read_buffer, TCP_READ_SIZE, 0)) > 0)
-        bits_add_bits(&in, read_buffer, bytes_read);
+        bits_add_bits(&in, (uint8_t *) read_buffer, bytes_read);
     if (in->size > 0)
     {
         // Parse DNS request

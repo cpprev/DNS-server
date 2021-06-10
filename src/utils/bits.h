@@ -16,6 +16,6 @@ void bits_free (bits *b);
 
 void bits_resize (bits *b, size_t add_size);
 
-void bits_add_bits (bits **b1, void *b2, size_t size_b2);
+void bits_add_bits (bits **b1, uint8_t *b2, size_t size_b2);
 
 #endif
