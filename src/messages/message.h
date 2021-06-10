@@ -30,7 +30,8 @@ typedef struct
     size_t raw_questions_size;
     // Answer section
     record_array *answers;
-    // TODO auth + additional sections (unless not asked in subject)
+    record_array *authority;
+    record_array *additional;
 } message;
 
 message *message_init();

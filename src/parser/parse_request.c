@@ -29,11 +29,11 @@ request *parse_request(PROTOCOL proto, void *raw, size_t size)
     // 2. Question section
     parse_request_question(m, raw, &b, size);
     // 3. Answer section (just skip it since it's a request)
-    // TODO
+    m->answers = parse_request_records(m->ancount, raw, &b);
     // 4. Authority section (skip it for now)
-    // TODO
+    m->authority = parse_request_records(m->nscount, raw, &b);
     // 5. Additional section
-    // TODO
+    m->additional = parse_request_records(m->arcount, raw, &b);
 
     req->msg = m;
     return req;
@@ -46,7 +46,8 @@ string *parse_whole_qname(void *raw, size_t *b, uint8_t *raw_questions, size_t *
     uint8_t cur;
     while ((cur = qn[(*b)++]) != 0)
     {
-        raw_questions[(*raw_questions_b)++] = cur;
+        if (raw_questions != NULL)
+            raw_questions[(*raw_questions_b)++] = cur;
         if (cur > 0 && cur < 63 && cur != '-')
         {
             if (!string_is_empty(res))
@@ -55,7 +56,8 @@ string *parse_whole_qname(void *raw, size_t *b, uint8_t *raw_questions, size_t *
         else
             string_add_char(res, cur);
     }
-    raw_questions[(*raw_questions_b)++] = 0;
+    if (raw_questions != NULL)
+        raw_questions[(*raw_questions_b)++] = 0;
     return res;
 }
 
@@ -121,4 +123,30 @@ void parse_request_question(message *m, void *raw, size_t *b, size_t size)
     }
     m->raw_questions = raw_questions;
     m->raw_questions_size = raw_questions_b;
+}
+
+record_array *parse_request_records(int count, void *raw, size_t *b)
+{
+    record_array *res = record_array_init();
+    for (int i = 0; i < count; ++i)
+    {
+        record *r = record_init();
+        string *qname = parse_whole_qname(raw, b, NULL, NULL);
+        r->string_domain = qname;
+        uint16_t *cur = (uint16_t *)((uint8_t *) raw + *b);
+        uint16_t type = ntohs(cur[0]);
+        r->type = record_type_to_int(type);
+        *b += 2;
+        uint16_t class = ntohs(cur[1]);
+        r->class = class;
+        *b += 2;
+        uint32_t *ttl_bits = (uint32_t *)((uint8_t *)raw + *b);
+        uint32_t ttl = ntohl(ttl_bits[0]);
+        r->ttl = ttl;
+        *b += 4;
+        uint16_t rdlength = htons(cur[4]);
+        *b += 2;
+        *b += rdlength;
+    }
+    return res;
 }

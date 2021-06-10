@@ -19,6 +19,6 @@ void parse_request_headers(PROTOCOL proto, message *m, void *raw, size_t *b);
 
 void parse_request_question(message *m, void *raw, size_t *b, size_t size);
 
-string *get_next_field(size_t *until, size_t step, size_t *i, string *bits);
+record_array *parse_request_records(int count, void *raw, size_t *b);
 
 #endif

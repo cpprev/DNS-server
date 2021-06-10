@@ -89,8 +89,6 @@ response *build_response(server_config *cfg, request *req)
     resp->msg->answers = r_arr;
     resp->msg->ancount = resp->msg->answers->size;
 
-    // Since we copied the pointer to resp->msg, we don't want to free it twice later on
-    req->msg = NULL;
     return resp;
 }
 

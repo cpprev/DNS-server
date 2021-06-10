@@ -21,6 +21,8 @@ message *message_init()
     m->raw_questions = NULL;
     m->raw_questions_size = 0;
     m->answers = NULL;
+    m->authority = NULL;
+    m->additional = NULL;
     return m;
 }
 
@@ -41,6 +43,8 @@ message *message_copy(message *m)
     new_m->arcount = m->arcount;
     new_m->questions = question_array_copy(m->questions);
     new_m->answers = record_array_copy(m->answers);
+    new_m->authority = record_array_copy(m->authority);
+    new_m->additional = record_array_copy(m->additional);
 
     new_m->raw_questions = malloc((m->raw_questions_size + 1) * sizeof(uint8_t));
     uint8_t *new_questions = new_m->raw_questions;
@@ -60,6 +64,10 @@ void message_free(message *m)
         question_array_free(m->questions);
     if (m->answers != NULL)
         record_array_free(m->answers);
+    if (m->authority != NULL)
+        record_array_free(m->authority);
+    if (m->additional != NULL)
+        record_array_free(m->additional);
     if (m->raw_questions != NULL)
         free(m->raw_questions);
     free(m);

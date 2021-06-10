@@ -109,6 +109,8 @@ void udp_recvfrom(server_config *cfg, options *options, int udp_socket)
         }
 
         // Free memory
+        // Since we copied the pointer to resp->msg, we don't want to free it twice later on
+        req->msg = NULL;
         request_free(req);
         response_free(resp);
         free(bits);

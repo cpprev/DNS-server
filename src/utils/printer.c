@@ -65,7 +65,37 @@ void print_message(message *msg)
     {
         record *r = msg->answers->arr[i];
         printf("Answer [%d] :\n", (int)i + 1);
-        printf("%s\t%d\t%s\t%s\t%s\n", r->string_domain->arr, r->ttl, class_type_to_string(r->class), record_type_to_string(r->type), r->string_value->arr);
+        printf("%s\t%d\t%s\t%s", r->string_domain->arr, r->ttl, class_type_to_string(r->class), record_type_to_string(r->type));
+        if (r->string_value != NULL)
+            printf("\t%s\n", r->string_value->arr);
+        else
+            printf("\n");
+    }
+
+    // Authority section
+    printf("Authority section :\n");
+    for (size_t i = 0; msg->authority && msg->authority->arr[i]; ++i)
+    {
+        record *r = msg->authority->arr[i];
+        printf("Authority [%d] :\n", (int)i + 1);
+        printf("%s\t%d\t%s\t%s", r->string_domain->arr, r->ttl, class_type_to_string(r->class), record_type_to_string(r->type));
+        if (r->string_value != NULL)
+            printf("\t%s\n", r->string_value->arr);
+        else
+            printf("\n");
+    }
+
+    // Additional section
+    printf("Additional section :\n");
+    for (size_t i = 0; msg->additional && msg->additional->arr[i]; ++i)
+    {
+        record *r = msg->additional->arr[i];
+        printf("Additional [%d] :\n", (int)i + 1);
+        printf("%s\t%d\t%s\t%s", r->string_domain->arr, r->ttl, class_type_to_string(r->class), record_type_to_string(r->type));
+        if (r->string_value != NULL)
+            printf("\t%s\n", r->string_value->arr);
+        else
+            printf("\n");
     }
 }
 
