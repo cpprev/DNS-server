@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 
 project(dns VERSION 1.0 LANGUAGES C)
 
-include_directories(src)
+include_directories(src/ client/)
 
 set(SRC
     # Config
