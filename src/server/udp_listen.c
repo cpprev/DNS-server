@@ -78,7 +78,7 @@ void udp_recvfrom(server_config *cfg, options *options, int udp_socket)
         read_buffer[bytes_read] = '\0';
 
         // Parse DNS request
-        request *req = parse_request(UDP, (void *) read_buffer);
+        request *req = parse_request(UDP, (void *) read_buffer, bytes_read);
         response *resp = build_response(cfg, req);
         void *bits = NULL;
         size_t b = 0;

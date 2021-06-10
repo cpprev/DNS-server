@@ -16,13 +16,13 @@
 #include "client_options.h"
 #include "build_req.h"
 
-#define OCCURENCES 64000
+#define OCCURENCES 128000
 
-void code_to_profile(server_config *cfg, void *read_buffer)
+void code_to_profile(server_config *cfg, void *read_buffer, size_t size)
 {
     for (int i = 0; i < OCCURENCES; ++i)
     {
-        request *req = parse_request(UDP, (void *) read_buffer);
+        request *req = parse_request(UDP, (void *) read_buffer, size);
         response *resp = build_response(cfg, req);
         void *bits = NULL;
         size_t b = 0;
@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     message_to_bits(UDP, dummy_req->msg, &read_buffer, &msg_size);
 
     // UDP Listen code that we want to profile (copied from src/server/udp_listen.c)
-    code_to_profile(cfg, read_buffer);
+    code_to_profile(cfg, read_buffer, msg_size);
 
     free(read_buffer);
     request_free(dummy_req);

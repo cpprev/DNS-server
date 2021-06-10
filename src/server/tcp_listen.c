@@ -99,7 +99,7 @@ void tcp_recv(server_config *cfg, options *options, int epoll_fd, int connFd)
     if (in->size > 0)
     {
         // Parse DNS request
-        request *req = parse_request(TCP, in->arr);
+        request *req = parse_request(TCP, in->arr, in->size);
         bits_free(in);
         response *resp = build_response(cfg, req);
         void *bits = NULL;

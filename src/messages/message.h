@@ -26,6 +26,8 @@ typedef struct
     uint16_t arcount;
     // Question section
     question_array *questions;
+    void *raw_questions;
+    size_t raw_questions_size;
     // Answer section
     record_array *answers;
     // TODO auth + additional sections (unless not asked in subject)

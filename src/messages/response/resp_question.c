@@ -11,7 +11,11 @@ void message_question_to_bits(message *msg, void *raw, size_t *b)
     if (msg->questions->size > 0)
     {
         uint8_t *bits = raw;
-        for (int k = 0; msg->questions->arr[k]; ++k)
+        uint8_t *raw_questions = msg->raw_questions;
+        for (size_t i = 0; i < msg->raw_questions_size; ++i)
+            bits[(*b)++] = raw_questions[i];
+        // TODO RM later
+        /*for (int k = 0; msg->questions->arr[k]; ++k)
         {
             question *cur_question = msg->questions->arr[k];
             // QNAME
@@ -25,6 +29,6 @@ void message_question_to_bits(message *msg, void *raw, size_t *b)
             *b += 2;
             flags[1] = htons(cur_question->qclass);
             *b += 2;
-        }
+        }*/
     }
 }

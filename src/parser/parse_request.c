@@ -14,7 +14,7 @@
 #include "utils/base_convertions.h"
 
 // Cf https://datatracker.ietf.org/doc/html/rfc1035#section-4
-request *parse_request(PROTOCOL proto, void *raw)
+request *parse_request(PROTOCOL proto, void *raw, size_t size)
 {
     message *m = message_init();
     m->questions = question_array_init();
@@ -27,7 +27,7 @@ request *parse_request(PROTOCOL proto, void *raw)
     // 1. Header section
     parse_request_headers(proto, m, raw, &b);
     // 2. Question section
-    parse_request_question(m, raw, &b);
+    parse_request_question(m, raw, &b, size);
     // 3. Answer section (just skip it since it's a request)
     // TODO
     // 4. Authority section (skip it for now)
@@ -39,13 +39,14 @@ request *parse_request(PROTOCOL proto, void *raw)
     return req;
 }
 
-string *parse_whole_qname(void *raw, size_t *b)
+string *parse_whole_qname(void *raw, size_t *b, uint8_t *raw_questions, size_t *raw_questions_b)
 {
     string *res = string_init();
     uint8_t *qn = raw;
     uint8_t cur;
     while ((cur = qn[(*b)++]) != 0)
     {
+        raw_questions[(*raw_questions_b)++] = cur;
         if (cur > 0 && cur < 63 && cur != '-')
         {
             if (!string_is_empty(res))
@@ -54,6 +55,7 @@ string *parse_whole_qname(void *raw, size_t *b)
         else
             string_add_char(res, cur);
     }
+    raw_questions[(*raw_questions_b)++] = 0;
     return res;
 }
 
@@ -91,12 +93,14 @@ void parse_request_headers(PROTOCOL proto, message *m, void *raw, size_t *b)
     (*b) *= 2;
 }
 
-void parse_request_question(message *m, void *raw, size_t *b)
+void parse_request_question(message *m, void *raw, size_t *b, size_t size)
 {
+    uint8_t *raw_questions = malloc((size + 1 - 96 / 8) * sizeof(uint8_t));
+    size_t raw_questions_b = 0;
     for (int j = 0; j < m->qdcount; ++j)
     {
         // 2.1. QNAME (domain name)
-        string *qname = parse_whole_qname(raw, b);
+        string *qname = parse_whole_qname(raw, b, raw_questions, &raw_questions_b);
         question *q = question_init();
         string_copy(&q->qname, qname);
 
@@ -104,12 +108,19 @@ void parse_request_question(message *m, void *raw, size_t *b)
         // 2.2. QTYPE (16 req_bits) AAAA = 28; A = 1; etc -> Cf https://en.wikipedia.org/wiki/List_of_DNS_record_types
         q->qtype = record_type_to_int(ntohs(bits[0]));
         *b += 2;
+        uint16_t *raw_questions16 = (uint16_t *)((uint8_t *)raw_questions + raw_questions_b);
+        raw_questions16[0] = bits[0];
+        raw_questions_b += 2;
         // 2.3. QCLASS (16 req_bits) -> IN class = 1 (ignore other classes)
         q->qclass = ntohs(bits[1]);
         *b += 2;
+        raw_questions16[1] = bits[1];
+        raw_questions_b += 2;
 
         question_array_add_question(m->questions, q);
 
         string_free(qname);
     }
+    m->raw_questions = raw_questions;
+    m->raw_questions_size = raw_questions_b;
 }
