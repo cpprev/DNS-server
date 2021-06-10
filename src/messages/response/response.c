@@ -120,7 +120,7 @@ void domain_name_to_bits(string *qname, void *raw, size_t *b)
 void message_to_bits(PROTOCOL proto, message *msg, void **bits, size_t *b)
 {
     if (proto == UDP)
-        *bits = malloc(UDP_MTU * 8 + 1);
+        *bits = malloc(UDP_MESSAGE_SIZE + 1);
     else
         *bits = malloc(32768);
 

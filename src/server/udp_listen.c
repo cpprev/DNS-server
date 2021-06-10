@@ -68,11 +68,11 @@ void *server_UDP_listen(void *args)
 
 void udp_recvfrom(server_config *cfg, options *options, int udp_socket)
 {
-    char read_buffer[UDP_READ_SIZE + 1];
+    char read_buffer[UDP_MESSAGE_SIZE + 1];
     struct sockaddr_in client;
     socklen_t c = sizeof(struct sockaddr_in);
 
-    int bytes_read = recvfrom(udp_socket, read_buffer, UDP_READ_SIZE, 0, &client, &c);
+    int bytes_read = recvfrom(udp_socket, read_buffer, UDP_MESSAGE_SIZE, 0, &client, &c);
     if (bytes_read > 0)
     {
         read_buffer[bytes_read] = '\0';
@@ -90,7 +90,8 @@ void udp_recvfrom(server_config *cfg, options *options, int udp_socket)
             free(bits);
             resp->msg->tc = true;
 
-            bits = malloc(32);
+            int header_size = 96 / 8;
+            bits = malloc((header_size + 1) * sizeof(uint8_t));
             b = 0;
             message_headers_to_bits(resp->msg, bits, &b);
             sendto(udp_socket, bits, b, 0, &client, c);
