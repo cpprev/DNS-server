@@ -36,7 +36,7 @@ response *build_response(server_config *cfg, request *req)
     // TODO Handle authority and additional sections in answer_array
 
     response *resp = response_init();
-    resp->msg = message_copy(req->msg);
+    resp->msg = req->msg;
 
     resp->msg->id = req->msg->id;
 
@@ -85,6 +85,8 @@ response *build_response(server_config *cfg, request *req)
     resp->msg->answers = r_arr;
     resp->msg->ancount = resp->msg->answers->size;
 
+    // Since we copied the pointer to resp->msg, we don't want to free it twice later on
+    req->msg = NULL;
     return resp;
 }
 
