@@ -1,16 +1,12 @@
 #include <stdlib.h>
 #include <string.h>
-#include <arpa/inet.h>
 
 #include "utils/string.h"
-#include "utils/base_convertions.h"
 
 #include "config/server_config.h"
 
 #include "messages/request/request.h"
 #include "messages/response/response.h"
-#include "messages/response/resp_headers.h"
-#include "messages/response/resp_question.h"
 
 #include "parser/parse_request.h"
 #include "parser/input.h"
@@ -20,7 +16,24 @@
 #include "client_options.h"
 #include "build_req.h"
 
-#define OCCURENCES 1024
+#define OCCURENCES 64000
+
+void code_to_profile(server_config *cfg, void *read_buffer)
+{
+    for (int i = 0; i < OCCURENCES; ++i)
+    {
+        request *req = parse_request(UDP, (void *) read_buffer);
+        response *resp = build_response(cfg, req);
+        void *bits = NULL;
+        size_t b = 0;
+        message_to_bits(UDP, resp->msg, &bits, &b);
+
+        // Free memory
+        request_free(req);
+        response_free(resp);
+        free(bits);
+    }
+}
 
 int main(int argc, char *argv[])
 {
@@ -37,19 +50,7 @@ int main(int argc, char *argv[])
     message_to_bits(UDP, dummy_req->msg, &read_buffer, &msg_size);
 
     // UDP Listen code that we want to profile (copied from src/server/udp_listen.c)
-    for (int i = 0; i < OCCURENCES; ++i)
-    {
-        request *req = parse_request(UDP, (void *) read_buffer);
-        response *resp = build_response(cfg, req);
-        void *bits = NULL;
-        size_t b = 0;
-        message_to_bits(UDP, resp->msg, &bits, &b);
-
-        // Free memory
-        request_free(req);
-        response_free(resp);
-        free(bits);
-    }
+    code_to_profile(cfg, read_buffer);
 
     free(read_buffer);
     request_free(dummy_req);

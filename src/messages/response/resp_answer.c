@@ -54,13 +54,33 @@ void message_answer_to_bits(message *msg, void *raw, size_t *b)
         uint32_t *ttl = (uint32_t *)((uint8_t *)raw + *b);
         ttl[0] = htonl(r->ttl);
         *b += 4;
-        // SOA vals
-        string *mname = string_init(), *rname = string_init(), *serial = string_init(), *refresh = string_init(),
-                *retry = string_init(), *expire = string_init(), *minimum = string_init();
-        get_soa_values(r->value, &mname, &rname, &serial, &refresh, &retry, &expire, &minimum);
-        int rdlenInt = get_answer_value_length(r, (mname->size + 1) + (rname->size + 1));
-        cur[4] = htons(rdlenInt);
-        *b += 2;
+        int rdlenInt = -1;
+        // SOA is special case, handle it separately
+        if (r->type == SOA)
+        {
+            string *mname = string_init(), *rname = string_init(), *serial = string_init(), *refresh = string_init(),
+                    *retry = string_init(), *expire = string_init(), *minimum = string_init();
+            get_soa_values(r->value, &mname, &rname, &serial, &refresh, &retry, &expire, &minimum);
+            rdlenInt = get_answer_value_length(r, (mname->size + 1) + (rname->size + 1));
+            cur[4] = htons(rdlenInt);
+            *b += 2;
+
+            write_answer_SOA_record(mname, rname, serial, refresh, retry, expire, minimum, raw, b);
+
+            string_free(mname);
+            string_free(rname);
+            string_free(serial);
+            string_free(refresh);
+            string_free(retry);
+            string_free(expire);
+            string_free(minimum);
+        }
+        else
+        {
+            rdlenInt = get_answer_value_length(r, 0);
+            cur[4] = htons(rdlenInt);
+            *b += 2;
+        }
 
         if (r->type == A)
             write_answer_A_record(r, raw, b);
@@ -70,19 +90,8 @@ void message_answer_to_bits(message *msg, void *raw, size_t *b)
             write_answer_CNAME_record(r, raw, b);
         else if (r->type == TXT)
             write_answer_TXT_record(r, raw, b);
-        else if (r->type == SOA)
-            write_answer_SOA_record(mname, rname, serial, refresh, retry, expire, minimum, raw, b);
         else if (r->type == NS)
             write_answer_NS_record(r, raw, b);
-
-        // SOA vals free
-        string_free(mname);
-        string_free(rname);
-        string_free(serial);
-        string_free(refresh);
-        string_free(retry);
-        string_free(expire);
-        string_free(minimum);
     }
 }
 
