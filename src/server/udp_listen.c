@@ -98,7 +98,6 @@ void udp_recvfrom(server_config *cfg, options *options, int udp_socket)
         else
         {
             // Regular UDP response sending
-            //sendto(udp_socket, resp_bits->arr, resp_bits->size, 0, &client, c);
             sendto(udp_socket, bits, b, 0, &client, c);
         }
 
