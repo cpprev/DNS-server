@@ -27,18 +27,18 @@ request *parse_request(PROTOCOL proto, void *raw, size_t size)
     RCODE rcode = NO_ERR;
     // 1. Header section
     parse_request_headers(proto, m, raw, &b, size, &rcode);
-    if (rcode == NOT_IMPL || rcode == FORMAT_ERR) goto exit;
+    if (rcode == FORMAT_ERR) goto exit;
     // 2. Question section
     parse_request_question(m, raw, &b, size, &rcode);
-    if (rcode == NOT_IMPL || rcode == FORMAT_ERR) goto exit;
+    if (rcode == FORMAT_ERR) goto exit;
     // 3. Answer section (just skip it since it's a request)
-    m->answers = parse_request_records(m->ancount, raw, &b, &rcode);
-    if (rcode == NOT_IMPL || rcode == FORMAT_ERR) goto exit;
+    m->answers = parse_request_records(m->ancount, raw, &b, size, &rcode);
+    if (rcode == FORMAT_ERR) goto exit;
     // 4. Authority section (skip it for now)
-    m->authority = parse_request_records(m->nscount, raw, &b, &rcode);
-    if (rcode == NOT_IMPL || rcode == FORMAT_ERR) goto exit;
+    m->authority = parse_request_records(m->nscount, raw, &b, size, &rcode);
+    if (rcode == FORMAT_ERR) goto exit;
     // 5. Additional section
-    m->additional = parse_request_records(m->arcount, raw, &b, &rcode);
+    m->additional = parse_request_records(m->arcount, raw, &b, size, &rcode);
     if (rcode == NOT_IMPL || rcode == FORMAT_ERR) goto exit;
 
     req->msg = m;
@@ -50,11 +50,14 @@ exit:
     return req;
 }
 
-string *parse_whole_qname(void *raw, size_t *b, uint8_t *raw_questions, size_t *raw_questions_b)
+string *parse_whole_qname(void *raw, size_t *b, size_t size, uint8_t *raw_questions, size_t *raw_questions_b, RCODE *rcode)
 {
+    if (*b + 1 >= size)
+        goto format_err;
     string *res = string_init();
     uint8_t *qn = raw;
     uint8_t cur;
+    int temp_count = 0;
     while ((cur = qn[(*b)++]) != 0)
     {
         if (raw_questions != NULL)
@@ -63,13 +66,26 @@ string *parse_whole_qname(void *raw, size_t *b, uint8_t *raw_questions, size_t *
         {
             if (!string_is_empty(res))
                 string_add_char(res, '.');
+            temp_count = cur;
         }
         else
+        {
             string_add_char(res, cur);
+            temp_count--;
+        }
+        if (*b + 1 >= size || temp_count < 0)
+        {
+            string_free(res);
+            goto format_err;
+        }
     }
     if (raw_questions != NULL)
         raw_questions[(*raw_questions_b)++] = 0;
     return res;
+
+format_err:
+    *rcode = FORMAT_ERR;
+    return NULL;
 }
 
 void parse_request_headers(PROTOCOL proto, message *m, void *raw, size_t *b, size_t size, RCODE *rcode)
@@ -125,15 +141,28 @@ format_err:
 
 void parse_request_question(message *m, void *raw, size_t *b, size_t size, RCODE *rcode)
 {
-    (void)rcode;
     uint8_t *raw_questions = malloc((size + 1 - 96 / 8) * sizeof(uint8_t));
     size_t raw_questions_b = 0;
     for (int j = 0; j < m->qdcount; ++j)
     {
         // 2.1. QNAME (domain name)
-        string *qname = parse_whole_qname(raw, b, raw_questions, &raw_questions_b);
+        string *qname = parse_whole_qname(raw, b, size, raw_questions, &raw_questions_b, rcode);
+        if (rcode != NO_ERR)
+        {
+            free(raw_questions);
+            return;
+        }
+
         question *q = question_init();
         q->qname = qname;
+
+        if (*b + 4 >= size)
+        {
+            *rcode = FORMAT_ERR;
+            question_free(q);
+            free(raw_questions);
+            return;
+        }
 
         uint16_t *bits = (uint16_t *)((uint8_t *)raw + *b);
         // 2.2. QTYPE (16 req_bits) AAAA = 28; A = 1; etc -> Cf https://en.wikipedia.org/wiki/List_of_DNS_record_types
@@ -148,21 +177,42 @@ void parse_request_question(message *m, void *raw, size_t *b, size_t size, RCODE
         raw_questions16[1] = bits[1];
         raw_questions_b += 2;
 
+        if (!is_supported_record_type(q->qtype) || !is_supported_class(q->qclass))
+        {
+            *rcode = NOT_IMPL;
+            question_free(q);
+            free(raw_questions);
+            return;
+        }
+
         question_array_add_question(m->questions, q);
     }
     m->raw_questions = raw_questions;
     m->raw_questions_size = raw_questions_b;
 }
 
-record_array *parse_request_records(int count, void *raw, size_t *b, RCODE *rcode)
+record_array *parse_request_records(int count, void *raw, size_t *b, size_t size, RCODE *rcode)
 {
-    (void)rcode;
     record_array *res = record_array_init();
     for (int i = 0; i < count; ++i)
     {
         record *r = record_init();
-        string *qname = parse_whole_qname(raw, b, NULL, NULL);
+        string *qname = parse_whole_qname(raw, b, size, NULL, NULL, rcode);
+        if (rcode != NO_ERR)
+        {
+            record_array_free(res);
+            record_free(r);
+            return NULL;
+        }
         r->string_domain = qname;
+
+        if (*b + 10 >= size)
+        {
+            record_array_free(res);
+            record_free(r);
+            goto format_err;
+        }
+
         uint16_t *cur = (uint16_t *)((uint8_t *) raw + *b);
         uint16_t type = ntohs(cur[0]);
         r->type = record_type_to_int(type);
@@ -176,7 +226,18 @@ record_array *parse_request_records(int count, void *raw, size_t *b, RCODE *rcod
         *b += 4;
         uint16_t rdlength = htons(cur[4]);
         *b += 2;
+
+        if (*b + rdlength >= size)
+        {
+            record_array_free(res);
+            record_free(r);
+            goto format_err;
+        }
         *b += rdlength;
     }
     return res;
+
+format_err:
+    *rcode = FORMAT_ERR;
+    return NULL;
 }
