@@ -147,7 +147,7 @@ void parse_request_question(message *m, void *raw, size_t *b, size_t size, RCODE
     {
         // 2.1. QNAME (domain name)
         string *qname = parse_whole_qname(raw, b, size, raw_questions, &raw_questions_b, rcode);
-        if (rcode != NO_ERR)
+        if (*rcode == NOT_IMPL || *rcode == FORMAT_ERR)
         {
             free(raw_questions);
             return;
@@ -156,7 +156,7 @@ void parse_request_question(message *m, void *raw, size_t *b, size_t size, RCODE
         question *q = question_init();
         q->qname = qname;
 
-        if (*b + 4 >= size)
+        if (*b + 4 > size)
         {
             *rcode = FORMAT_ERR;
             question_free(q);
@@ -198,7 +198,7 @@ record_array *parse_request_records(int count, void *raw, size_t *b, size_t size
     {
         record *r = record_init();
         string *qname = parse_whole_qname(raw, b, size, NULL, NULL, rcode);
-        if (rcode != NO_ERR)
+        if (*rcode == NOT_IMPL || *rcode == FORMAT_ERR)
         {
             record_array_free(res);
             record_free(r);
@@ -206,7 +206,7 @@ record_array *parse_request_records(int count, void *raw, size_t *b, size_t size
         }
         r->string_domain = qname;
 
-        if (*b + 10 >= size)
+        if (*b + 10 > size)
         {
             record_array_free(res);
             record_free(r);
@@ -227,7 +227,7 @@ record_array *parse_request_records(int count, void *raw, size_t *b, size_t size
         uint16_t rdlength = htons(cur[4]);
         *b += 2;
 
-        if (*b + rdlength >= size)
+        if (*b + rdlength > size)
         {
             record_array_free(res);
             record_free(r);
