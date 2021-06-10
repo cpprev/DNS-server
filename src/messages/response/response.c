@@ -75,7 +75,10 @@ response *build_response(server_config *cfg, request *req)
                 {
                     hit_domain = true;
                     if (qtype == r->type || qtype == ANY)
+                    {
+                        resp->msg->aa = true;
                         record_array_add_copied_record(r_arr, r);
+                    }
                 }
             }
         }
