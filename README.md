@@ -20,7 +20,7 @@
 
 ## Performances
 
-⬆️ 450'000 UDP requests per second (with 10 simultaneous clients) :
+⬆️ 450'000 UDP requests per second on a local server (with 10 simultaneous clients) :
 
 ![alt text](https://github.com/cpprev/DNS-server/blob/master/images/dnsperf_450k.png?raw=true)
 
