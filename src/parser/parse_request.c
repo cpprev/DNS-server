@@ -103,17 +103,17 @@ void parse_request_headers(PROTOCOL proto, message *m, void *raw, size_t *b, siz
 
     uint16_t fl = ntohs(bits[(*b)++]);
     // QR (1 bit)
-    m->qr = fl & 0x8000 ? RESPONSE : REQUEST;
+    m->qr = (fl >> 1) & 1;
     // OPCode (4 bits)
     m->opcode = (fl & 0x7800) >> 11;
     // AA (1 bit) -> required in responses (ignore here)
-    m->aa = fl & 0x0400;
+    m->aa = (fl >> 6) & 1;
     // TC (1 bit)
-    m->tc = fl & 0x0200;
+    m->tc = (fl >> 7) & 1;
     // RD (1 bit) -> optional
-    m->rd = fl & 0x0100;
+    m->rd = (fl >> 8) & 1;
     // RA (1 bit)
-    m->ra = fl & 0x0080;
+    m->ra = (fl >> 9) & 1;
     // Z (3 req_bits) AND RCODE (4 req_bits) -> ignore in request
 
     // QD/AN/NS/AR COUNT (16 bits each)
